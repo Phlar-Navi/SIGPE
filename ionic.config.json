@@ -1,0 +1,7 @@
+{
+  "name": "SIGPE",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
