@@ -1,0 +1,15 @@
+.sidebar {
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .sidebar-open {
+    transform: translateX(0);
+  }
+  
+  .sidebar-close {
+    transform: translateX(-100%);
+  }
+  // .display{
+  //   display: flex;
+  //   flex-direction: row;
+  // }

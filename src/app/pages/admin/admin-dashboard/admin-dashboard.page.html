@@ -1,0 +1,202 @@
+<ion-content>
+  <div class="bg-gray-100 min-h-screen text-black">
+    
+   <!-- Sidebar Menu -->
+   <app-sidebar></app-sidebar>
+
+    <!-- Contenu principal -->
+    <div class="p-6 transition-all duration-300 ease-in-out" [ngClass]="{ 'md:ml-64': !isSmallScreen }">
+      <!-- Header -->
+      <app-header
+        [title]="'Bienvenue Lorem'"
+        [subtitle]="'Administrateur de la plateforme'"
+        [profileImageUrl]="'../../../../assets/images/admin.jpg'"
+        [hasNotification]="true">
+      </app-header>
+
+      <!-- Notification urgente -->
+      <div class="mt-6 bg-yellow-100 p-4 rounded-lg shadow-md">
+        <h2 class="text-lg font-bold text-yellow-800">Notification urgente</h2>
+        <p class="text-yellow-700">Vous avez 3 justificatifs en attente de validation.</p>
+      </div>
+
+      <!-- Liste des profils -->
+      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Liste des profils</h2>
+        <input
+          type="text"
+          placeholder="Rechercher un profil..."
+          class="w-full p-2 border rounded-lg mb-4"
+        />
+        <select class="w-full p-2 border rounded-lg mb-4">
+          <option value="all">Tous les statuts</option>
+          <option value="online">En ligne</option>
+          <option value="offline">Hors ligne</option>
+        </select>
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-200">
+              <th class="p-2">Nom</th>
+              <th class="p-2">Rôle</th>
+              <th class="p-2">Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b">
+              <td class="p-2">Jean Dupont</td>
+              <td class="p-2">Étudiant</td>
+              <td class="p-2 text-green-600">En ligne</td>
+            </tr>
+            <tr class="border-b">
+              <td class="p-2">Dr. Moskolai</td>
+              <td class="p-2">Enseignant</td>
+              <td class="p-2 text-green-600">En ligne</td>
+            </tr>
+            <tr class="border-b">
+              <td class="p-2">Marie Curie</td>
+              <td class="p-2">Étudiant</td>
+              <td class="p-2 text-red-600">Hors ligne</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Liste des cours -->
+      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Liste des cours</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <select class="p-2 border rounded-lg">
+            <option value="all">Tous les niveaux</option>
+            <option value="L1">L1</option>
+            <option value="L2">L2</option>
+            <option value="L3">L3</option>
+          </select>
+          <select class="p-2 border rounded-lg">
+            <option value="all">Toutes les filières</option>
+            <option value="Informatique">Informatique</option>
+            <option value="Mathématiques">Mathématiques</option>
+            <option value="Physique">Physique</option>
+          </select>
+          <select class="p-2 border rounded-lg">
+            <option value="all">Tous les semestres</option>
+            <option value="S1">S1</option>
+            <option value="S2">S2</option>
+          </select>
+        </div>
+        <!-- Conteneur avec débordement contrôlé -->
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-200">
+                <th class="p-2">Cours</th>
+                <th class="p-2">Niveau</th>
+                <th class="p-2">Filière</th>
+                <th class="p-2">Semestre</th> <!-- Ajout de la colonne Semestre -->
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b">
+                <td class="p-2">Mathématiques</td>
+                <td class="p-2">L1</td>
+                <td class="p-2">Informatique</td>
+                <td class="p-2">S1</td>
+              </tr>
+              <tr class="border-b">
+                <td class="p-2">Informatique</td>
+                <td class="p-2">L2</td>
+                <td class="p-2">Mathématiques</td>
+                <td class="p-2">S2</td>
+              </tr>
+              <tr class="border-b">
+                <td class="p-2">Physique</td>
+                <td class="p-2">L3</td>
+                <td class="p-2">Physique</td>
+                <td class="p-2">S1</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Liste des salles -->
+      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Liste des salles</h2>
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-200">
+              <th class="p-2">Salle</th>
+              <th class="p-2">Capacité</th>
+              <th class="p-2">Disponibilité</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b">
+              <td class="p-2">A101</td>
+              <td class="p-2">50</td>
+              <td class="p-2 text-green-600">Disponible</td>
+            </tr>
+            <tr class="border-b">
+              <td class="p-2">B202</td>
+              <td class="p-2">30</td>
+              <td class="p-2 text-red-600">Occupée</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Taux de présence -->
+      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Taux de présence</h2>
+        <canvas id="presenceChart"></canvas>
+      </div>
+
+      <!-- Vision sommaire des justificatifs -->
+      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Justificatifs récents</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <p class="text-gray-700">Jean Dupont - 2023-10-01</p>
+            <p class="text-sm text-gray-500">Raison: Maladie</p>
+            <p class="text-sm text-yellow-600">Statut: En attente</p>
+          </div>
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <p class="text-gray-700">Marie Curie - 2023-10-02</p>
+            <p class="text-sm text-gray-500">Raison: Problème de transport</p>
+            <p class="text-sm text-green-600">Statut: Validé</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historique de présence -->
+      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Historique de présence</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-200">
+                <th class="p-2">Étudiant</th>
+                <th class="p-2">Cours</th>
+                <th class="p-2">Date</th>
+                <th class="p-2">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b">
+                <td class="p-2">Jean Dupont</td>
+                <td class="p-2">Mathématiques</td>
+                <td class="p-2">2023-10-01</td>
+                <td class="p-2 text-green-600">Présent</td>
+              </tr>
+              <tr class="border-b">
+                <td class="p-2">Marie Curie</td>
+                <td class="p-2">Informatique</td>
+                <td class="p-2">2023-10-02</td>
+                <td class="p-2 text-red-600">Absent</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

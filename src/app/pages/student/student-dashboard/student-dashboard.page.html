@@ -1,0 +1,143 @@
+<ion-content>
+  <div class="bg-gray-100 min-h-screen text-black">
+    
+    <!-- Sidebar Menu -->
+    <app-sidebar></app-sidebar>
+
+    <!-- Contenu principal -->
+    <div class="p-6 transition-all duration-300 ease-in-out" [ngClass]="{ 'md:ml-64': !isSmallScreen }">
+
+      <!-- Header -->
+      <app-header
+        [title]="'Bienvenue Lucas'"
+        [subtitle]="'Etudiant en M1 Informatique'"
+        [profileImageUrl]="'../../../../assets/images/profil.jpg'"
+        [hasNotification]="true">
+      </app-header>
+
+      <!-- Notification urgente -->
+      <div class="mt-6 bg-yellow-100 p-4 rounded-lg shadow-md">
+        <h2 class="text-lg font-bold text-yellow-800">Notification urgente</h2>
+        <p class="text-yellow-700">Vous avez 1 réponse à votre justificatif.</p>
+      </div>
+
+      <!-- Graphique des présences et absences -->
+      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <!-- Titre du graphique dans un cadre coloré -->
+        <!-- <div class="bg-blue-50 p-3 rounded-t-lg border-b-4 border-blue-600">
+          <h2 class="text-xl font-bold text-blue-900">Présences et absences</h2>
+        </div> -->
+        <h2 class="text-xl font-bold text-gray-700">Présences et absences</h2>
+        <!-- Graphique -->
+        <canvas id="presenceChart" class="mt-4"></canvas>
+      </div>
+
+      <!-- Nombre total de cours déjà effectués -->
+      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Nombre total de cours déjà effectués</h2>
+        <p class="text-3xl font-bold text-blue-600">45 cours</p>
+      </div>
+
+      <!-- Repère avec des courbes/matières -->
+      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Cours assistés et non assistés</h2>
+        <canvas id="courseChart"></canvas>
+      </div>
+
+      <!-- Vision sommaire des justificatifs -->
+      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Justificatifs récents</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <p class="text-gray-700">2023-10-02 - INF427</p>
+            <p class="text-sm text-gray-500">Professeur: Dr. Nfongourain</p>
+            <p class="text-sm text-green-600">Statut: Validé</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pourcentages d'assiduité par matière -->
+      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Assiduité par matière</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <p class="text-gray-700">Mathématiques</p>
+            <p class="text-2xl font-bold text-blue-600">85%</p>
+          </div>
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <p class="text-gray-700">Informatique</p>
+            <p class="text-2xl font-bold text-blue-600">90%</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Liste des profils en ligne -->
+      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Profils en ligne</h2>
+        <div class="flex space-x-4">
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <p class="text-gray-700">Dr. Moskolai</p>
+            <p class="text-sm text-green-600">En ligne</p>
+          </div>
+          <div class="bg-gray-50 p-4 rounded-lg">
+            <p class="text-gray-700">Marie Curie</p>
+            <p class="text-sm text-green-600">En ligne</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historique de présence -->
+      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Historique de présence</h2>
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-200">
+              <th class="p-2">Cours</th>
+              <th class="p-2">Date</th>
+              <th class="p-2">Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b">
+              <td class="p-2">Mathématiques</td>
+              <td class="p-2">2023-10-01</td>
+              <td class="p-2 text-green-600">Présent</td>
+            </tr>
+            <tr class="border-b">
+              <td class="p-2">Informatique</td>
+              <td class="p-2">2023-10-02</td>
+              <td class="p-2 text-red-600">Absent</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Liste des salles et des cours -->
+      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Liste des salles et des cours</h2>
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-200">
+              <th class="p-2">Salle</th>
+              <th class="p-2">Cours</th>
+              <th class="p-2">Enseignant</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b">
+              <td class="p-2">A101</td>
+              <td class="p-2">Mathématiques</td>
+              <td class="p-2">Dr. Moskolai</td>
+            </tr>
+            <tr class="border-b">
+              <td class="p-2">B202</td>
+              <td class="p-2">Informatique</td>
+              <td class="p-2">Dr. Smith</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+  </div>
+</ion-content>

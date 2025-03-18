@@ -1,0 +1,29 @@
+<!-- session-list.component.html -->
+<div class="bg-white p-4 rounded-lg shadow-md">
+  <h3 class="text-xl font-bold text-gray-700 mb-4">Sessions de Cours</h3>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <!-- Boucle sur les sessions -->
+    <div
+      *ngFor="let session of sessions"
+      (click)="selectSession(session.id)"
+      [ngClass]="getSessionClass(session.status)"
+      class="rounded-lg shadow-xl p-4 cursor-pointer hover:shadow-2xl transition-shadow duration-300"
+    >
+      <div class="flex flex-row items-center">
+        <div class="flex-shrink pr-4">
+          <div [ngClass]="getIconClass(session.status)" class="rounded-full p-3">
+            <i [ngClass]="getIcon(session.status)" class="fa-lg text-white"></i>
+          </div>
+        </div>
+        <div class="flex-1">
+          <h4 class="text-lg font-bold text-gray-700">{{ session.title }}</h4>
+          <p class="text-sm text-gray-500">{{ session.date }}</p>
+          <p class="text-sm text-gray-500">Salle: {{ session.room }}</p>
+          <p [ngClass]="getStatusClass(session.status)" class="text-sm font-semibold">
+            Statut: {{ session.status }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

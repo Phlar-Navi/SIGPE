@@ -31,7 +31,8 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": ["src/global.scss", "node_modules/swiper/swiper-bundle.css", "src/theme/variables.scss", "https://unpkg.com/tailwindcss/dist/tailwind.min.css",
+            "https://afeld.github.io/emoji-css/emoji.css", "https://use.fontawesome.com/releases/v5.3.1/css/all.css"],
             "scripts": []
           },
           "configurations": {
@@ -111,7 +112,8 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": ["src/global.scss", "node_modules/swiper/swiper-bundle.css", "src/theme/variables.scss", "https://unpkg.com/tailwindcss/dist/tailwind.min.css",
+            "https://afeld.github.io/emoji-css/emoji.css", "https://use.fontawesome.com/releases/v5.3.1/css/all.css"],
             "scripts": []
           },
           "configurations": {

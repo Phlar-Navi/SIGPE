@@ -1,0 +1,121 @@
+<ion-content class="signup-container">
+  <div class="signup-wrapper">
+    <div class="signup-background"></div>
+    
+    <!-- <div class="center_page"> -->
+      <ion-card class="signup-card">
+        <div class="card-header">
+          <div class="logo-container">
+            <ion-icon name="school-outline" class="logo-icon"></ion-icon>
+          </div>
+          <h1>Créez votre compte</h1>
+          <p>Commencez votre parcours académique</p>
+        </div>
+  
+        <form #signupForm="ngForm" (ngSubmit)="onSignup(signupForm)" class="signup-form">
+          <div class="form-group">
+            <div class="input-wrapper">
+              <!-- <ion-icon name="person-outline" class="input-icon"></ion-icon> -->
+              <ion-input 
+                label="Nom d'utilisateur" 
+                label-placement="floating" 
+                id="username" 
+                name="username" 
+                type="text"
+                [(ngModel)]="username"
+                required
+                #usernameInput="ngModel"
+                clear-input="true"
+                fill="outline"
+                placeholder="Entrez votre nom d'utilisateur">
+              </ion-input>
+            </div>
+  
+            <div class="input-wrapper">
+              <!-- <ion-icon name="person-outline" class="input-icon"></ion-icon> -->
+              <ion-input 
+                label="Adresse e-mail" 
+                label-placement="floating" 
+                id="email" 
+                name="email" 
+                type="email"
+                [(ngModel)]="email"
+                required
+                #emailInput="ngModel"
+                clear-input="true"
+                fill="outline"
+                placeholder="Entrez votre adresse e-mail">
+              </ion-input>
+            </div>
+            
+            <div class="input-wrapper">
+              <!-- <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon> -->
+              <ion-input 
+                label="Mot de passe" 
+                label-placement="floating" 
+                id="password" 
+                name="password" 
+                type="password"
+                [(ngModel)]="password"
+                required
+                #passwordInput="ngModel"
+                clear-input="true"
+                fill="outline"
+                placeholder="Entrez votre mot de passe">
+              </ion-input>
+            </div>
+            
+            <div class="input-wrapper">
+              <!-- <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon> -->
+              <ion-input 
+                label="Confirmez le mot de passe" 
+                label-placement="floating" 
+                id="confirmPassword" 
+                name="confirmPassword" 
+                type="password"
+                [(ngModel)]="confirmPassword"
+                required
+                #confirmPasswordInput="ngModel"
+                clear-input="true"
+                fill="outline"
+                placeholder="Confirmez votre mot de passe">
+              </ion-input>
+            </div>
+          </div>
+  
+          <div class="button-group">
+            <ion-button 
+              expand="block" 
+              type="submit" 
+              color="primary"
+              [disabled]="!signupForm.form.valid">
+              S'inscrire
+            </ion-button>
+  
+            <div class="divider">
+              <span>ou</span>
+            </div>
+  
+            <ion-button 
+              expand="block" 
+              color="medium"
+              routerLink="/login"
+              fill="outline">
+              Se connecter
+            </ion-button>
+          </div>
+  
+          <div class="social-login">
+            <p>Connectez-vous avec</p>
+            <div class="social-icons">
+              <ion-icon name="logo-google" class="social-icon" (click)="signUpWithGoogle()"></ion-icon>
+              <ion-icon name="logo-facebook" class="social-icon" (click)="signUpWithFacebook()"></ion-icon>
+              <ion-icon name="logo-apple" class="social-icon" (click)="signUpWithApple()"></ion-icon>
+            </div>
+          </div>
+        </form>
+      </ion-card>
+    <!-- </div> -->
+
+  </div>
+</ion-content>
