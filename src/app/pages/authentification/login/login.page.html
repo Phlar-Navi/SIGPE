@@ -1,0 +1,82 @@
+<ion-content class="login-container">
+  <div class="login-wrapper">
+    <div class="login-background"></div>
+
+    <ion-card class="login-card">
+      <div class="card-header">
+        <div class="logo-container">
+          <ion-icon name="school-outline" class="logo-icon"></ion-icon>
+        </div>
+        <h1>Connexion</h1>
+        <p>Accédez à votre compte</p>
+      </div>
+
+      <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)" class="login-form">
+        <div class="form-group">
+          <div class="input-wrapper">
+            <ion-input 
+              label="Nom d'utilisateur" 
+              label-placement="floating" 
+              id="username" 
+              name="username" 
+              type="text"
+              [(ngModel)]="userData.username"
+              required
+              #usernameInput="ngModel"
+              clear-input="true"
+              fill="outline"
+              placeholder="Entrez votre nom d'utilisateur">
+            </ion-input>
+          </div>
+
+          <div class="input-wrapper">
+            <ion-input 
+              label="Mot de passe" 
+              label-placement="floating" 
+              id="password" 
+              name="password" 
+              type="password"
+              [(ngModel)]="userData.password"
+              required
+              #passwordInput="ngModel"
+              clear-input="true"
+              fill="outline"
+              placeholder="Entrez votre mot de passe">
+            </ion-input>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <ion-button 
+            expand="block" 
+            type="submit" 
+            color="primary"
+            [disabled]="!loginForm.form.valid">
+            Se connecter
+          </ion-button>
+
+          <div class="divider">
+            <span>ou</span>
+          </div>
+
+          <ion-button 
+            expand="block" 
+            color="medium"
+            routerLink="/signup"
+            fill="outline">
+            Créer un compte
+          </ion-button>
+        </div>
+
+        <div class="social-login">
+          <p>Connectez-vous avec</p>
+          <div class="social-icons">
+            <ion-icon name="logo-google" class="social-icon" (click)="loginWithGoogle()"></ion-icon>
+            <ion-icon name="logo-facebook" class="social-icon" (click)="loginWithFacebook()"></ion-icon>
+            <ion-icon name="logo-apple" class="social-icon" (click)="loginWithApple()"></ion-icon>
+          </div>
+        </div>
+      </form>
+    </ion-card>
+  </div>
+</ion-content>

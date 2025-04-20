@@ -7,6 +7,7 @@ export interface Session {
   id: number;
   title: string;
   date: string; // Format : 'YYYY-MM-DDTHH:MM'
+  date_fin: string;
   room: string;
   description: string;
   status: 'À venir' | 'En cours' | 'Terminée';

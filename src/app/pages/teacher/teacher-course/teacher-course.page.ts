@@ -14,7 +14,8 @@ export class TeacherCoursePage implements OnInit {
   //selectedSession: number = 0;
   showAttendance: boolean = true;
   showCreateSession = false; // Contrôle l'affichage du formulaire
-  isSmallScreen = false; // État du menu (ouvert/fermé)
+  isMenuOpen = false; // État du menu (ouvert/fermé)
+  isSmallScreen = false; 
   // sessions: Session[] = [
   //   {
   //     id: 1,
@@ -63,87 +64,109 @@ export class TeacherCoursePage implements OnInit {
   newSession: Omit<Session, 'id' | 'status' | 'teacher' | 'students'> = {
     title: '',
     date: '',
+    date_fin: '',
     room: '',
     description: '',
   };
+  isStartTimeInvalid = false;
 
   constructor(private loadingController: LoadingController) { }
 
   // Soumission du formulaire
   async onSubmit() {
-    //Afficher le chargement
-    const loading = await this.loadingController.create({
-      message: 'Inscription...',
-      spinner: 'lines'
+    const UNE_HEURE_MS = 60 * 60 * 1000;
+  
+    const sessionStartTime = new Date(this.newSession.date);
+    const sessionEndTime = new Date(this.newSession.date_fin);
+    const DateNow = new Date();
+    const dateMoinsUneMinute = new Date(DateNow.getTime() - 60 * 1000);
+  
+    // Vérifier si l'heure de début est valide
+    if (sessionStartTime < dateMoinsUneMinute) {
+      alert('Le cours programmé ne peut se dérouler avant l\'heure actuelle...');
+      return;
+    }
+  
+    // Vérifier que la session dure au moins une heure
+    if ((sessionEndTime.getTime() - sessionStartTime.getTime()) < UNE_HEURE_MS) {
+      alert('Un cours doit durer au moins une heure.');
+      return;
+    }
+  
+    // Vérifier les chevauchements avec les autres sessions
+    const hasTimeOverlap = this.sessions.some((session) => {
+      const existingStart = new Date(session.date).getTime();
+      const existingEnd = new Date(session.date_fin).getTime();
+  
+      // Le nouveau cours commence avant la fin d’un cours existant
+      // ET se termine après le début du cours existant
+      return (
+        sessionStartTime.getTime() < existingEnd &&
+        sessionEndTime.getTime() > existingStart
+      );
     });
-    await loading.present();
-
-    // Convertir l'heure de début en objet Date
-    const startTime = new Date(this.newSession.date);
-    const now = new Date();
-
+  
+    if (hasTimeOverlap) {
+      alert('Conflit d\'horaire : Le nouveau cours chevauche une session existante.');
+      return;
+    }
+  
+    // Vérifier s’il y a déjà un cours exactement au même moment et dans la même salle
+    const hasConflict = this.sessions.some((session) => {
+      const existingStart = new Date(session.date);
+      return (
+        existingStart.toISOString() === sessionStartTime.toISOString() &&
+        session.room === this.newSession.room
+      );
+    });
+  
+    if (hasConflict) {
+      alert('Conflit d\'horaire : Une session existe déjà à cette date et dans cette salle.');
+      return;
+    }
+  
     // Vérifier si une session est déjà en cours
     const hasOngoingSession = this.sessions.some(
       (session) => session.status === 'En cours'
     );
-
-    // Définir le statut de la nouvelle session
+  
+    // Déterminer le statut de la nouvelle session
     let status: 'À venir' | 'En cours' | 'Terminée' = 'À venir';
-    if (!hasOngoingSession && startTime <= now) {
+    if (!hasOngoingSession && sessionStartTime <= DateNow) {
       status = 'En cours';
-    } else if (startTime > now) {
+    } else if (sessionStartTime > DateNow) {
       status = 'À venir';
     }
-
-    // Vérifier les conflits d'horaire
-    const hasConflict = this.sessions.some((session) => {
-      const sessionStartTime = new Date(session.date);
-      return (
-        sessionStartTime.toISOString() === startTime.toISOString() &&
-        session.room === this.newSession.room
-      );
-    });
-
-    const DateNow = new Date();
-    const sessionStartTime = new Date(this.newSession.date);
-    const invalid = sessionStartTime.toISOString() < DateNow.toISOString()
-
-    if (hasConflict) {
-      await loading.dismiss();
-      alert('Conflit d\'horaire : Une session existe déjà à cette date et dans cette salle.');
-      return;
-    }
-    if (invalid){
-      await loading.dismiss();
-      alert('Le cours programmé ne peut se dérouler avant l\'heure actuelle...');
-      return;
-    }
-
+  
     // Créer la nouvelle session
     const session: Session = {
-      id: this.sessions.length + 1, // Générer un ID unique
+      id: this.sessions.length + 1,
       ...this.newSession,
       status,
-      teacher: 'Dr. Moskolai', // À remplacer par une valeur dynamique
-      students: [], // Initialiser avec une liste vide d'étudiants
+      teacher: 'Enseignant par défaut',
+      students: [],
     };
-
-    // Ajouter la nouvelle session à la liste
+  
     this.sessions.push(session);
-
+  
     // Réinitialiser le formulaire
     this.newSession = {
       title: '',
       date: '',
+      date_fin: '',
       room: '',
       description: '',
     };
-
-    // Masquer le formulaire
+  
     this.showCreateSession = false;
-    await loading.dismiss();
   }
+  
 
+  validateStartTime() {
+    const sessionStartTime = new Date(this.newSession.date);
+    const DateNow = new Date();
+    this.isStartTimeInvalid = sessionStartTime.toISOString() < DateNow.toISOString();
+  }
     // Ajouter un étudiant à la liste de présence
     addStudentToAttendance() {
       if (this.newStudent.name && this.newStudent.matricule) {
@@ -176,6 +199,7 @@ export class TeacherCoursePage implements OnInit {
 
     onSessionSelected(sessionId: number) {
       this.selectedSession = this.sessions.find((session) => session.id === sessionId) || null;
+      //console.log(this.selectedSession?.id);
       if(this.selectedSession?.status == "En cours"){
         this.isSessionOn = true;
       }else{
@@ -191,9 +215,13 @@ export class TeacherCoursePage implements OnInit {
     // Supprimer un étudiant de la liste de présence
     removeSessionFromList() {
       if (this.selectedSession){
-        this.sessions = this.sessions.splice(this.selectedSession?.id, 1)
+        this.sessions.splice(this.selectedSession?.id, 1)
         this.selectedSession = null;
       }
+    }
+    // Gérer la suppression d'une session
+    onSessionDeleted() { //sessionId: number
+      this.sessions = this.sessions.filter((session) => session.id !== this.selectedSession?.id);
     }
 
     viewStudentProfile(value: number){}

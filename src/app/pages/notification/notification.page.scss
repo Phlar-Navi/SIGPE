@@ -1,0 +1,118 @@
+/* Styles pour les segments améliorés */
+.custom-segment {
+    ion-segment-button.segment-btn {
+      --color: #64748b;
+      --color-checked: #3b82f6;
+      --indicator-color: #3b82f6;
+      --border-radius: 8px;
+      --padding-top: 8px;
+      --padding-bottom: 8px;
+      min-height: 36px;
+      
+      ion-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: none;
+      }
+    }
+  }
+  
+  /* Styles des badges de notification */
+  .notification-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    
+    &.presence {
+      background-color: #e0f2fe;
+      color: #0369a1;
+    }
+    
+    &.justificatif {
+      background-color: #ecfdf5;
+      color: #059669;
+    }
+    
+    &.system {
+      background-color: #f5f3ff;
+      color: #7c3aed;
+    }
+  }
+  
+  /* Amélioration des items */
+  ion-item {
+    --padding-start: 12px;
+    --padding-end: 12px;
+    --inner-padding-end: 12px;
+  }
+  
+  /* Modal amélioré */
+  // .custom-modal {
+  //   --border-radius: 16px;
+  //   --width: 90%;
+  //   --max-width: 500px;
+    
+  //   ion-toolbar {
+  //     --background: transparent;
+  //   }
+  // }
+
+  // ion-modal.custom-modal {
+  //   --backdrop-opacity: 0.5;
+  //   --background: white;
+  // }
+
+  ion-modal.custom-modal {
+    --background: white;
+    --width: 90%;
+    --max-width: 500px;
+    --height: auto;
+    --border-radius: 1.5rem;
+    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    --backdrop-opacity: 0.4;
+    --padding-top: 0;
+    --padding-bottom: 0;
+  }
+  
+  ion-modal.custom-modal::part(content) {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: 1.5rem;
+    overflow: hidden;
+  }
+
+  
+// ion-modal.custom-modal {
+//   --background: none !important;
+//   --backdrop-opacity: 0.5;
+//   --border-radius: 16px;
+// }
+
+// ion-modal.custom-modal .ion-page {
+//   //background: transparent !important;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+// }
+
+/* Optionnel : pour un effet de flou derrière la modale */
+ion-modal.custom-modal::part(backdrop) {
+  backdrop-filter: blur(2px);
+}
+  
+  /* Boutons d'action */
+  .action-btn {
+    --border-width: 1px;
+    --border-style: solid;
+    --border-color: var(--ion-color-medium);
+    --padding-top: 10px;
+    --padding-bottom: 10px;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+  }

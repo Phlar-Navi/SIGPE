@@ -27,14 +27,19 @@
     <div class="flex items-center justify-center h-16 bg-primary">
       <!-- <span class="text-white text-xl font-bold">SIGPE</span> -->
       <div> <!-- Date -->
-        <span class="text-gray-200 text-xl font-bold">Date: 06/03/2025</span>
+        <span class="text-gray-200 text-xl font-bold">Date: {{ today | date:'dd/MM/yyyy' }}</span>
       </div>
     </div>
 
     <div class="p-4">
       <ul>
         <li class="mb-4">
-          <a (click)="gotoPage(1)" class="flex items-center text-text hover:bg-accent hover:text-white p-2 rounded-lg">
+          <a (click)="router.navigate([getRoute('dashboard')]); toggleMenu()"
+            [ngClass]="{
+              'bg-accent text-white': isRouteActive('dashboard'),
+              'text-text hover:bg-accent hover:text-white': !isRouteActive('dashboard')
+            }"
+            class="flex items-center p-2 rounded-lg">
             <!-- Icône Dashboard -->
             <svg class="w-5 h-5 mr-2 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -43,7 +48,12 @@
           </a>
         </li>
         <li class="mb-4">
-          <a href="#" class="flex items-center text-text hover:bg-accent hover:text-white p-2 rounded-lg">
+          <a (click)="router.navigate([getRoute('profile')]); toggleMenu()"
+            [ngClass]="{
+              'bg-accent text-white': isRouteActive('profile'),
+              'text-text hover:bg-accent hover:text-white': !isRouteActive('profile')
+            }"
+            class="flex items-center p-2 rounded-lg">
             <!-- Icône Profil -->
             <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -52,7 +62,12 @@
           </a>
         </li>
         <li class="mb-4">
-          <a href="#" class="flex items-center text-text hover:bg-accent hover:text-white p-2 rounded-lg">
+          <a (click)="router.navigate([getRoute('notifications')]); toggleMenu()"
+            [ngClass]="{
+              'bg-accent text-white': isRouteActive('notifications'),
+              'text-text hover:bg-accent hover:text-white': !isRouteActive('notifications')
+            }"
+            class="flex items-center p-2 rounded-lg">
             <!-- Icône Notifications -->
             <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 01-3 3m0-3a3 3 0 003 3m-3-3H9"></path>
@@ -61,7 +76,12 @@
           </a>
         </li>
         <li class="mb-4">
-          <a href="#" class="flex items-center text-text hover:bg-accent hover:text-white p-2 rounded-lg">
+          <a (click)="router.navigate([getRoute('justificatifs')]); toggleMenu()"
+            [ngClass]="{
+              'bg-accent text-white': isRouteActive('justificatifs'),
+              'text-text hover:bg-accent hover:text-white': !isRouteActive('justificatifs')
+            }"
+            class="flex items-center p-2 rounded-lg">
             <!-- Icône Justificatifs -->
             <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -70,7 +90,12 @@
           </a>
         </li>
         <li class="mb-4">
-          <a (click)="gotoPage(5)" class="flex items-center text-text hover:bg-accent hover:text-white p-2 rounded-lg">
+          <a (click)="router.navigate([getRoute('sessions')]); toggleMenu()"
+            [ngClass]="{
+              'bg-accent text-white': isRouteActive('sessions'),
+              'text-text hover:bg-accent hover:text-white': !isRouteActive('sessions')
+            }"
+            class="flex items-center p-2 rounded-lg">
             <!-- Icône Sessions de cours -->
             <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
@@ -84,10 +109,11 @@
     <div class="p-4 border-t border-gray-200">
       <ul>
         <li class="mb-4">
-          <a href="#" class="flex items-center text-text hover:bg-accent hover:text-white p-2 rounded-lg">
+          <a (click)="showLogoutAlert()" class="flex items-center text-text hover:bg-accent hover:text-white p-2 rounded-lg">
             <!-- Icône Déconnexion -->
             <svg class="w-5 h-5 mr-2 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
             <span>Déconnexion</span>
           </a>
@@ -96,3 +122,4 @@
     </div>
   </div>
 </div>
+

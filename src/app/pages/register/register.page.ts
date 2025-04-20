@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoadingController, ToastController } from '@ionic/angular';
+import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-register',
@@ -10,31 +12,192 @@ import { LoadingController, ToastController } from '@ionic/angular';
   standalone: false
 })
 export class RegisterPage implements OnInit {
+  userData: any = {
+    type_utilisateur: 'ETU'
+  };
+  photoFaciale: File | null = null;
 
-  username: string = '';
-  email: string = '';
-  password: string = '';
-  confirmPassword: string = '';
+  // username: string = '';
+  // email: string = '';
+  // password: string = '';
+  // confirmPassword: string = '';
+  // matricule: string = "";
+  // telephone: string = "";
 
-  constructor(private toastController: ToastController, 
+  constructor(private toastController: ToastController,
+    private http: HttpClient, 
     private router: Router, 
-    private loadingController: LoadingController) { }
+    private loadingController: LoadingController,
+    private alertController: AlertController) { }
 
   ngOnInit() {
   }
 
+  onFileChange(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      console.log('Fichier sélectionné:', file.name, file.size, file.type); // Debug
+      this.userData.photo_faciale = file;
+      
+      // Prévisualisation pour vérification
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        console.log('Preview Base64:', e.target?.result?.toString().substring(0, 50) + '...');
+      };
+      reader.readAsDataURL(file);
+    } else {
+      console.warn('Aucun fichier sélectionné');
+    }
+  }
+
   async onSignup(form: NgForm) {
-    //Afficher le chargement
+    // Validation initiale du formulaire
+    if (form.invalid) {
+      await this.showAlert('Formulaire incomplet', 'Veuillez remplir tous les champs obligatoires');
+      return;
+    }
+  
+    // Vérification approfondie de la photo pour les étudiants
+    if (this.userData.type_utilisateur === 'ETU') {
+      if (!this.photoFaciale || !(this.photoFaciale instanceof File)) {
+        await this.showAlert(
+          'Photo requise', 
+          'Vous devez sélectionner une photo valide pour la reconnaissance faciale'
+        );
+        return;
+      }
+  
+      // Vérification supplémentaire du type de fichier
+      const validTypes = ['image/jpeg', 'image/png'];
+      if (!validTypes.includes(this.photoFaciale.type)) {
+        await this.showAlert(
+          'Format invalide',
+          'Seuls les formats JPEG et PNG sont acceptés'
+        );
+        return;
+      }
+    }
+  
     const loading = await this.loadingController.create({
-      message: 'Inscription...',
-      spinner: 'lines'
+      message: 'Création de votre compte...',
+      spinner: 'crescent',
+      backdropDismiss: false
     });
     await loading.present();
-    this.showToast("Inscription réussie !", 'success');
+  
+    try {
+      const formData = this.buildFormData();
+  
+      const response: any = await lastValueFrom(
+        this.http.post('http://localhost:8000/api/auth/register/', formData, {
+          headers: new HttpHeaders({ 'Accept': 'application/json' }),
+          observe: 'response'
+        })
+      );
+  
+      // Vérification de la réponse
+      if (response.status === 201) {
+        await this.handleSuccessfulRegistration(response.body);
+      } else {
+        throw new Error(`Réponse inattendue: ${response.status}`);
+      }
+    } catch (error: any) {
+      console.error('Erreur complète:', error);
+      await this.handleRegistrationError(error);
+    } finally {
+      await loading.dismiss();
+    }
+  }
+  
+  // Méthodes auxiliaires
+  private buildFormData(): FormData {
+    const formData = new FormData();
+    
+    // Ajout normal des champs
+    Object.entries(this.userData).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, value as any);
+      }
+    });
+  
+    // Debug
+    this.logFormDataContents(formData);
+    
+    return formData;
+  }
+  
+  private logFormDataContents(formData: FormData) {
+    console.group('FormData Contents');
+    formData.forEach((value, key) => {
+      if (value instanceof File) {
+        console.log(key, ':', `File(${value.name}, ${value.size} bytes)`);
+      } else {
+        console.log(key, ':', value);
+      }
+    });
+    console.groupEnd();
+  }
+  
+  private debugFormData(formData: FormData) {
+    // Méthode compatible avec tous les navigateurs
+    console.log('Contenu du FormData:');
+    formData.forEach((value, key) => {
+      if (value instanceof File) {
+        console.log(`${key}: File(${value.name}, ${value.type}, ${value.size} bytes)`);
+      } else {
+        console.log(`${key}:`, value);
+      }
+    });
+  }
+  
+  private async handleSuccessfulRegistration(response: any) {
+    // Stockage sécurisé des tokens
+    localStorage.setItem('access_token', response.access);
+    localStorage.setItem('refresh_token', response.refresh);
+    
+    // Affichage du feedback
+    await this.showToast('Inscription réussie !', 'success');
+    
+    // Redirection adaptée
+    this.redirectBasedOnUserType(response.type_utilisateur);
+  }
+  
+  private async handleRegistrationError(error: any) {
+    let errorMessage = 'Erreur lors de la création du compte';
+    
+    if (error.error) {
+      if (typeof error.error === 'string') {
+        try {
+          const parsedError = JSON.parse(error.error);
+          errorMessage = parsedError.detail || errorMessage;
+        } catch {
+          errorMessage = error.error;
+        }
+      } else if (error.error.detail) {
+        errorMessage = error.error.detail;
+      } else if (error.error.non_field_errors) {
+        errorMessage = error.error.non_field_errors.join(', ');
+      }
+    }
+  
+    await this.showAlert('Erreur', errorMessage);
+  }
 
-    await loading.dismiss();
-
-    this.router.navigateByUrl("/student-dashboard");
+  //Renvoyer l'user sur une page en fonction de son type
+  private redirectBasedOnUserType(userType: string) {
+    switch(userType) {
+      case 'ETU':
+        this.router.navigate(['/student-dashboard']);
+        break;
+      case 'ENS':
+        this.router.navigate(['/teacher-dashboard']);
+        break;
+      case 'ADM':
+        this.router.navigate(['/admin-dashboard']);
+        break; 
+      default:
+        this.router.navigate(['/']);
+    }
   }
 
   // Social Login Methods
@@ -86,6 +249,24 @@ export class RegisterPage implements OnInit {
       position: 'top'
     });
     await toast.present();
+  }
+
+  private async showAlert(header: string, message: string) {
+    const alert = await this.alertController.create({
+      header,
+      message,
+      buttons: ['OK'],
+      cssClass: 'custom-alert'
+    });
+    await alert.present();
+  }
+
+  private async showErrorAlert(error: any) {
+    console.error('Erreur d\'inscription:', error);
+    await this.showAlert(
+      'Erreur', 
+      error.error?.message || 'Une erreur est survenue lors de l\'inscription'
+    );
   }
 
 

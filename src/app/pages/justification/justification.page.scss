@@ -1,0 +1,72 @@
+ion-modal.justification-modal {
+    --background: white;
+    --width: 95%;
+    --max-width: 640px;
+    --max-height: 90vh;
+    --border-radius: 1.5rem;
+    --box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    --backdrop-opacity: 0.4;
+    --padding-top: 0;
+    --padding-bottom: 0;
+  }
+  
+  ion-modal.justification-modal::part(content) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 1.5rem;
+  }
+
+  ion-modal.justification-modal {
+    --background: white;
+  
+    ion-content {
+      --background: white;
+      background-color: white !important;
+    }
+  
+    ion-toolbar {
+      --background: white;
+      background-color: white;
+    }
+  
+    ion-footer,
+    ion-header {
+      background-color: white;
+    }
+  }
+  
+// ion-modal.justification-modal {
+//     --width: 95%;
+//     --max-width: 640px;
+//     --height: auto;
+//     --border-radius: 1.5rem;
+//     --box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+//     --backdrop-opacity: 0.4;
+//     --background: rgba(0, 0, 0, 0.2);
+// }
+
+// ion-modal.justification-modal::part(content) {
+//     display: flex;
+//     flex-direction: column;
+//     overflow: hidden;
+//     border-radius: 1.5rem;
+//     background: white;
+// }
+
+// .ion-page {
+//     display: block;
+//     height: 100%;
+// }
+
+// ion-content {
+//     --overflow: auto;
+//     --padding-top: 0;
+//     --padding-bottom: 0;
+// }
+
+// /* Correction des hauteurs */
+// html, body {
+//     height: 100%;
+// }
+  

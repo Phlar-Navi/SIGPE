@@ -13,12 +13,14 @@ export class StudentCoursePage implements OnInit {
   //selectedSession: number = 0;
   showAttendance: boolean = true;
   showCreateSession = false;
-  isSmallScreen = false; // État du menu (ouvert/fermé)
+  isSmallScreen = false;
+  isMenuOpen = false; // État du menu (ouvert/fermé)
   sessions: Session[] = [
     {
       id: 1,
       title: 'Mathématiques',
-      date: '2023-10-10, 10:00 - 12:00',
+      date: '2023-10-10, 10:00',
+      date_fin: '2023-10-10, 12:00',
       room: 'A101',
       description:"",
       teacher: 'Dr. Moskolai',
@@ -28,7 +30,8 @@ export class StudentCoursePage implements OnInit {
     {
       id: 2,
       title: 'Informatique',
-      date: '2023-10-11, 14:00 - 16:00',
+      date: '2023-10-11, 14:00',
+      date_fin: '2023-10-10, 16:00',
       room: 'B202',
       description:"",
       teacher: 'Dr. Smith',
@@ -38,7 +41,8 @@ export class StudentCoursePage implements OnInit {
     {
       id: 3,
       title: 'Physique',
-      date: '2023-10-09, 08:00 - 10:00',
+      date: '2023-10-09, 08:00',
+      date_fin: '2023-10-09, 10:00',
       room: 'C303',
       description:"",
       teacher: 'Dr. Dupont',

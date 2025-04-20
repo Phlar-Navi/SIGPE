@@ -1,0 +1,174 @@
+<ion-content>
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 text-gray-800">
+
+    <!-- Sidebar Menu -->
+    <app-sidebar></app-sidebar>
+
+    <!-- Main Content -->
+    <div class="p-4 md:p-8 transition-all duration-300 ease-in-out" [ngClass]="{ 'md:ml-64': !isSmallScreen }">
+      
+      <!-- Header with Profile Summary -->
+      <app-header
+        [title]="'Bienvenue Lucas'"
+        [subtitle]="'Etudiant en M1 Informatique'"
+        [profileImageUrl]="'../../../../assets/images/profil.jpg'"
+        [hasNotification]="true">
+      </app-header>
+
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="mt-6 max-w-4xl mx-auto space-y-6">
+
+        <!-- Personal Data Section -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
+          <h2 class="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-2">
+            <ion-icon name="person-circle-outline"></ion-icon>
+            Informations personnelles
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Nom</label>
+              <input type="text" class="input-field" placeholder="Votre nom" formControlName="nom" />
+            </div>
+            
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Prénom</label>
+              <input type="text" class="input-field" placeholder="Votre prénom" formControlName="prenom" />
+            </div>
+            
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Matricule</label>
+              <input type="text" class="input-field bg-gray-100" placeholder="Votre matricule" formControlName="matricule" readonly />
+            </div>
+            
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Téléphone</label>
+              <input type="tel" class="input-field" placeholder="+237 XXX XXX XXX" formControlName="telephone" />
+            </div>
+            
+            <div class="md:col-span-2 space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Email</label>
+              <input type="email" class="input-field" placeholder="email@domaine.com" formControlName="email" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Picture Section -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <h2 class="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-2">
+            <ion-icon name="camera-outline"></ion-icon>
+            Photo de profil
+          </h2>
+          
+          <div class="flex flex-col md:flex-row items-center gap-6">
+            <div class="relative">
+              <img [src]="profileImagePreview || '../../../../assets/images/profil.jpg'" 
+                   class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md">
+              <div class="absolute bottom-0 right-0 bg-blue-500 rounded-full p-2 shadow-md">
+                <ion-icon name="camera" class="text-white text-lg"></ion-icon>
+              </div>
+            </div>
+            
+            <div class="flex-1">
+              <label class="file-upload-btn">
+                <input type="file" accept="image/*" (change)="onPhotoSelected($event, 'profile')" class="hidden" />
+                Choisir une photo
+              </label>
+              <p class="text-sm text-gray-500 mt-2">Format recommandé : JPG/PNG (min. 300x300px)</p>
+              <p *ngIf="profilePhoto" class="text-sm text-green-600 mt-1">
+                <ion-icon name="checkmark-circle" class="align-middle"></ion-icon> 
+                {{ profilePhoto.name }} ({{ (profilePhoto.size/1024).toFixed(2) }} KB)
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Password Section -->
+        <div [formGroup]="passwordGroup" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <h2 class="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-2">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+            Sécurité du compte
+          </h2>
+          
+          <div class="space-y-4">
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Nouveau mot de passe</label>
+              <div class="relative">
+                <ion-input type="{{ showPassword ? 'text' : 'password' }}" formControlName="newPassword" 
+                          class="input-field" placeholder="••••••••"></ion-input>
+                <button type="button" (click)="togglePasswordVisibility()" class="absolute right-3 top-3 text-gray-500">
+                  <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                </button>
+              </div>
+            </div>
+            
+            <div class="space-y-1">
+              <label class="block text-sm font-medium text-gray-700">Confirmer le mot de passe</label>
+              <ion-input type="{{ showPassword ? 'text' : 'password' }}" formControlName="confirmPassword" 
+                        class="input-field" placeholder="••••••••"></ion-input>
+            </div>
+            
+            <div *ngIf="passwordGroup.errors?.['mismatch']" class="p-3 bg-red-50 text-red-600 rounded-lg flex items-start gap-2">
+              <ion-icon name="warning-outline" class="mt-0.5"></ion-icon>
+              <span>Les mots de passe ne correspondent pas</span>
+            </div>
+            
+            <!-- <div class="text-sm text-gray-500 mt-2">
+              <p>Le mot de passe doit contenir :</p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li [class.text-green-600]="passwordRequirements.minLength">Minimum 8 caractères</li>
+                <li [class.text-green-600]="passwordRequirements.hasNumber">Au moins un chiffre</li>
+                <li [class.text-green-600]="passwordRequirements.hasSpecialChar">Un caractère spécial (&#64;$!%*?&)</li>
+              </ul>
+            </div> -->
+          </div>
+        </div>
+
+        <!-- Facial Recognition Section -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <h2 class="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-2">
+            <ion-icon name="scan-outline"></ion-icon>
+            Reconnaissance faciale
+          </h2>
+          
+          <div class="flex flex-col items-center text-center">
+            <div class="relative mb-4">
+              <img [src]="facialImagePreview || '../../../../assets/images/face-placeholder.jpg'" 
+                   class="w-48 h-48 rounded-lg object-cover border-2 border-dashed border-gray-300">
+            </div>
+            
+            <label class="file-upload-btn primary">
+              <input type="file" accept="image/*" (change)="onPhotoSelected($event, 'facial')" class="hidden" />
+              <ion-icon name="cloud-upload-outline" class="mr-2"></ion-icon>
+              Téléverser une photo
+            </label>
+            
+            <p *ngIf="facialPhoto" class="text-sm text-green-600 mt-2">
+              <ion-icon name="checkmark-circle" class="align-middle"></ion-icon> 
+              {{ facialPhoto.name }} ({{ (facialPhoto.size/1024).toFixed(2) }} KB)
+            </p>
+            
+            <p class="text-sm text-gray-500 mt-3">
+              <ion-icon name="information-circle-outline" class="align-middle"></ion-icon>
+              Cette photo sera utilisée pour la reconnaissance faciale lors des pointages
+            </p>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-end mt-8">
+          <button type="button" (click)="onDeleteAccount()" 
+                  class="danger-btn flex items-center justify-center gap-2">
+            <ion-icon name="trash-outline"></ion-icon>
+            Supprimer le compte
+          </button>
+          
+          <button type="submit" class="primary-btn flex items-center justify-center gap-2" 
+                  [disabled]="!profileForm.valid">
+            <ion-icon name="save-outline"></ion-icon>
+            Enregistrer les modifications
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</ion-content>

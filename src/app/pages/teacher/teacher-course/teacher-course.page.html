@@ -37,12 +37,30 @@
               <input type="text" [(ngModel)]="newSession.title" name="title" class="w-full p-2 border rounded-lg" required>
             </div>
             <div class="mb-4 relative">
-              <label class="block text-gray-700">Date et heure</label>
+              <label class="block text-gray-700">Date et heure de debut</label>
               <div class="relative">
                 <input
                   type="datetime-local"
                   [(ngModel)]="newSession.date"
                   name="startTime"
+                  id="datetimeInput"
+                  class="w-full p-2 border rounded-lg pr-10"
+                  required
+                />
+                <!-- Icône de calendrier cliquable -->
+                <i
+                  class="fas fa-calendar-alt absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
+                  (click)="openDateTimePicker()"
+                ></i>
+              </div>
+            </div>
+            <div class="mb-4 relative">
+              <label class="block text-gray-700">Date et heure de fin</label>
+              <div class="relative">
+                <input
+                  type="datetime-local"
+                  [(ngModel)]="newSession.date_fin"
+                  name="endtime"
                   id="datetimeInput"
                   class="w-full p-2 border rounded-lg pr-10"
                   required
@@ -90,7 +108,7 @@
           <!-- Informations de la session -->
           <div class="space-y-3">
             <p class="text-gray-700"><strong>Cours :</strong> {{ selectedSession.title }}</p>
-            <p class="text-gray-700"><strong>Date :</strong> {{ selectedSession.date }}</p>
+            <p class="text-gray-700"><strong>Date :</strong> de {{ selectedSession.date }} à {{ selectedSession.date_fin }}</p>
             <p class="text-gray-700"><strong>Salle :</strong> {{ selectedSession.room }}</p>
             <p class="text-gray-700"><strong>Enseignant :</strong> {{ selectedSession.teacher }}</p>
         
@@ -197,7 +215,7 @@
         
             <!-- Bouton pour annuler la session -->
             <button *ngIf="selectedSession.status == 'À venir'" 
-              (click)="removeSessionFromList()" 
+              (click)="onSessionDeleted()" 
               class="w-full bg-red-600 text-white py-2 rounded-lg font-medium shadow hover:bg-red-700 transition">
               Annuler la session
             </button>

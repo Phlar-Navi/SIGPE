@@ -19,10 +19,10 @@
               <ion-input 
                 label="Nom d'utilisateur" 
                 label-placement="floating" 
-                id="username" 
-                name="username" 
+                id="last_name" 
+                name="last_name" 
                 type="text"
-                [(ngModel)]="username"
+                [(ngModel)]="userData.last_name"
                 required
                 #usernameInput="ngModel"
                 clear-input="true"
@@ -39,7 +39,7 @@
                 id="email" 
                 name="email" 
                 type="email"
-                [(ngModel)]="email"
+                [(ngModel)]="userData.email"
                 required
                 #emailInput="ngModel"
                 clear-input="true"
@@ -56,7 +56,7 @@
                 id="password" 
                 name="password" 
                 type="password"
-                [(ngModel)]="password"
+                [(ngModel)]="userData.password"
                 required
                 #passwordInput="ngModel"
                 clear-input="true"
@@ -73,7 +73,7 @@
                 id="confirmPassword" 
                 name="confirmPassword" 
                 type="password"
-                [(ngModel)]="confirmPassword"
+                [(ngModel)]="userData.confirmPassword"
                 required
                 #confirmPasswordInput="ngModel"
                 clear-input="true"
@@ -81,6 +81,54 @@
                 placeholder="Confirmez votre mot de passe">
               </ion-input>
             </div>
+
+            <div class="input-wrapper">
+              <!-- <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon> -->
+              <ion-input 
+                label="Matricule" 
+                label-placement="floating" 
+                id="username" 
+                name="username" 
+                type="text"
+                [(ngModel)]="userData.username"
+                required
+                clear-input="true"
+                fill="outline"
+                placeholder="Entrez votre matricule">
+              </ion-input>
+            </div>
+
+            <div class="input-wrapper">
+              <ion-select [(ngModel)]="userData.type_utilisateur" name="type_utilisateur">
+                <ion-select-option value="ETU">Étudiant</ion-select-option>
+                <ion-select-option value="ENS">Enseignant</ion-select-option>
+                <ion-select-option value="ADM">Administrateur</ion-select-option>
+              </ion-select>
+            </div>
+
+            <div class="input-wrapper">
+              <ion-input 
+                label="Téléphone" 
+                label-placement="floating" 
+                id="telephone" 
+                name="telephone" 
+                type="text"
+                [(ngModel)]="userData.telephone"
+                clear-input="true"
+                fill="outline"
+                placeholder="Entrez votre numéro de téléphone">
+              </ion-input>
+            </div>
+
+            <div class="input-wrapper">
+              <ion-input 
+                type="file" 
+                (change)="onFileChange($event)" 
+                accept="image/*" 
+                #fileInput>
+              </ion-input>
+            </div>
+
           </div>
   
           <div class="button-group">
