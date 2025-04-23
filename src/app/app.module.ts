@@ -9,6 +9,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtInterceptor } from './services/jwt.interceptor';
+// import { AuthInterceptor } from './services/auth.interceptor';
 
 import { IonicStorageModule } from '@ionic/storage-angular';
 
@@ -25,13 +26,20 @@ import { IonicStorageModule } from '@ionic/storage-angular';
   providers: [
     // Fournisseur pour la stratégie de réutilisation de route
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    
+
     // Fournisseur pour l'intercepteur JWT (séparé)
     {
       provide: HTTP_INTERCEPTORS,
       useClass: JwtInterceptor,
       multi: true
-    }
+    },
+
+    // Fournisseur pour l'intercepteur Auth (ajoute le token à certaines requêtes)
+    // {
+    //   provide: HTTP_INTERCEPTORS,
+    //   useClass: AuthInterceptor,
+    //   multi: true
+    // }
   ],
   bootstrap: [AppComponent],
 })

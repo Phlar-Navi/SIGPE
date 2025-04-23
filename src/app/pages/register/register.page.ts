@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
+import { MetadataService } from 'src/app/services/metadata.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -17,6 +19,14 @@ export class RegisterPage implements OnInit {
   };
   photoFaciale: File | null = null;
 
+  filieres: any[] = [];
+  niveaux: any[] = [];
+  specialites: any[] = [];
+
+  // selectedFiliere: string = '';
+  // selectedNiveaux: string[] = [];
+  // selectedSpecialites: string[] = [];
+
   // username: string = '';
   // email: string = '';
   // password: string = '';
@@ -28,27 +38,34 @@ export class RegisterPage implements OnInit {
     private http: HttpClient, 
     private router: Router, 
     private loadingController: LoadingController,
-    private alertController: AlertController) { }
+    private alertController: AlertController,
+    private metadataService: MetadataService,
+  private authService: AuthService) { }
 
   ngOnInit() {
+    this.metadataService.getAllMetadata().subscribe(data => {
+      this.filieres = data.filieres;
+      this.niveaux = data.niveaux;
+      this.specialites = data.specialites;
+    });
   }
 
-  onFileChange(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      console.log('Fichier sélectionné:', file.name, file.size, file.type); // Debug
-      this.userData.photo_faciale = file;
+  // onFileChange(event: any) {
+  //   const file = event.target.files[0];
+  //   if (file) {
+  //     console.log('Fichier sélectionné:', file.name, file.size, file.type); // Debug
+  //     this.userData.photo_faciale = file;
       
-      // Prévisualisation pour vérification
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        console.log('Preview Base64:', e.target?.result?.toString().substring(0, 50) + '...');
-      };
-      reader.readAsDataURL(file);
-    } else {
-      console.warn('Aucun fichier sélectionné');
-    }
-  }
+  //     // Prévisualisation pour vérification
+  //     const reader = new FileReader();
+  //     reader.onload = (e) => {
+  //       console.log('Preview Base64:', e.target?.result?.toString().substring(0, 50) + '...');
+  //     };
+  //     reader.readAsDataURL(file);
+  //   } else {
+  //     console.warn('Aucun fichier sélectionné');
+  //   }
+  // }
 
   async onSignup(form: NgForm) {
     // Validation initiale du formulaire
@@ -57,25 +74,13 @@ export class RegisterPage implements OnInit {
       return;
     }
   
-    // Vérification approfondie de la photo pour les étudiants
+    // Validation spécifique aux étudiants
     if (this.userData.type_utilisateur === 'ETU') {
-      if (!this.photoFaciale || !(this.photoFaciale instanceof File)) {
-        await this.showAlert(
-          'Photo requise', 
-          'Vous devez sélectionner une photo valide pour la reconnaissance faciale'
-        );
+      if (!this.userData.filiere || !this.userData.niveau) {
+        await this.showAlert('Champs requis', 'Veuillez sélectionner votre filière et votre niveau');
         return;
       }
-  
-      // Vérification supplémentaire du type de fichier
-      const validTypes = ['image/jpeg', 'image/png'];
-      if (!validTypes.includes(this.photoFaciale.type)) {
-        await this.showAlert(
-          'Format invalide',
-          'Seuls les formats JPEG et PNG sont acceptés'
-        );
-        return;
-      }
+      // `specialite` peut rester vide selon le modèle
     }
   
     const loading = await this.loadingController.create({
@@ -95,7 +100,6 @@ export class RegisterPage implements OnInit {
         })
       );
   
-      // Vérification de la réponse
       if (response.status === 201) {
         await this.handleSuccessfulRegistration(response.body);
       } else {
@@ -109,22 +113,22 @@ export class RegisterPage implements OnInit {
     }
   }
   
-  // Méthodes auxiliaires
+  
+  // Generation du formulaire
   private buildFormData(): FormData {
     const formData = new FormData();
-    
-    // Ajout normal des champs
+  
     Object.entries(this.userData).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
         formData.append(key, value as any);
       }
     });
   
-    // Debug
     this.logFormDataContents(formData);
-    
+  
     return formData;
   }
+  
   
   private logFormDataContents(formData: FormData) {
     console.group('FormData Contents');
@@ -154,11 +158,14 @@ export class RegisterPage implements OnInit {
     // Stockage sécurisé des tokens
     localStorage.setItem('access_token', response.access);
     localStorage.setItem('refresh_token', response.refresh);
+    localStorage.setItem('user_type', response.type_utilisateur);
     
+    console.log(response);
     // Affichage du feedback
     await this.showToast('Inscription réussie !', 'success');
     
     // Redirection adaptée
+    await this.authService.loadUserFromToken();
     this.redirectBasedOnUserType(response.type_utilisateur);
   }
   

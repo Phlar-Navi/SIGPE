@@ -103,7 +103,7 @@ export class SidebarComponent  implements OnInit {
     this.authService.isReady$().subscribe(async (ready) => {
       if (ready) {
         this.user = await this.authService.getUserData();
-        console.log(this.user);
+        // console.log(this.user);
       }
     });
   }
@@ -160,7 +160,7 @@ export class SidebarComponent  implements OnInit {
       backdropDismiss: false
     });
     await loading.present();
-    
+
     this.authService.logout().then(async () => {
       this.showLogoutModal = false;
       await loading.dismiss();

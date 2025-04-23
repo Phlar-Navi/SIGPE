@@ -112,7 +112,7 @@
                 label-placement="floating" 
                 id="telephone" 
                 name="telephone" 
-                type="text"
+                type="tel"
                 [(ngModel)]="userData.telephone"
                 clear-input="true"
                 fill="outline"
@@ -120,14 +120,37 @@
               </ion-input>
             </div>
 
-            <div class="input-wrapper">
+            <div>
+              <ion-item>
+                <ion-label position="floating">Niveau</ion-label>
+                <ion-select [(ngModel)]="userData.niveau" name="niveau" required>
+                  <ion-select-option *ngFor="let niveau of niveaux" [value]="niveau.id">{{ niveau.nom }}</ion-select-option>
+                </ion-select>
+              </ion-item>
+              
+              <ion-item>
+                <ion-label position="floating">Filière</ion-label>
+                <ion-select [(ngModel)]="userData.filiere" name="filiere" required>
+                  <ion-select-option *ngFor="let filiere of filieres" [value]="filiere.id">{{ filiere.nom }}</ion-select-option>
+                </ion-select>
+              </ion-item>
+              
+              <ion-item *ngIf="userData.niveau">
+                <ion-label position="floating">Spécialité</ion-label>
+                <ion-select [(ngModel)]="userData.specialite" name="specialite">
+                  <ion-select-option *ngFor="let specialite of specialites" [value]="specialite.id">{{ specialite.nom }}</ion-select-option>
+                </ion-select>
+              </ion-item>              
+            </div>
+
+            <!-- <div class="input-wrapper">
               <ion-input 
                 type="file" 
                 (change)="onFileChange($event)" 
                 accept="image/*" 
                 #fileInput>
               </ion-input>
-            </div>
+            </div> -->
 
           </div>
   

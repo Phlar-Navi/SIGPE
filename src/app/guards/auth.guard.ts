@@ -8,6 +8,7 @@ export const authGuard: CanActivateFn = async (route, state) => {
 
   const isAuthenticated = await authService.is_Authenticated();
   if (!isAuthenticated) {
+    console.log("The page you requested is not accessible ! (Auth guard)");
     router.navigate(['/login']);
     return false;
   }

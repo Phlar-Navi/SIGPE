@@ -8,6 +8,7 @@ import { TeacherDashboardPageRoutingModule } from './teacher-dashboard-routing.m
 
 import { TeacherDashboardPage } from './teacher-dashboard.page';
 import { SidebarComponent } from 'src/app/components/sidebar/sidebar.component';
+import { HeaderComponent } from 'src/app/components/header/header.component';
 
 @NgModule({
   imports: [
@@ -15,7 +16,8 @@ import { SidebarComponent } from 'src/app/components/sidebar/sidebar.component';
     FormsModule,
     IonicModule,
     TeacherDashboardPageRoutingModule,
-    SidebarComponent
+    SidebarComponent,
+    HeaderComponent
   ],
   declarations: [TeacherDashboardPage]
 })

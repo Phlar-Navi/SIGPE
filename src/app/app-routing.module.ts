@@ -2,11 +2,13 @@ import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { typeGuard } from './guards/type.guard';
+import { typeStudentGuard } from './guards/type-student.guard';
 import { redirectIfAuthenticatedGuard } from './guards/redirect-if-authenticated.guard';
 
 const routes: Routes = [
   {
     path: 'home',
+    canActivate: [redirectIfAuthenticatedGuard],
     loadChildren: () => import('./pages/authentification/login/login.module').then( m => m.LoginPageModule)
   },
   // {
@@ -20,7 +22,7 @@ const routes: Routes = [
   },
   {
     path: 'student-dashboard',
-    canActivate: [authGuard],
+    canActivate: [typeStudentGuard(['ETU'])],
     loadChildren: () => import('./pages/student/student-dashboard/student-dashboard.module').then( m => m.StudentDashboardPageModule)
   },
   {
@@ -40,7 +42,7 @@ const routes: Routes = [
   },
   {
     path: 'student-course',
-    canActivate: [authGuard],
+    canActivate: [typeStudentGuard(['ETU'])],
     loadChildren: () => import('./pages/student/student-course/student-course.module').then( m => m.StudentCoursePageModule)
   },
   {

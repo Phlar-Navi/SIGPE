@@ -8,11 +8,7 @@
     <div class="p-4 md:p-8 transition-all duration-300 ease-in-out" [ngClass]="{ 'md:ml-64': !isSmallScreen }">
       
       <!-- Header with Profile Summary -->
-      <app-header
-        [title]="'Bienvenue Lucas'"
-        [subtitle]="'Etudiant en M1 Informatique'"
-        [profileImageUrl]="'../../../../assets/images/profil.jpg'"
-        [hasNotification]="true">
+      <app-header>
       </app-header>
 
       <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="mt-6 max-w-4xl mx-auto space-y-6">

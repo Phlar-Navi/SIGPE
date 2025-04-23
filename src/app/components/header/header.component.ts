@@ -1,5 +1,7 @@
 import { Component, OnInit, Input  } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthService } from 'src/app/services/auth.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-header',
@@ -9,14 +11,26 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule]
 })
 export class HeaderComponent  implements OnInit {
-  @Input() logoUrl: string = '../../../../assets/images/logo.png'; // URL du logo
-  @Input() title: string = 'Gestion de Présence'; // Titre du header
-  @Input() subtitle: string = 'Bienvenue, Dr. Moskolai Justin'; // Sous-titre
-  @Input() profileImageUrl: string = '../../../../assets/images/profil.jpg'; // URL de l'image de profil
-  @Input() hasNotification: boolean = true; // Afficher la bulle de notification
+  user: any;
 
-  constructor() { }
+  logoUrl: string = '../../../../assets/images/logo.png'; // URL du logo
+  title: string = 'Gestion de Présence'; // Titre du header
+  subtitle: string = ''; // Sous-titre 'Bienvenue, Dr. Moskolai Justin'
+  profileImageUrl: string = ''; // URL de l'image de profil
+  hasNotification: boolean = true;
+  // @Input() hasNotification: boolean = true; // Afficher la bulle de notification
 
-  ngOnInit() {}
+  constructor(private authService: AuthService) { }
+
+  ngOnInit() {
+    this.authService.isReady$().subscribe(async (ready) => {
+      if (ready) {
+        this.user = await this.authService.getUserData();
+        this.subtitle = `Bienvenue, ${this.user.full_name}`;
+        this.profileImageUrl = `${environment.apiUrl}${this.user.photo_faciale}`;
+        // console.log(this.user);
+      }
+    });
+  }
 
 }

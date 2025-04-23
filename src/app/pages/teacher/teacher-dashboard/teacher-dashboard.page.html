@@ -7,30 +7,8 @@
     <!-- Contenu principal -->
     <div class="p-6 transition-all duration-300 ease-in-out" [ngClass]="{ 'md:ml-64': !isSmallScreen }">
       <!-- Header -->
-      <div class="bg-primary p-4 rounded-lg shadow-md flex justify-between items-center">
-        <!-- Logo et titre -->
-        <div class="flex items-center">
-          <!-- Logo placeholder -->
-          <img src="../../../../assets/images/logo.png" alt="Logo" class="w-12 h-12 rounded-full">
-          <div class="ml-4">
-            <h1 class="text-xl font-bold text-white">Dr. Moskolai Justin</h1>
-            <p class="text-gray-200">Enseignant en Informatique</p>
-          </div>
-        </div>
-      
-        <!-- Date et image de profil -->
-        <div class="flex items-center space-x-4">
-          <!-- Date -->
-          <div class="text-gray-200">Date: 06/03/2025</div>
-      
-          <!-- Image de profil placeholder -->
-          <div class="relative">
-            <img src="../../../../assets/images/logo_univ.png" alt="Profil" class="w-10 h-10 rounded-full">
-            <!-- Bulle de notification (optionnelle) -->
-            <div class="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full"></div>
-          </div>
-        </div>
-      </div>
+      <app-header>
+      </app-header>
 
       <!-- Notification urgente -->
       <div class="mt-6 bg-yellow-100 p-4 rounded-lg shadow-md">

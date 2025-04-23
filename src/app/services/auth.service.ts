@@ -23,20 +23,50 @@ export class AuthService {
     this.init();
     this.loadUserFromStorage();
   }
-  
+
   async init() {
     const storage = await this.storage.create();
     this._storage = storage;
-
-    const user = await this._storage.get('user_data');
-    if (user) this.userData.next(user);
     
-    this.isReady.next(true); // Pour indiquer que le service est prêt
+    const token = await this._storage.get('access_token');
+    const user = await this._storage.get('user_data');
+    
+    if (token && user) {
+      this.userData.next(user);
+    }
+    
+    this.isReady.next(true);
   }
+  
+  // async init() {
+  //   const storage = await this.storage.create();
+  //   this._storage = storage;
+
+  //   const user = await this._storage.get('user_data');
+  //   if (user) this.userData.next(user);
+    
+  //   this.isReady.next(true); // Pour indiquer que le service est prêt
+  // }
 
   isReady$() {
     return this.isReady.asObservable();
   }
+
+  loadUserFromToken() {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      // Exemple de structure à adapter selon ton backend
+      const user = {
+        username: payload.username,
+        type_utilisateur: payload.type_utilisateur,
+        // ...autres infos selon ton token
+      };
+  
+      this.userData.next(user);
+    }
+  }
+  
 
 // Gestion des utilisateurs (Inscription et authentification et déconnexion) ---------
   register(userData: FormData): Observable<any> {
@@ -131,20 +161,48 @@ export class AuthService {
     return false; // Token invalide ou absent
   }
 
-  getUserObservable() {
+  getUserObservable(): Observable<any> {
     return this.userData.asObservable();
   }
+
+  // getUserObservable() {
+  //   return this.userData.asObservable();
+  // }
 
   getCurrentUser() {
     return this.currentUserSubject.value;
   }
 
-  async getUserData(): Promise<any> {
-    const data = await this._storage?.get('user_data');
-    if (!data){
-      return null;
-    }else {
-      return data;
-    }
+  async checkAuthAndGetUser(): Promise<{isAuthenticated: boolean, user: any}> {
+    await this.init(); // S'assurer que le storage est initialisé
+    const isAuth = await this.is_Authenticated();
+    const user = await this.getUserData();
+    return {isAuthenticated: isAuth, user};
   }
+
+  async getUserData(): Promise<any> {
+    if (!this._storage) {
+      await this.init(); // S'assurer que le storage est prêt
+    }
+  
+    const data = await this._storage?.get('user_data');
+    console.log("[AuthService] getUserData() =>", data);
+    
+    return data ?? null;
+  }
+  
+
+  // LISTER TOUTES LES FILIERES, VUES, SPECIALITES DISPONIBLES -------------------------------
+  getFilieres() {
+    return this.http.get(`${this.apiUrl}/filieres/`);
+  }
+  
+  getNiveaux() {
+    return this.http.get(`${this.apiUrl}/niveaux/`);
+  }
+  
+  getSpecialites() {
+    return this.http.get(`${this.apiUrl}/specialites/`);
+  }
+  
 }
