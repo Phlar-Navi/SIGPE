@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 
@@ -9,9 +9,14 @@ import { AppRoutingModule } from './app-routing.module';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtInterceptor } from './services/jwt.interceptor';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
 // import { AuthInterceptor } from './services/auth.interceptor';
 
 import { IonicStorageModule } from '@ionic/storage-angular';
+
+// import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+registerLocaleData(localeFr);
 
 @NgModule({
   declarations: [AppComponent],
@@ -21,12 +26,14 @@ import { IonicStorageModule } from '@ionic/storage-angular';
     AppRoutingModule, 
     CommonModule, 
     HttpClientModule,
-    IonicStorageModule.forRoot()
+    IonicStorageModule.forRoot(),
+    // FormsModule,
+    // ReactiveFormsModule
   ],
   providers: [
     // Fournisseur pour la stratégie de réutilisation de route
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-
+    { provide: LOCALE_ID, useValue: 'fr' },
     // Fournisseur pour l'intercepteur JWT (séparé)
     {
       provide: HTTP_INTERCEPTORS,

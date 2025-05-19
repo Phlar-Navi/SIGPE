@@ -1,19 +1,9 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-// import { SwiperModule } from 'swiper/angular';
-// import { SwiperOptions } from 'swiper';
-
-export interface Session {
-  id: number;
-  title: string;
-  date: string; // Format : 'YYYY-MM-DDTHH:MM'
-  date_fin: string;
-  room: string;
-  description: string;
-  status: 'À venir' | 'En cours' | 'Terminée';
-  teacher: string; // Ajouté pour correspondre à l'interface de SessionListComponent
-  students: object[]; // Ajouté pour correspondre à l'interface de SessionListComponent
-}
+import { SessionService } from 'src/app/services/session.service';
+import { Session_Laravel } from 'src/app/pages/teacher/teacher-course/teacher-course.page';
+import { MetadataService } from 'src/app/services/metadata.service';
+import { LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-session-list',
@@ -22,81 +12,105 @@ export interface Session {
   standalone: true,
   imports: [CommonModule]
 })
-export class SessionListComponent  implements OnInit {
+export class SessionListComponent implements OnInit {
+  @Input() userRole: 'etudiant' | 'enseignant' = 'enseignant';
+  @Input() filiereId?: number;
+  @Input() niveauId?: number;
+  @Input() enseignantId?: number;
 
-  @Input() sessions: Session[] = []; // Liste des sessions en entrée
-  @Output() sessionSelected = new EventEmitter<number>(); // Événement pour sélectionner une session
+  @Output() sessionSelected = new EventEmitter<Session_Laravel>();
+  @Output() sessionsLoaded = new EventEmitter<Session_Laravel[]>();
 
-  // Méthode pour sélectionner une session
-  selectSession(sessionId: number) {
-    this.sessionSelected.emit(sessionId);
+  sessions: Session_Laravel[] = [];
+
+  constructor(private sessionService: SessionService, private loadingController: LoadingController) {}
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (
+      changes['filiereId'] || 
+      changes['niveauId'] || 
+      changes['enseignantId'] || 
+      changes['userRole']
+    ) {
+      this.refreshCourseData();
+    }
   }
   
-  // swiperConfig: SwiperOptions = {
-  //   lazy: {
-  //     loadPrevNext: true,
-  //     loadOnTransitionStart: true,
-  //   },
-  //   loop: true,
-  //   navigation: true,
-  //   pagination: { clickable: true },
-  // };
+  ngOnInit() {
+    this.refreshCourseData();
+    //console.log(this.filiereId, this.niveauId);
+  }
 
-  // Méthodes pour les classes CSS (comme précédemment)
+  async refreshCourseData() {
+    // const loading = await this.loadingController.create({
+    //   message: 'Création de la session...',
+    //   spinner: 'bubbles',
+    //   backdropDismiss: false
+    // });
+    // await loading.present();
+
+    if (this.userRole === 'etudiant') {
+      if (!this.filiereId || !this.niveauId) {
+        console.error('Filiere et Niveau requis pour étudiant');
+        return;
+      }
+      this.sessionService.getSessionsByNiveauAndFiliere(this.niveauId, this.filiereId)
+        .subscribe(sessions => {
+          this.sessions = sessions;
+          this.sessionsLoaded.emit(sessions);
+        }, err => {
+          console.error('Erreur chargement sessions par filière et niveau', err);
+        });
+    } 
+    else if (this.userRole === 'enseignant') {
+      if (!this.enseignantId) {
+        //console.error('Enseignant ID requis pour enseignant');
+        return;
+      }
+      this.sessionService.getSessionsByEnseignant(this.enseignantId)
+        .subscribe(sessions => {
+          this.sessions = sessions;
+          this.sessionsLoaded.emit(sessions);
+        }, err => {
+          console.error('Erreur chargement sessions par enseignant', err);
+        });
+    }
+  }
+
+  selectSession(session: Session_Laravel) {
+    this.sessionSelected.emit(session);
+  }
+
   getSessionClass(status: string): string {
     switch (status) {
-      case 'À venir':
-        return 'bg-gradient-to-b from-green-50 to-green-100 border-b-4 border-green-600';
-      case 'En cours':
-        return 'bg-gradient-to-b from-yellow-50 to-yellow-100 border-b-4 border-yellow-600';
-      case 'Terminée':
-        return 'bg-gradient-to-b from-red-50 to-red-100 border-b-4 border-red-600';
-      default:
-        return 'bg-gray-50 border-b-4 border-gray-600';
+      case 'À venir': return 'bg-gradient-to-b from-green-50 to-green-100 border-b-4 border-green-600';
+      case 'En cours': return 'bg-gradient-to-b from-yellow-50 to-yellow-100 border-b-4 border-yellow-600';
+      case 'Terminée': return 'bg-gradient-to-b from-red-50 to-red-100 border-b-4 border-red-600';
+      default: return 'bg-gray-50 border-b-4 border-gray-600';
     }
   }
 
   getIconClass(status: string): string {
-    switch (status) {
-      case 'À venir':
-        return 'bg-green-600';
-      case 'En cours':
-        return 'bg-yellow-600';
-      case 'Terminée':
-        return 'bg-red-600';
-      default:
-        return 'bg-gray-600';
-    }
+    return {
+      'À venir': 'bg-green-600',
+      'En cours': 'bg-yellow-600',
+      'Terminée': 'bg-red-600'
+    }[status] ?? 'bg-gray-600';
   }
 
   getIcon(status: string): string {
-    switch (status) {
-      case 'À venir':
-        return 'fas fa-calendar-alt';
-      case 'En cours':
-        return 'fas fa-chalkboard-teacher';
-      case 'Terminée':
-        return 'fas fa-check-circle';
-      default:
-        return 'fas fa-question-circle';
-    }
+    return {
+      'À venir': 'fas fa-calendar-alt',
+      'En cours': 'fas fa-chalkboard-teacher',
+      'Terminée': 'fas fa-check-circle'
+    }[status] ?? 'fas fa-question-circle';
   }
 
   getStatusClass(status: string): string {
-    switch (status) {
-      case 'À venir':
-        return 'text-green-700';
-      case 'En cours':
-        return 'text-yellow-700';
-      case 'Terminée':
-        return 'text-red-700';
-      default:
-        return 'text-gray-700';
-    }
+    return {
+      'À venir': 'text-green-700',
+      'En cours': 'text-yellow-700',
+      'Terminée': 'text-red-700'
+    }[status] ?? 'text-gray-700';
   }
-
-  constructor() { }
-
-  ngOnInit() {}
-
 }

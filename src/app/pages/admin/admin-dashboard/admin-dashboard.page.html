@@ -12,13 +12,19 @@
 
       <!-- Notification urgente -->
       <div class="mt-6 bg-yellow-100 p-4 rounded-lg shadow-md">
-        <h2 class="text-lg font-bold text-yellow-800">Notification urgente</h2>
+        <h2 class="text-lg font-bold text-yellow-800">
+          <ion-icon name="notifications"></ion-icon>
+          Notification urgente
+        </h2>
         <p class="text-yellow-700">Vous avez 3 justificatifs en attente de validation.</p>
       </div>
 
       <!-- Liste des profils -->
       <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">Liste des profils</h2>
+        <h2 class="text-xl font-bold text-gray-700 mb-4">
+          <ion-icon name="people"></ion-icon>
+          Liste des profils
+        </h2>
         <input
           type="text"
           placeholder="Rechercher un profil..."
@@ -59,7 +65,10 @@
 
       <!-- Liste des cours -->
       <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">Liste des cours</h2>
+        <h2 class="text-xl font-bold text-gray-700 mb-4">
+          <ion-icon name="clipboard"></ion-icon>
+          Liste des cours
+        </h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <select class="p-2 border rounded-lg">
             <option value="all">Tous les niveaux</option>
@@ -116,7 +125,10 @@
 
       <!-- Liste des salles -->
       <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">Liste des salles</h2>
+        <h2 class="text-xl font-bold text-gray-700 mb-4">
+          <ion-icon name="home"></ion-icon>
+          Liste des salles
+        </h2>
         <table class="w-full">
           <thead>
             <tr class="bg-gray-200">
@@ -142,13 +154,19 @@
 
       <!-- Taux de présence -->
       <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">Taux de présence</h2>
+        <h2 class="text-xl font-bold text-gray-700 mb-4">
+          <ion-icon name="podium"></ion-icon>
+          Taux de présence
+        </h2>
         <canvas id="presenceChart"></canvas>
       </div>
 
       <!-- Vision sommaire des justificatifs -->
       <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">Justificatifs récents</h2>
+        <h2 class="text-xl font-bold text-gray-700 mb-4">
+          <ion-icon name="checkmark-circle"></ion-icon>
+          Justificatifs récents
+        </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="bg-gray-50 p-4 rounded-lg">
             <p class="text-gray-700">Jean Dupont - 2023-10-01</p>
@@ -165,7 +183,10 @@
 
       <!-- Historique de présence -->
       <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">Historique de présence</h2>
+        <h2 class="text-xl font-bold text-gray-700 mb-4">
+          <ion-icon name="calendar"></ion-icon>
+          Historique de présence
+        </h2>
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead>
@@ -193,6 +214,68 @@
           </table>
         </div>
       </div>
+
+      <!-- Importation des données -->
+      <div class="mt-6 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-6 flex items-center gap-2">
+          <ion-icon name="cloud-upload"></ion-icon>
+          Importer un fichier pour ajouter des informations dans la base de donnée
+        </h2>
+
+        <form #form="ngForm" (ngSubmit)="onSubmit(form)">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Champ de fichier -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Fichier</label>
+              <label
+                class="flex items-center justify-center gap-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 cursor-pointer rounded transition-all"
+              >
+                <ion-icon name="cloud-upload-outline"></ion-icon>
+                {{ fichier?.name || 'Téléverser un fichier' }}
+                <input
+                  type="file"
+                  accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                  class="hidden"
+                  (change)="onFileSelected($event)"
+                  required
+                />
+              </label>
+            </div>
+
+            <!-- Sélection de destination -->
+            <div>
+              <label for="destination" class="block text-sm font-medium text-gray-700 mb-2">Importer vers</label>
+              <select
+                id="destination"
+                name="destination"
+                [(ngModel)]="destination"
+                required
+                class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option *ngFor="let type of types" [value]="type">
+                  {{ type | titlecase }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Bouton d'envoi -->
+          <div class="flex justify-end mt-8">
+            <button
+              type="submit"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              [disabled]="!form.valid || !fichier || isLoading"
+            >
+              <ion-icon *ngIf="!isLoading" name="save-outline"></ion-icon>
+              <ion-spinner *ngIf="isLoading" name="lines" class="!w-4 !h-4"></ion-spinner>
+              <span>{{ isLoading ? 'Import en cours...' : 'Importer' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+
     </div>
   </div>
 </ion-content>

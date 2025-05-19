@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms'; // ReactiveFormsModule
 
 import { IonicModule } from '@ionic/angular';
 
@@ -14,11 +14,12 @@ import { HeaderComponent } from 'src/app/components/header/header.component';
   imports: [
     CommonModule,
     FormsModule,
+    // ReactiveFormsModule,
     IonicModule,
     AdminDashboardPageRoutingModule,
     SidebarComponent,
     HeaderComponent
   ],
-  declarations: [AdminDashboardPage] //SidebarComponent
+  declarations: [AdminDashboardPage]
 })
 export class AdminDashboardPageModule {}

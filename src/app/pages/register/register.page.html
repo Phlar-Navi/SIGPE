@@ -22,7 +22,7 @@
                 id="last_name" 
                 name="last_name" 
                 type="text"
-                [(ngModel)]="userData.last_name"
+                [(ngModel)]="userData.nom"
                 required
                 #usernameInput="ngModel"
                 clear-input="true"
@@ -65,8 +65,7 @@
               </ion-input>
             </div>
             
-            <div class="input-wrapper">
-              <!-- <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon> -->
+            <!-- <div class="input-wrapper">
               <ion-input 
                 label="Confirmez le mot de passe" 
                 label-placement="floating" 
@@ -80,7 +79,7 @@
                 fill="outline"
                 placeholder="Confirmez votre mot de passe">
               </ion-input>
-            </div>
+            </div> -->
 
             <div class="input-wrapper">
               <!-- <ion-icon name="lock-closed-outline" class="input-icon"></ion-icon> -->
@@ -90,23 +89,24 @@
                 id="username" 
                 name="username" 
                 type="text"
-                [(ngModel)]="userData.username"
+                [(ngModel)]="userData.matricule"
                 required
                 clear-input="true"
                 fill="outline"
                 placeholder="Entrez votre matricule">
               </ion-input>
+              <!-- [(ngModel)]="userData.username" -->
             </div>
 
-            <div class="input-wrapper">
+            <!-- <div class="input-wrapper">
               <ion-select [(ngModel)]="userData.type_utilisateur" name="type_utilisateur">
                 <ion-select-option value="ETU">Étudiant</ion-select-option>
                 <ion-select-option value="ENS">Enseignant</ion-select-option>
                 <ion-select-option value="ADM">Administrateur</ion-select-option>
               </ion-select>
-            </div>
+            </div> -->
 
-            <div class="input-wrapper">
+            <!-- <div class="input-wrapper">
               <ion-input 
                 label="Téléphone" 
                 label-placement="floating" 
@@ -118,9 +118,9 @@
                 fill="outline"
                 placeholder="Entrez votre numéro de téléphone">
               </ion-input>
-            </div>
+            </div> -->
 
-            <div>
+            <!-- <div>
               <ion-item>
                 <ion-label position="floating">Niveau</ion-label>
                 <ion-select [(ngModel)]="userData.niveau" name="niveau" required>
@@ -141,16 +141,16 @@
                   <ion-select-option *ngFor="let specialite of specialites" [value]="specialite.id">{{ specialite.nom }}</ion-select-option>
                 </ion-select>
               </ion-item>              
-            </div>
+            </div> -->
 
-            <!-- <div class="input-wrapper">
+            <div class="input-wrapper">
               <ion-input 
                 type="file" 
                 (change)="onFileChange($event)" 
-                accept="image/*" 
+                accept="image/*"
                 #fileInput>
               </ion-input>
-            </div> -->
+            </div>
 
           </div>
   

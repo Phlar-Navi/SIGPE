@@ -15,18 +15,19 @@
         <div class="form-group">
           <div class="input-wrapper">
             <ion-input 
-              label="Nom d'utilisateur" 
+              label="Matricule" 
               label-placement="floating" 
-              id="username" 
-              name="username" 
+              id="matricule" 
+              name="matricule" 
               type="text"
-              [(ngModel)]="userData.username"
+              [(ngModel)]="userData.matricule"
               required
               #usernameInput="ngModel"
               clear-input="true"
               fill="outline"
               placeholder="Entrez votre nom d'utilisateur">
             </ion-input>
+            <!-- id=name=[(ngModel)]="matricule"=userData.matricule -->
           </div>
 
           <div class="input-wrapper">
@@ -44,6 +45,14 @@
               placeholder="Entrez votre mot de passe">
             </ion-input>
           </div>
+
+          <div class="input-wrapper">
+            <ion-label>Vous-etes ?</ion-label>
+            <ion-select [(ngModel)]="userData.user_type" name="user_type" required>
+              <ion-select-option *ngFor="let type of types" [value]="type">{{ type }}</ion-select-option>
+            </ion-select>
+          </div>
+
         </div>
 
         <div class="button-group">

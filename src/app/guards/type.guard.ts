@@ -14,7 +14,7 @@ export const typeGuard = (allowedTypes: string[]): CanActivateFn => {
     }
 
     console.log("The page you requested is not accessible ! (Teacher guard)");
-    router.navigate(['/login']); // ou autre page
+    //router.navigate(['/login']); // ou autre page
     return false;
   };
 };

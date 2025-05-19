@@ -10,6 +10,7 @@ import { StudentCoursePage } from './student-course.page';
 import { SidebarComponent } from 'src/app/components/sidebar/sidebar.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 import { SessionListComponent } from 'src/app/components/session-list/session-list.component';
+import { SessionDetailsComponent } from 'src/app/components/session-details/session-details.component';
 
 @NgModule({
   imports: [
@@ -19,7 +20,8 @@ import { SessionListComponent } from 'src/app/components/session-list/session-li
     StudentCoursePageRoutingModule,
     SidebarComponent,
     HeaderComponent,
-    SessionListComponent
+    SessionListComponent,
+    SessionDetailsComponent
   ],
   declarations: [StudentCoursePage]
 })

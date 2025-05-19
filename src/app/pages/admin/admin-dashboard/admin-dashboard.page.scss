@@ -9,3 +9,46 @@
   .sidebar-close {
     transform: translateX(-100%);
   }
+  .input {
+    @apply w-full p-2 border border-gray-300 rounded-lg;
+  }
+  
+  .btn {
+    @apply px-4 py-2 rounded-lg text-white;
+  }
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700;
+  }
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-700;
+  }
+/* Styles globaux */
+.input-field {
+    @apply w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all;
+  }
+  
+  .file-upload-btn {
+    @apply inline-flex items-center px-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-200 transition-all cursor-pointer;
+  }
+  
+  .file-upload-btn.primary {
+    @apply bg-blue-600 text-white border-blue-600 hover:bg-blue-700;
+  }
+  
+  .primary-btn {
+    @apply px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 transition-all;
+  }
+  
+  .danger-btn {
+    @apply px-6 py-3 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-all;
+  }
+  
+  /* Animations */
+  .fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }  

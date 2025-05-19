@@ -12,25 +12,90 @@ import { environment } from 'src/environments/environment';
 })
 export class HeaderComponent  implements OnInit {
   user: any;
-
-  logoUrl: string = '../../../../assets/images/logo.png'; // URL du logo
-  title: string = 'Gestion de Présence'; // Titre du header
-  subtitle: string = ''; // Sous-titre 'Bienvenue, Dr. Moskolai Justin'
-  profileImageUrl: string = ''; // URL de l'image de profil
+  currentDate = new Date();
+  // logoUrl: string = '../../../../assets/images/logo.png'; // URL du logo
+  // title: string = 'Gestion de Présence'; // Titre du header
+  // subtitle: string = ''; // Sous-titre 'Bienvenue, Dr. Moskolai Justin'
+  // profileImageUrl: string = ''; // URL de l'image de profil
   hasNotification: boolean = true;
   // @Input() hasNotification: boolean = true; // Afficher la bulle de notification
+
+  @Input() logoUrl: string = 'assets/images/logo.png';
+  @Input() title: string = 'Nom de l\'application';
+  @Input() subtitle: string = 'Tableau de bord administrateur';
+  @Input() profileImageUrl: string = 'assets/images/profile-placeholder.png';
+  @Input() userName: string = 'Admin User';
+
+  unreadNotifications: number = 3; // À remplacer par un service réel
+  unreadMessages: number = 0;
+  showProfileMenu: boolean = false;
+  showQuickActions: boolean = false;
+  
+  quickActions = [
+    { label: 'Nouvel utilisateur', action: 'createUser' },
+    { label: 'Générer rapport', action: 'generateReport' },
+    { label: 'Importer données', action: 'importData' }
+  ];
+
+  toggleProfileMenu() {
+    this.showProfileMenu = !this.showProfileMenu;
+    if (this.showProfileMenu) this.showQuickActions = false;
+  }
+
+  toggleQuickActions() {
+    this.showQuickActions = !this.showQuickActions;
+    if (this.showQuickActions) this.showProfileMenu = false;
+  }
+
+  openNotifications() {
+    // Implémentez la navigation vers les notifications
+    console.log('Ouvrir les notifications');
+  }
+
+  openMessages() {
+    // Implémentez la navigation vers les messages
+    console.log('Ouvrir les messages');
+  }
+
+  executeAction(action: any) {
+    console.log('Exécuter action:', action);
+    this.showQuickActions = false;
+  }
+
+  navigateTo(route: string) {
+    console.log('Naviguer vers:', route);
+    this.showProfileMenu = false;
+  }
+
+  logout() {
+    console.log('Déconnexion');
+  }
 
   constructor(private authService: AuthService) { }
 
   ngOnInit() {
+    setInterval(() => {
+      this.currentDate = new Date();
+    }, 1000);
     this.authService.isReady$().subscribe(async (ready) => {
       if (ready) {
+        // Récupérer les données de l'utilisateur
         this.user = await this.authService.getUserData();
-        this.subtitle = `Bienvenue, ${this.user.full_name}`;
-        this.profileImageUrl = `${environment.apiUrl}${this.user.photo_faciale}`;
-        // console.log(this.user);
+  
+        if (this.user) {
+          // Si l'utilisateur existe et les données sont valides
+          this.subtitle = `Bienvenue, ${this.user.nom || ''}`;  // Si nom est null ou undefined, on affiche une chaîne vide
+          this.profileImageUrl = this.user.photo && this.user.photo.url 
+            ? `${environment.apiUrl}${this.user.photo.url}` // Si une photo est définie, on utilise l'URL
+            : 'assets/images/profil.jpg';  // Sinon, on utilise une image par défaut
+        } else {
+          // Si aucune donnée utilisateur n'est trouvée
+          this.subtitle = 'Bienvenue !';
+          this.profileImageUrl = 'assets/default-profile.png';  // Image par défaut si aucun utilisateur n'est connecté
+        }
       }
     });
   }
+  
 
 }

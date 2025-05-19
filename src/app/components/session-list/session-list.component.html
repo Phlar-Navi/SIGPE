@@ -1,29 +1,50 @@
-<!-- session-list.component.html -->
 <div class="bg-white p-4 rounded-lg shadow-md">
   <h3 class="text-xl font-bold text-gray-700 mb-4">Liste des Sessions</h3>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <!-- Boucle sur les sessions -->
+  <div *ngIf="sessions" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     <div
       *ngFor="let session of sessions"
-      (click)="selectSession(session.id)"
-      [ngClass]="getSessionClass(session.status)"
+      (click)="selectSession(session)"
+      [ngClass]="getSessionClass(session.statut)"
       class="rounded-lg shadow-xl p-4 cursor-pointer hover:shadow-2xl transition-shadow duration-300"
     >
       <div class="flex flex-row items-center">
         <div class="flex-shrink pr-4">
-          <div [ngClass]="getIconClass(session.status)" class="rounded-full p-3">
-            <i [ngClass]="getIcon(session.status)" class="fa-lg text-white"></i>
+          <div [ngClass]="getIconClass(session.statut)" class="rounded-full p-3">
+            <i [ngClass]="getIcon(session.statut)" class="fa-lg text-white"></i>
           </div>
         </div>
         <div class="flex-1">
-          <h4 class="text-lg font-bold text-gray-700">{{ session.title }}</h4>
-          <p class="text-sm text-gray-500">{{ session.date }}</p>
-          <p class="text-sm text-gray-500">Salle: {{ session.room }}</p>
-          <p [ngClass]="getStatusClass(session.status)" class="text-sm font-semibold">
-            Statut: {{ session.status }}
+          <h4 class="text-lg font-bold text-gray-700">
+            {{ session.matiere?.nom || 'Matière inconnue' }}
+          </h4>
+          <p class="text-sm text-gray-500">
+            {{ session.heure_debut | date: 'short' }}
+          </p>
+          <p class="text-sm text-gray-500">
+            Salle: {{ session.salle?.nom || session.salle?.nom || 'Non spécifiée' }}
+          </p>
+          <p [ngClass]="getStatusClass(session.statut)" class="text-sm font-semibold">
+            Statut: {{ session.statut }}
           </p>
         </div>
       </div>
     </div>
   </div>
+  <!-- Message quand il n'y a aucune session -->
+  <div *ngIf="sessions && !sessions.length" class="text-center py-8 text-gray-500">
+    <!-- Aucune session disponible -->
+    <div class="flex space-x-2 justify-center items-center">
+      <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce"></div>
+      <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce [animation-delay:.1s]"></div>
+      <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce [animation-delay:.2s]"></div>
+    </div>
+  </div>
+
+  <!-- Animation de chargement -->
+  <div *ngIf="!sessions" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-green-500 border-solid"></div>
+  </div>
+  <!-- <div *ngIf="!sessions" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
+  </div> -->
 </div>

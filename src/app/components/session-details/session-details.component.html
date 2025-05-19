@@ -1,0 +1,226 @@
+<div *ngIf="selectedSession !== null" class="bg-white p-6 rounded-lg shadow-lg mt-6 fade-in">
+  <!-- Mode Édition -->
+  <form *ngIf="isEditing; else viewMode" (ngSubmit)="saveSession()">
+    <div class="space-y-4">
+      <!-- Champ Date de début -->
+      <div>
+        <label class="block text-gray-700 text-sm font-medium mb-1">Heure de début</label>
+        <input 
+          type="datetime-local" 
+          [(ngModel)]="editedSession.heure_debut" 
+          name="heure_debut"
+          class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+      </div>
+
+      <!-- Champ Durée -->
+      <div>
+        <label class="block text-gray-700 text-sm font-medium mb-1">Durée (minutes)</label>
+        <input 
+          type="number" 
+          [(ngModel)]="editedSession.duree_minutes" 
+          name="duree_minutes"
+          min="10"
+          class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+      </div>
+
+      <!-- Matière -->
+      <div>
+        <label class="block text-gray-700 text-sm font-medium mb-1">Matière</label>
+        <select 
+          [(ngModel)]="editedSession.matiere_id" 
+          name="matiere"
+          class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option *ngFor="let matiere of matieres" [value]="matiere.id">
+            {{ matiere.nom }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Salle -->
+      <div>
+        <label class="block text-gray-700 text-sm font-medium mb-1">Salle</label>
+        <select 
+          [(ngModel)]="editedSession.salle_id" 
+          name="salle"
+          class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option *ngFor="let salle of salles" [value]="salle.id">
+            {{ salle.nom }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Filière -->
+      <div>
+        <label class="block text-gray-700 text-sm font-medium mb-1">Filière</label>
+        <select 
+          [(ngModel)]="editedSession.filiere_id" 
+          name="filiere"
+          class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          (change)="tryEnableMatiereField()"
+        >
+          <option *ngFor="let filiere of filieres" [value]="filiere.id">
+            {{ filiere.nom }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Niveau -->
+      <div>
+        <label class="block text-gray-700 text-sm font-medium mb-1">Niveau</label>
+        <select 
+          [(ngModel)]="editedSession.niveau_id" 
+          name="niveau"
+          class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          (change)="tryEnableMatiereField()"
+        >
+          <option *ngFor="let niveau of niveaux" [value]="niveau.id">
+            {{ niveau.nom }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Boutons Édition -->
+      <div class="flex space-x-3 mt-4">
+        <button 
+          type="submit" 
+          class="flex-1 bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 transition"
+        >
+          Enregistrer
+        </button>
+        <button 
+          type="button" 
+          (click)="cancelEditing()"
+          class="flex-1 bg-gray-500 text-white py-2 rounded-lg font-medium hover:bg-gray-600 transition"
+        >
+          Annuler
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <ng-template #viewMode>
+    <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Détails de la Session</h3>
+
+    <div *ngIf="selectedSession" class="space-y-3">
+      <p><strong> <ion-icon name="book"></ion-icon> Matière :</strong> {{ selectedSession.matiere?.nom ?? '-' }}</p>
+    <p><strong> <ion-icon name="home"></ion-icon> Salle :</strong> {{ selectedSession.salle?.nom ?? '-' }}</p>
+    <p><strong> <ion-icon name="person"></ion-icon> Enseignant :</strong> 
+      {{ selectedSession.enseignant?.nom ?? '-' }}
+    </p>
+    <p *ngIf="role === 'enseignant'"><strong> <ion-icon name="school"></ion-icon> Filière :</strong> {{ selectedSession.filiere?.nom ?? '-' }}</p>
+    <p *ngIf="role === 'enseignant'"><strong> <ion-icon name="clipboard"></ion-icon> Niveau :</strong> {{ selectedSession.niveau?.nom ?? '-' }}</p>
+
+    <!-- <p><strong> <ion-icon name="alarm"></ion-icon> Heure de début :</strong> {{ selectedSession.heure_debut | date: 'fullDate' }} à {{ selectedSession.heure_debut | date: 'shortTime' }}</p>
+    <p><strong> <ion-icon name="time"></ion-icon> Heure de fin :</strong> {{ selectedSession.heure_fin | date: 'fullDate' }} à {{ selectedSession.heure_fin | date: 'shortTime' }}</p> -->
+
+    <p><strong> <ion-icon name="time"></ion-icon> Horaires :</strong> {{ selectedSession.heure_debut | date: 'fullDate' }} de {{ selectedSession.heure_debut | date: 'shortTime' }} à {{ selectedSession.heure_fin | date: 'shortTime' }}</p>
+    <!-- <p><strong> <ion-icon name="time"></ion-icon> Heure de fin :</strong> {{ selectedSession.heure_fin | date: 'fullDate' }} à {{ selectedSession.heure_fin | date: 'shortTime' }}</p> -->
+
+    <p><strong> <ion-icon name="speedometer"></ion-icon> Status :</strong> 
+      <span [ngClass]="getStatusClasses(selectedSession.statut)">
+        {{ getStatusLabel(selectedSession.statut) }}
+      </span>
+    </p>
+
+    <p *ngIf="selectedSession.description"><strong>Description :</strong> {{ selectedSession.description }}</p>
+    
+    </div>
+
+
+    <!-- Étudiants inscrits (si session en cours) -->
+    <div *ngIf="selectedSession.statut === 'En cours'" class="mt-6">
+      <h4 class="text-lg font-bold text-gray-700 mb-4">Étudiants inscrits</h4>
+      <div *ngIf="students.length > 0" class="overflow-x-auto bg-gray-50 rounded-lg p-4 shadow-sm">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-200">
+              <th class="p-3 text-left text-gray-700">Nom</th>
+              <th class="p-3 text-left text-gray-700">Matricule</th>
+              <th class="p-3 text-center text-gray-700">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let student of students" class="border-b hover:bg-gray-100 transition">
+              <td class="p-3 text-gray-700">{{ student.name }}</td>
+              <td class="p-3 text-gray-700">{{ student.matricule }}</td>
+              <td class="p-3 text-center">
+                <button *ngIf="role === 'enseignant'" 
+                        (click)="removeStudent.emit(student)" 
+                        class="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition">
+                  Supprimer
+                </button>
+                <button *ngIf="role === 'enseignant'" 
+                        (click)="viewStudent.emit(student.id)" 
+                        class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition">
+                  Voir
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Étudiants présents (si session Terminée) -->
+    <div *ngIf="selectedSession.statut === 'Terminée'" class="mt-6">
+      <h4 class="text-lg font-bold text-gray-700 mb-4">Étudiants présents</h4>
+      <div class="overflow-x-auto bg-gray-50 rounded-lg p-4 shadow-sm">
+        <!-- Similaire au tableau ci-dessus -->
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-200">
+              <th class="p-3 text-left text-gray-700">Nom</th>
+              <th class="p-3 text-left text-gray-700">Matricule</th>
+              <th class="p-3 text-center text-gray-700">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let student of students" class="border-b hover:bg-gray-100 transition">
+              <td class="p-3 text-gray-700">{{ student.name }}</td>
+              <td class="p-3 text-gray-700">{{ student.matricule }}</td>
+              <td class="p-3 text-center">
+                <button 
+                  (click)="viewStudent.emit(student.id)" 
+                  class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition">
+                  Voir
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Actions disponibles (enseignant uniquement) -->
+    <div class="mt-6 space-y-3" *ngIf="role === 'enseignant'">
+      <button *ngIf="selectedSession.statut == 'À venir'"
+        (click)="startEditing(selectedSession)" 
+        class="w-full bg-green-500 text-white py-2 rounded-lg font-medium shadow hover:bg-green-600 transition"
+      >
+        Lancer la session
+      </button>
+      <button *ngIf="selectedSession.statut == 'À venir'"
+        (click)="startEditing(selectedSession)" 
+        class="w-full bg-yellow-500 text-white py-2 rounded-lg font-medium shadow hover:bg-yellow-600 transition"
+      >
+        Modifier la session
+      </button>
+
+      <button *ngIf="selectedSession.statut === 'En cours'" 
+              (click)="terminateSession.emit()" 
+              class="w-full bg-red-500 text-white py-2 rounded-lg font-medium shadow hover:bg-red-700 transition">
+        Terminer la session
+      </button>
+
+      <button *ngIf="selectedSession.statut === 'À venir'" 
+              (click)="cancelSession.emit()" 
+              class="w-full bg-red-500 text-white py-2 rounded-lg font-medium shadow hover:bg-red-700 transition">
+        Annuler la session
+      </button>
+    </div>
+  </ng-template>
+</div>

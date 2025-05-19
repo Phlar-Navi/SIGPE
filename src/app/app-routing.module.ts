@@ -8,7 +8,7 @@ import { redirectIfAuthenticatedGuard } from './guards/redirect-if-authenticated
 const routes: Routes = [
   {
     path: 'home',
-    canActivate: [redirectIfAuthenticatedGuard],
+    // canActivate: [redirectIfAuthenticatedGuard],
     loadChildren: () => import('./pages/authentification/login/login.module').then( m => m.LoginPageModule)
   },
   // {
@@ -22,54 +22,58 @@ const routes: Routes = [
   },
   {
     path: 'student-dashboard',
-    canActivate: [typeStudentGuard(['ETU'])],
+    // canActivate: [typeStudentGuard(['ETU'])],
     loadChildren: () => import('./pages/student/student-dashboard/student-dashboard.module').then( m => m.StudentDashboardPageModule)
   },
   {
     path: 'register',
-    canActivate: [redirectIfAuthenticatedGuard],
+    // canActivate: [redirectIfAuthenticatedGuard],
     loadChildren: () => import('./pages/register/register.module').then( m => m.RegisterPageModule)
   },
   {
     path: 'teacher-dashboard',
-    canActivate: [typeGuard(['ENS'])],
+    // canActivate: [typeGuard(['ENS'])],
     loadChildren: () => import('./pages/teacher/teacher-dashboard/teacher-dashboard.module').then( m => m.TeacherDashboardPageModule)
   },
   {
     path: 'admin-dashboard',
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
     loadChildren: () => import('./pages/admin/admin-dashboard/admin-dashboard.module').then( m => m.AdminDashboardPageModule)
   },
   {
     path: 'student-course',
-    canActivate: [typeStudentGuard(['ETU'])],
+    // canActivate: [typeStudentGuard(['ETU'])],
     loadChildren: () => import('./pages/student/student-course/student-course.module').then( m => m.StudentCoursePageModule)
   },
   {
     path: 'teacher-course',
-    canActivate: [typeGuard(['ENS'])],
+    // canActivate: [typeGuard(['ENS'])],
     loadChildren: () => import('./pages/teacher/teacher-course/teacher-course.module').then( m => m.TeacherCoursePageModule)
   },
   {
     path: 'profile',
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
     loadChildren: () => import('./pages/profile/profile.module').then( m => m.ProfilePageModule)
   },
   {
     path: 'notification',
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
     loadChildren: () => import('./pages/notification/notification.module').then( m => m.NotificationPageModule)
   },
   {
     path: 'justification',
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
     loadChildren: () => import('./pages/justification/justification.module').then( m => m.JustificationPageModule)
   },
   {
     path: 'login',
-    canActivate: [redirectIfAuthenticatedGuard],
+    // canActivate: [redirectIfAuthenticatedGuard],
     loadChildren: () => import('./pages/authentification/login/login.module').then( m => m.LoginPageModule)
+  },  {
+    path: 'import',
+    loadChildren: () => import('./pages/import/import.module').then( m => m.ImportPageModule)
   },
+
 
 ];
 

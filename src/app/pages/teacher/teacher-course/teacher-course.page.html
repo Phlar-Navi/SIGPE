@@ -14,214 +14,186 @@
       <div class="mt-6">
         <h2 class="text-2xl font-bold text-gray-700 mb-4">Session de Cours</h2>
 
-        <!-- Bouton pour créer une nouvelle session -->
-        <ion-button
-          (click)="showCreateSession = true"
-          class="text-white p-2 rounded-lg mb-4" 
-          color="tertiary"
-          style="text-transform: none; color: white;"
-        >
-          Créer une nouvelle session
-        </ion-button>
-
         <!-- Formulaire de création de session -->
-        <div *ngIf="showCreateSession" class="bg-white p-4 rounded-lg shadow-md mb-4 fade-in">
-          <h3 class="text-xl font-bold text-gray-700 mb-4">Nouvelle Session</h3>
-          <form (ngSubmit)="onSubmit()">
-            <div class="mb-4">
-              <label class="block text-gray-700">Nom du cours</label>
-              <input type="text" [(ngModel)]="newSession.title" name="title" class="w-full p-2 border rounded-lg" required>
-            </div>
-            <div class="mb-4 relative">
-              <label class="block text-gray-700">Date et heure de debut</label>
-              <div class="relative">
-                <input
-                  type="datetime-local"
-                  [(ngModel)]="newSession.date"
-                  name="startTime"
-                  id="datetimeInput"
-                  class="w-full p-2 border rounded-lg pr-10"
-                  required
-                />
-                <!-- Icône de calendrier cliquable -->
-                <i
-                  class="fas fa-calendar-alt absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
-                  (click)="openDateTimePicker()"
-                ></i>
-              </div>
-            </div>
-            <div class="mb-4 relative">
-              <label class="block text-gray-700">Date et heure de fin</label>
-              <div class="relative">
-                <input
-                  type="datetime-local"
-                  [(ngModel)]="newSession.date_fin"
-                  name="endtime"
-                  id="datetimeInput"
-                  class="w-full p-2 border rounded-lg pr-10"
-                  required
-                />
-                <!-- Icône de calendrier cliquable -->
-                <i
-                  class="fas fa-calendar-alt absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
-                  (click)="openDateTimePicker()"
-                ></i>
-              </div>
-            </div>
-            <div class="mb-4">
-              <label class="block text-gray-700">Salle</label>
-              <input type="text" [(ngModel)]="newSession.room" name="room" class="w-full p-2 border rounded-lg" required>
-            </div>
-            <div class="mb-4">
-              <label class="block text-gray-700">Description</label>
-              <textarea [(ngModel)]="newSession.description" name="description" class="w-full p-2 border rounded-lg"></textarea>
-            </div>
-            <ion-button type="submit" class="text-white p-2 rounded-lg" style="text-transform: none;" color="tertiary">Créer</ion-button>
-            <ion-button
-              (click)="showCreateSession = false"
-              type="button"
-              class="text-white p-2 rounded-lg ml-2"
-              color="medium"
-              style="text-transform: none;"
-            >
-              Annuler
-            </ion-button>
-          </form>
-        </div>
+        <div class="bg-white p-4 rounded-lg shadow-md mb-4 fade-in">
+          <!-- *ngIf="showCreateSession" -->
+          <!-- <h3 class="text-xl font-bold text-gray-700 mb-4">Nouvelle Session</h3> -->
 
-      <!-- Liste des sessions de cours -->
-      <app-session-list
-      [sessions]="sessions"
-      (sessionSelected)="onSessionSelected($event)"
-      >
-      </app-session-list>
+          <form [formGroup]="sessionForm" (ngSubmit)="onSubmit()" class="mt-6 max-w-4xl mx-auto space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
+              <h2 class="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-2">
+                <ion-icon name="time-outline"></ion-icon>
+                Création de session
+              </h2>
+          
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Matière -->
+                <div class="space-y-1">
+                  <label class="block text-sm font-medium text-gray-700">Matière</label>
+                  <ion-select 
+                    formControlName="matiere"
+                    class="input-field"
+                    interface="action-sheet"
+                    placeholder="Choisissez une matière">
+                    <ion-select-option *ngFor="let matiere of matieres" [value]="matiere.id">
+                      {{ matiere.nom }}
+                    </ion-select-option>
+                  </ion-select>
+                </div>
+          
+                <!-- Salle -->
+                <div class="space-y-1">
+                  <label class="block text-sm font-medium text-gray-700">Salle</label>
+                  <ion-select 
+                    formControlName="salle"
+                    class="input-field"
+                    interface="action-sheet"
+                    placeholder="Choisissez une salle">
+                    <ion-select-option *ngFor="let salle of salles" [value]="salle.id">
+                      {{ salle.nom }}
+                    </ion-select-option>
+                  </ion-select>
+                </div>
+          
+                <!-- Filière -->
+                <div class="space-y-1">
+                  <label class="block text-sm font-medium text-gray-700">Filière</label>
+                  <ion-select 
+                    formControlName="filiere"
+                    class="input-field"
+                    interface="action-sheet"
+                    placeholder="Choisissez une filière">
+                    <ion-select-option *ngFor="let filiere of filieres" [value]="filiere.id">
+                      {{ filiere.nom }}
+                    </ion-select-option>
+                  </ion-select>
+                </div>
+          
+                <!-- Niveau -->
+                <div class="space-y-1">
+                  <label class="block text-sm font-medium text-gray-700">Niveau</label>
+                  <ion-select 
+                    formControlName="niveau"
+                    class="input-field"
+                    interface="action-sheet"
+                    placeholder="Choisissez un niveau">
+                    <ion-select-option *ngFor="let niveau of niveaux" [value]="niveau.id">
+                      {{ niveau.nom }}
+                    </ion-select-option>
+                  </ion-select>
+                </div>
+          
+                <!-- Date -->
+                <!-- <div class="space-y-1">
+                  <label class="block text-sm font-medium text-gray-700">Date</label>
+                  <ion-datetime
+                    formControlName="date"
+                    class="input-field"
+                    presentation="date"
+                    [value]="today"
+                    placeholder="Choisissez une date">
+                  </ion-datetime>
+                </div> -->
+          
+                <!-- Heure de début -->
+                <!-- <div class="space-y-1">
+                  <label class="block text-sm font-medium text-gray-700">Heure de début</label>
+                  <ion-datetime
+                    formControlName="heure_debut"
+                    class="input-field"
+                    presentation="time"
+                    placeholder="Choisissez l'heure">
+                  </ion-datetime>
+                </div> -->
 
-        <!-- Détails de la session sélectionnée -->
-        <div *ngIf="selectedSession !== null; else noSession" class="bg-white p-6 rounded-lg shadow-lg mt-6 fade-in">
-          <!-- Titre avec séparation -->
-          <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Détails de la Session</h3>
-        
-          <!-- Informations de la session -->
-          <div class="space-y-3">
-            <p class="text-gray-700"><strong>Cours :</strong> {{ selectedSession.title }}</p>
-            <p class="text-gray-700"><strong>Date :</strong> de {{ selectedSession.date }} à {{ selectedSession.date_fin }}</p>
-            <p class="text-gray-700"><strong>Salle :</strong> {{ selectedSession.room }}</p>
-            <p class="text-gray-700"><strong>Enseignant :</strong> {{ selectedSession.teacher }}</p>
-        
-            <!-- Badge de statut -->
-            <div [ngClass]="{
-              'bg-yellow-100 text-yellow-700 border-yellow-500': selectedSession.status === 'En cours',
-              'bg-green-100 text-green-700 border-green-500': selectedSession.status === 'À venir',
-              'bg-red-100 text-red-700 border-red-500': selectedSession.status === 'Terminée'
-            }" 
-            class="inline-block px-4 py-1 rounded-full border text-sm font-medium">
-              {{ selectedSession.status }}
-            </div>
-          </div>
-        
-          <!-- Affichage spécial pour les sessions en cours -->
-          <div *ngIf="selectedSession.status == 'En cours'" class="mt-6">
-            <h4 class="text-lg font-bold text-gray-700 mb-4">Étudiants inscrits</h4>
-        
-            <!-- Tableau stylisé -->
-            <div class="overflow-x-auto bg-gray-50 rounded-lg p-4 shadow-sm">
-              <div *ngIf="manualAttendanceList.length > 0" class="mt-6">
-                <div class="overflow-x-auto bg-gray-50 rounded-lg p-4 shadow-sm">
-                  <table class="w-full border-collapse">
-                    <thead>
-                      <tr class="bg-gray-200">
-                        <th class="p-3 text-left text-gray-700">Nom</th>
-                        <th class="p-3 text-left text-gray-700">Matricule</th>
-                        <th class="p-3 text-center text-gray-700">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let student of manualAttendanceList" class="border-b hover:bg-gray-100 transition">
-                        <td class="p-3 text-gray-700">{{ student.name }}</td>
-                        <td class="p-3 text-gray-700">{{ student.matricule }}</td>
-                        <td class="p-3 text-center">
-                          <button
-                            (click)="removeStudentFromAttendance(student)"
-                            class="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition"
-                          >
-                            Supprimer
-                          </button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                <!-- Date et Heure de début -->
+                <div class="mb-4 relative">
+                  <label class="block text-gray-700">Date et heure de début</label>
+                  <div class="relative">
+                    <input
+                      type="datetime-local"
+                      formControlName="heure_debut"
+                      name="startTime"
+                      id="datetimeInput"
+                      class="w-full p-2 border rounded-lg pr-10"
+                      required
+                    />
+                    <!-- Icône de calendrier cliquable -->
+                    <i
+                      class="fas fa-calendar-alt absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"
+                      (click)="openDateTimePicker()"
+                    ></i>
+                  </div>
+                </div>
+                
+                <!-- <div class="space-y-1">
+                  <label class="block text-sm font-medium text-gray-700">Date et Heure de début</label>
+                  <ion-datetime
+                    formControlName="heure_debut"
+                    class="input-field"
+                    presentation="date-time"
+                    [value]="today"
+                    placeholder="Choisissez la date et l'heure">
+                  </ion-datetime>
+                </div> -->
+
+          
+                <!-- Durée -->
+                <div class="md:col-span-2 space-y-1">
+                  <label class="block text-sm font-medium text-gray-700">Durée (minutes)</label>
+                  <ion-input
+                    type="number"
+                    formControlName="duree"
+                    class="input-field"
+                    placeholder="Durée en minutes (ex: 90)">
+                  </ion-input>
                 </div>
               </div>
             </div>
-            
-          </div>
-
-          <!-- Affichage spécial des étudaints effectivement enregistrés pour les sessions terminées -->
-          <div *ngIf="selectedSession.status == 'Terminée'" class="mt-6">
-            <h4 class="text-lg font-bold text-gray-700 mb-4">Étudiants présents</h4>
-        
-            <!-- Tableau stylisé -->
-            <div class="overflow-x-auto bg-gray-50 rounded-lg p-4 shadow-sm">
-              <table class="w-full border-collapse">
-                <thead>
-                  <tr class="bg-gray-200">
-                    <th class="p-3 text-left text-gray-700">Nom</th>
-                    <th class="p-3 text-left text-gray-700">matricule</th>
-                    <th class="p-3 text-center text-gray-700">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Étudiant 1 -->
-                  <tr class="border-b hover:bg-gray-100 transition">
-                    <td class="p-3 text-gray-700">Jean Dupont</td>
-                    <td class="p-3 text-gray-700">11S26486</td>
-                    <td class="p-3 text-center">
-                      <button 
-                        (click)="viewStudentProfile(1)" 
-                        class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition">
-                        Voir
-                      </button>
-                    </td>
-                  </tr>
-                  <!-- Étudiant 2 -->
-                  <tr class="border-b hover:bg-gray-100 transition">
-                    <td class="p-3 text-gray-700">Marie Curie</td>
-                    <td class="p-3 text-gray-700">19S69300</td>
-                    <td class="p-3 text-center">
-                      <button 
-                        (click)="viewStudentProfile(2)" 
-                        class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition">
-                        Voir
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+          
+            <!-- Action Button -->
+            <div class="flex justify-end mt-8">
+              <button 
+                type="submit" 
+                class="primary-btn flex items-center justify-center gap-2 px-6 py-3"
+                [disabled]="sessionForm.invalid">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                Créer la session
+              </button>
             </div>
-          </div>
-        
-          <!-- Actions disponibles -->
-          <div class="mt-6">
-            <!-- Bouton pour terminer la session -->
-            <button *ngIf="selectedSession.status == 'En cours'" 
-              (click)="showAttendance = true" 
-              class="w-full bg-red-600 text-white py-2 rounded-lg font-medium shadow hover:bg-red-700 transition">
-              Terminer la session
-            </button>
-        
-            <!-- Bouton pour annuler la session -->
-            <button *ngIf="selectedSession.status == 'À venir'" 
-              (click)="onSessionDeleted()" 
-              class="w-full bg-red-600 text-white py-2 rounded-lg font-medium shadow hover:bg-red-700 transition">
-              Annuler la session
-            </button>
-        
-            <!-- Statut de présence (si la session est terminée) -->
-            <!-- <p *ngIf="selectedSession.status === 'Terminée'" class="mt-4 text-center text-gray-700 font-semibold">
-              ✅ Vous avez été marqué <span class="text-green-600">Présent</span>.
-            </p> -->
-          </div>
+          </form>
+          
+
+          
         </div>
+
+        <!-- <app-session-list
+          [sessions]="sessions"
+          (sessionSelected)="onSessionSelected($event)"
+          (sessionsLoaded)="onSessionsLoaded($event)">
+        </app-session-list> -->
+        <app-session-list
+          [userRole]="userRole"
+          [enseignantId]="enseignantId"
+          (sessionSelected)="onSessionSelected($event)"
+          (sessionsLoaded)="onSessionsLoaded($event)"
+        >
+        </app-session-list>
+
+
+
+        <!-- Détails de la session sélectionnée -->
+        <app-session-details
+          [selectedSession]="selectedSession"
+          [matieres_specifiques]="matieres"
+          [students]="manualAttendanceList"
+          role="enseignant"
+          [teacher_id]="enseignantId"
+          (terminateSession)="showAttendance = true"
+          (sessionUpdated)="onSessionUpdated()"
+          (cancelSession)="onSessionDeleted()">
+        </app-session-details>
+
 
         <ng-template #noSession>
           <div class="bg-white p-4 rounded-lg shadow-md mt-4 fade-in">
@@ -231,7 +203,7 @@
 
         <!-- Prise de présence manuelle -->
         <div
-          *ngIf="showAttendance"
+          *ngIf="selectedSession?.statut === 'En cours'"
           class="bg-white p-6 rounded-lg shadow-lg mt-6 fade-in"
         >
           <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Prendre la présence manuellement</h3>
@@ -295,11 +267,7 @@
             </ion-button>
           </div>
         </div>
-        <!-- <ng-template #noStats>
-          <div class="bg-white p-4 rounded-lg shadow-md mt-4 fade-in">
-            <h3 class="text-xl font-bold text-gray-700 mb-4">Pas de statistiques à afficher</h3>
-          </div>
-        </ng-template> -->
+        
       </div>
     </div>
   </div>

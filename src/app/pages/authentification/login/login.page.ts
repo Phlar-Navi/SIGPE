@@ -12,9 +12,11 @@ import { LoadingController } from '@ionic/angular';
 })
 export class LoginPage implements OnInit {
   userData: any = {
-    username: '',
-    password: ''
+    matricule: '',
+    password: '',
+    user_type:''
   };
+  types: string[] = ['Etudiant', 'Enseignant', 'Admin'];
   
   async onLogin(form: NgForm) {
     const loading = await this.loadingController.create({
@@ -25,37 +27,44 @@ export class LoginPage implements OnInit {
     await loading.present();
 
     if (form.valid) {
-      this.authService.login({ username: this.userData.username, password: this.userData.password}).subscribe({
+      const { matricule, password, user_type } = this.userData;
+
+      // Important : convertit 'Etudiant' en 'etudiant' si nécessaire
+      const normalizedUserType = user_type.toLowerCase(); // 'Etudiant' → 'etudiant'
+
+      this.authService.login(matricule, password, normalizedUserType).subscribe({
         next: async (res: any) => {
-          // await this.authService.saveTokens(res.access, res.refresh);
           await loading.dismiss();
-          this.redirectBasedOnUserType(res.type_utilisateur);
+          // this.redirectBasedOnUserType(res.utilisateur); // ou res.type_utilisateur selon ta réponse
           form.resetForm();
         },
         error: async (err) => {
           await loading.dismiss();
-          console.log('Erreur de login', err);
+          console.error('Erreur de login', err);
         }
       });
     }
+
   }
 
-  //Renvoyer l'user sur une page en fonction de son type
-  private redirectBasedOnUserType(userType: string) {
-    switch(userType) {
-      case 'ETU':
-        this.router.navigate(['/student-dashboard']);
-        break;
-      case 'ENS':
-        this.router.navigate(['/teacher-dashboard']);
-        break;
-      case 'ADM':
-        this.router.navigate(['/admin-dashboard']);
-        break; 
-      default:
-        this.router.navigate(['/']);
-    }
-  }
+
+
+  // private redirectBasedOnUserType_DJANGO(userType: string) {
+  //   //this.router.navigate(['/student-dashboard']);
+  //   switch(userType) {
+  //     case 'ETU':
+  //       this.router.navigate(['/student-dashboard']);
+  //       break;
+  //     case 'ENS':
+  //       this.router.navigate(['/teacher-dashboard']);
+  //       break;
+  //     case 'ADM':
+  //       this.router.navigate(['/admin-dashboard']);
+  //       break; 
+  //     default:
+  //       this.router.navigate(['/']);
+  //   }
+  // }
   
   loginWithGoogle(){}
   loginWithFacebook(){}

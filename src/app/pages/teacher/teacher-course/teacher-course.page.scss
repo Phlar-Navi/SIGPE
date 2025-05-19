@@ -2,3 +2,42 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  .input-field {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background-color: #f8fafc;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    
+    &:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+  }
+  
+  .primary-btn {
+    background-color: #3b82f6;
+    color: white;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background-color: #2563eb;
+      transform: translateY(-1px);
+    }
+    
+    &:disabled {
+      background-color: #cbd5e1;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    ion-icon {
+      font-size: 18px;
+    }
+  }

@@ -84,8 +84,8 @@ export class SidebarComponent  implements OnInit {
   }
 
   getRoute(key: string): string {
-    if (!this.user || !this.user.type_utilisateur) return '/login';
-    return this.routesByUserType[this.user.type_utilisateur]?.[key] || '/';
+    if (!this.user || !this.user.utilisateur) return '/login';
+    return this.routesByUserType[this.user.utilisateur]?.[key] || '/';
   }  
 
   isActive(route: string): boolean {
@@ -100,10 +100,12 @@ export class SidebarComponent  implements OnInit {
 
   async ngOnInit() {
     this.checkScreenSize();
+
+    // Si tu veux être sûr que le service est prêt (si tu as une logique async avant), utilise ce bloc
     this.authService.isReady$().subscribe(async (ready) => {
       if (ready) {
         this.user = await this.authService.getUserData();
-        // console.log(this.user);
+        //console.log('Utilisateur récupéré :', this.user);
       }
     });
   }
