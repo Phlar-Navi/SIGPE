@@ -28,6 +28,11 @@ import { Router } from '@angular/router';
 export class JwtInterceptor implements HttpInterceptor {
   private isRefreshing = false;
   private refreshTokenSubject = new BehaviorSubject<string | null>(null);
+  private readonly STORAGE_KEYS = {
+    ACCESS_TOKEN: 'access_token',
+    USER_DATA: 'user_data',
+    USER_TYPE: 'type_utilisateur'
+  };
 
   constructor(
     private storage: Storage,
@@ -43,7 +48,7 @@ export class JwtInterceptor implements HttpInterceptor {
       '/api/presences/specialites',
       '/api/presences/matieres',
       '/api/presences/salles',
-      'http://localhost:8000/api/loginAdmin'
+      '/api/loginAdmin'
     ];
 
     // Si la requête est vers une URL publique, on laisse passer sans token
@@ -51,7 +56,7 @@ export class JwtInterceptor implements HttpInterceptor {
       return next.handle(request);
     }
 
-    return from(this.storage.get('access_token')).pipe(
+    return from(this.storage.get(this.STORAGE_KEYS.ACCESS_TOKEN)).pipe(
       switchMap((token) => {
         if (token) {
           request = this.addTokenHeader(request, token);
@@ -67,6 +72,42 @@ export class JwtInterceptor implements HttpInterceptor {
       })
     );
   }
+
+  // intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+  // // URLs publiques
+  //   const publicUrls = ['/api/loginAdmin', '/api/loginEtudiant', '/api/loginEnseignant'];
+
+  //   if (publicUrls.some(url => request.url.includes(url))) {
+  //     return next.handle(request);
+  //   }
+
+  //   return from(this.storage.get(this.STORAGE_KEYS.ACCESS_TOKEN)).pipe(
+  //     switchMap((token) => {
+  //       console.log('Token from storage:', token); // Debug
+  //       if (!token) {
+  //         this.router.navigate(['/login']);
+  //         return throwError(() => new Error('No token found'));
+  //       }
+
+  //       const authReq = request.clone({
+  //         setHeaders: {
+  //           Authorization: `Bearer ${token}`
+  //         }
+  //       });
+
+  //       return next.handle(authReq).pipe(
+  //         catchError((error) => {
+  //           console.error('HTTP Error:', error); // Debug
+  //           if (error.status === 401) {
+  //             this.authService.logout();
+  //             this.router.navigate(['/login']);
+  //           }
+  //           return throwError(() => error);
+  //         })
+  //       );
+  //     })
+  //   );
+  // }
 
   private addTokenHeader(request: HttpRequest<any>, token: string): HttpRequest<any> {
     return request.clone({

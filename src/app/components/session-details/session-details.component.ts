@@ -12,6 +12,12 @@ import { SessionListComponent } from '../session-list/session-list.component';
 import { HttpClient } from '@angular/common/http';
 import { ToastController } from '@ionic/angular';
 import { LoadingController } from '@ionic/angular';
+import { Presence } from 'src/app/services/session.service';
+import { Chart } from 'chart.js/auto';
+import { ElementRef } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
+
+type Statut = 'présent' | 'en retard' | 'absent';
 
 @Component({
   selector: 'app-session-details',
@@ -30,15 +36,22 @@ export class SessionDetailsComponent {
   @ViewChild(SessionListComponent) sessionListComponent!: SessionListComponent;
   @Output() sessionUpdated = new EventEmitter<void>();
 
+  @Output() viewStudent = new EventEmitter<number>();
+  @Output() markPresent = new EventEmitter<number>();
+  @Output() markAbsent = new EventEmitter<number>();
+
   @Input() selectedSession: Session_Laravel | null = null;
-  @Input() students: any[] = [];
+  //@Input() students: any[] = [];
+
+  students: Presence[] = [];
+
   @Input() matieres_specifiques: any[] = [];
   @Input() role: 'etudiant' | 'enseignant' = 'etudiant';
   @Input() teacher_id?: number;
   @Input() filiere_id?: number;
   @Input() niveau_id?: number;
 
-  @Output() viewStudent = new EventEmitter<number>();
+  //@Output() viewStudent = new EventEmitter<number>();
   @Output() removeStudent = new EventEmitter<any>();
   @Output() terminateSession = new EventEmitter<void>();
   @Output() cancelSession = new EventEmitter<void>();
@@ -58,6 +71,131 @@ export class SessionDetailsComponent {
 
   isEditing = false;
   editedSession: any = {};
+
+  selectedStudent: any;
+  chartInstance: Chart | null = null;
+
+  openModal(student: any) {
+    this.selectedStudent = student;
+    console.log('Ouverture modal pour :', student);
+
+    setTimeout(() => {
+      this.renderStudentChart();
+    }, 200); // 200ms plus sûr
+  }
+
+
+  renderStudentChart(retries = 10) {
+    if (this.chartInstance) {
+      this.chartInstance.destroy();
+    }
+
+    const canvasId = 'studentChart_' + this.selectedStudent.etudiant.id;
+    const canvasElement = document.getElementById(canvasId) as HTMLCanvasElement | null;
+
+    if (!canvasElement) {
+      if (retries > 0) {
+        setTimeout(() => this.renderStudentChart(retries - 1), 100); // Retry
+      } else {
+        console.error('Canvas element not found after multiple attempts');
+      }
+      return;
+    }
+
+    const ctx = canvasElement.getContext('2d');
+    if (!ctx) {
+      console.error('Unable to get canvas context');
+      return;
+    }
+
+    const presences = this.selectedStudent.stats?.presences || 5;
+    const absences = this.selectedStudent.stats?.absences || 3;
+    const retards = this.selectedStudent.stats?.retards || 1;
+
+    this.chartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Présences', 'Absences', 'Retards'],
+        datasets: [{
+          data: [presences, absences, retards],
+          backgroundColor: ['#16a34a', '#dc2626', '#facc15'],
+          hoverOffset: 8,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+          },
+        },
+      },
+    });
+  }
+
+
+  closeModal() {
+    if (this.chartInstance) {
+      this.chartInstance.destroy();
+      this.chartInstance = null;
+    }
+    this.selectedStudent = null;
+  }
+
+  async startSession(session: any){
+    const loading = await this.loadingController.create({
+      message: 'Lancement de la session...',
+      spinner: 'bubbles',
+      backdropDismiss: false
+    });
+    await loading.present();
+
+    this.sessionService.lancerSession(session.id).subscribe(async () => {
+      this.selectedSession = null;
+      this.sessionUpdated.emit();
+      await loading.dismiss();
+      this.showToast("Session lancée", 'primary');
+    });
+  }
+
+  loadList(session: Session_Laravel | null) {
+    if (!session) return;
+
+    this.sessionService.getEtudiants(session.id).subscribe({
+      next: (data) => {
+        this.students = data;
+        this.sortStudents();
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des étudiants :', err);
+      }
+    });
+  }
+
+  sortStudents() {
+    const ordre: Record<Statut, number> = {
+      'présent': 0,
+      'en retard': 1,
+      'absent': 2
+    };
+
+    this.students = this.students.sort((a, b) => {
+      return ordre[a.statut as Statut] - ordre[b.statut as Statut];
+    });
+  }
+
+  get sortedStudents() {
+    const ordre: Record<Statut, number> = {
+      'présent': 0,
+      'en retard': 1,
+      'absent': 2
+    };
+    return [...this.students].sort((a, b) =>
+      ordre[a.statut as Statut] - ordre[b.statut as Statut]
+    );
+  }
+
 
   startEditing(session: any) {
     this.isEditing = true;
@@ -208,17 +346,17 @@ export class SessionDetailsComponent {
     private metadataService: MetadataService,
     private http: HttpClient,
     private toastController: ToastController,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  async ngOnChanges(changes: SimpleChanges) {
-    if (changes['selectedSession']) {
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['selectedSession'] && this.selectedSession) {
       this.isEditing = false;
+      this.loadList(this.selectedSession);
     }
-    // if (changes['selectedSession'] && this.selectedSession) {
-    //   await this.loadSessionDetails();
-    // }
   }
+
 
   // private async loadSessionDetails() {
   //   // Charger les salles une seule fois

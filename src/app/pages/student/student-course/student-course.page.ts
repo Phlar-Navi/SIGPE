@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Chart } from 'chart.js/auto';
 // import { Session } from 'src/app/components/session-list/session-list.component';
 import { Session_Laravel } from '../../teacher/teacher-course/teacher-course.page';
 import { Storage } from '@ionic/storage-angular';
+import { SessionListComponent } from 'src/app/components/session-list/session-list.component';
 
 export interface Student {
   nom: string;
@@ -15,6 +16,8 @@ export interface Student {
   standalone: false
 })
 export class StudentCoursePage implements OnInit {
+  @ViewChild(SessionListComponent) sessionListComponent!: SessionListComponent;
+  
   showStats: boolean = true;
   //selectedSession: number = 0;
   showAttendance: boolean = true;
@@ -124,5 +127,15 @@ export class StudentCoursePage implements OnInit {
       }
   
     }
+
+  ngAfterViewInit() {
+    // Patiente un peu pour laisser Angular appliquer les @Input()
+    setTimeout(() => {
+      if (this.sessionListComponent) {
+        this.sessionListComponent.refreshCourseData();
+      }
+    });
+  }
+
 
 }

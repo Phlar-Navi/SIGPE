@@ -1,3 +1,9 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
+  <app-presence-prompt
+    *ngIf="showPrompt"
+    [notification]="notificationData"
+    (validated)="handleAuth($event)"
+    (cancelled)="onPromptCancelled()"> <!-- (validated)="handleAuth($event)" -->
+  </app-presence-prompt>
 </ion-app>

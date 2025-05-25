@@ -1,0 +1,30 @@
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 text-black">
+  <div class="bg-white p-6 rounded-xl shadow-xl text-center space-y-4 w-11/12 max-w-md">
+    <h2 class="text-xl font-bold">
+      {{ notification?.title || 'Une session de cours a commencé !' }}
+    </h2>
+    <p class="text-sm">
+      {{ notification?.body || 'Veuillez choisir une méthode pour confirmer votre présence :' }}
+    </p>
+
+    <!-- Exemple d'infos complémentaires -->
+    <div *ngIf="notification?.data" class="text-left text-sm bg-gray-100 rounded p-2 mt-2">
+      <p><strong>Cours :</strong> {{ notification.data.course }}</p>
+      <p><strong>Salle :</strong> {{ notification.data.room }}</p>
+      <p><strong>Heure :</strong> {{ notification.data.time }}</p>
+    </div>
+
+    <div class="flex justify-center gap-4 mt-4">
+      <button (click)="useFingerprint()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        Empreinte digitale
+      </button>
+      <button (click)="useFacialRecognition()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+        Reconnaissance faciale
+      </button>
+      <button (click)="cancel()" class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500">
+        Fermer
+      </button>
+    </div>
+
+  </div>
+</div>

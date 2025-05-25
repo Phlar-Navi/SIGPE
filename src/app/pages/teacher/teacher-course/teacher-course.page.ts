@@ -101,7 +101,7 @@ export interface APISession {
   standalone: false
 })
 export class TeacherCoursePage implements OnInit, AfterViewChecked {
-  
+
   @ViewChild(SessionListComponent) sessionListComponent!: SessionListComponent;
   // UI states
   showStats = false;
@@ -308,6 +308,10 @@ export class TeacherCoursePage implements OnInit, AfterViewChecked {
         this.sessions.push(session);
         this.sessionForm.reset();
         this.showCreateSession = false;
+        this.sessionService.notifySessionCreated();
+        // if (this.sessionListComponent) {
+        //   this.sessionListComponent.refreshCourseData();
+        // }
       },
       error: async (error) => {
         await loading.dismiss();

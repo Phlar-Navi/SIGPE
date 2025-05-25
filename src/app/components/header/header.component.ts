@@ -19,6 +19,7 @@ export class HeaderComponent  implements OnInit {
   // profileImageUrl: string = ''; // URL de l'image de profil
   hasNotification: boolean = true;
   // @Input() hasNotification: boolean = true; // Afficher la bulle de notification
+  apiUrl = 'http://localhost:8000';
 
   @Input() logoUrl: string = 'assets/images/logo.png';
   @Input() title: string = 'Nom de l\'application';
@@ -86,7 +87,7 @@ export class HeaderComponent  implements OnInit {
           // Si l'utilisateur existe et les données sont valides
           this.subtitle = `Bienvenue, ${this.user.nom || ''}`;  // Si nom est null ou undefined, on affiche une chaîne vide
           this.profileImageUrl = this.user.photo && this.user.photo.url 
-            ? `${environment.apiUrl}${this.user.photo.url}` // Si une photo est définie, on utilise l'URL
+            ? `${this.apiUrl}${this.user.photo.url}` // Si une photo est définie, on utilise l'URL
             : 'assets/images/profil.jpg';  // Sinon, on utilise une image par défaut
         } else {
           // Si aucune donnée utilisateur n'est trouvée

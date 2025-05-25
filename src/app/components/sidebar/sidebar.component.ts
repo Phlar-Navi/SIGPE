@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { AlertController } from '@ionic/angular';
 import { LoadingController } from '@ionic/angular';
+import { Storage } from '@ionic/storage-angular';
 
 @Component({
   selector: 'app-sidebar',
@@ -50,7 +51,8 @@ export class SidebarComponent  implements OnInit {
     public router: Router,
     private authService: AuthService,
     private alertController: AlertController,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private storage: Storage
   ){}
 
   async showLogoutAlert() {
@@ -68,6 +70,7 @@ export class SidebarComponent  implements OnInit {
           text: 'Déconnexion',
           role: 'confirm',
           handler: async () => {
+            await this.storage.clear();
             await this.authService.logout();
             this.router.navigate(['/login']);
           }

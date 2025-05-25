@@ -151,7 +151,13 @@ export class AuthService {
 
   // Fonction pour récupérer les informations utilisateur après la connexion
   private async handleAuthResponse(response: any): Promise<void> {
-    const accessToken = response.access_token;
+    // 1. Vérifiez que le token existe
+    if (!response.access_token) {
+      throw new Error('No access token in response');
+    }
+
+    //const accessToken = response.access_token;
+
     let userType = 'admin';
     if (response.etudiant) {
       userType = 'etudiant';
@@ -166,7 +172,7 @@ export class AuthService {
     const userData = response[userType];
 
     await Promise.all([
-      this.storage.set(this.STORAGE_KEYS.ACCESS_TOKEN, accessToken),
+      this.storage.set(this.STORAGE_KEYS.ACCESS_TOKEN, response.access_token),
       this.storage.set(this.STORAGE_KEYS.USER_DATA, userData),
       this.storage.set(this.STORAGE_KEYS.USER_TYPE, userType.toUpperCase())
     ]);
@@ -176,6 +182,20 @@ export class AuthService {
     const user = await this.storage.get(this.STORAGE_KEYS.USER_DATA);
     if (user && user.utilisateur) {
       this.redirectBasedOnUserType(user.utilisateur);
+    }
+  }
+
+  async getUsersId(){
+    const user = await this.storage.get(this.STORAGE_KEYS.USER_DATA);
+    if (user){
+      return user.id;
+    }
+  }
+
+  async getUsersType(){
+    const user = await this.storage.get(this.STORAGE_KEYS.USER_DATA);
+    if (user){
+      return user.utilisateur;
     }
   }
 

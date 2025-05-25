@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SessionService } from 'src/app/services/session.service';
 import { Session_Laravel } from 'src/app/pages/teacher/teacher-course/teacher-course.page';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { LoadingController } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-session-list',
@@ -12,7 +13,7 @@ import { LoadingController } from '@ionic/angular';
   standalone: true,
   imports: [CommonModule]
 })
-export class SessionListComponent implements OnInit {
+export class SessionListComponent implements OnInit, OnDestroy {
   @Input() userRole: 'etudiant' | 'enseignant' = 'enseignant';
   @Input() filiereId?: number;
   @Input() niveauId?: number;
@@ -20,6 +21,7 @@ export class SessionListComponent implements OnInit {
 
   @Output() sessionSelected = new EventEmitter<Session_Laravel>();
   @Output() sessionsLoaded = new EventEmitter<Session_Laravel[]>();
+  private sessionCreatedSub?: Subscription;
 
   sessions: Session_Laravel[] = [];
 
@@ -38,10 +40,20 @@ export class SessionListComponent implements OnInit {
   
   ngOnInit() {
     this.refreshCourseData();
+
+    // 🔁 Abonnement à l'événement de création
+    this.sessionCreatedSub = this.sessionService.sessionCreated$.subscribe(() => {
+      console.log('[SessionListComponent] Événement reçu : on refresh');
+      this.refreshCourseData();
+    });
     //console.log(this.filiereId, this.niveauId);
   }
 
-  async refreshCourseData() {
+  ngOnDestroy() {
+    this.sessionCreatedSub?.unsubscribe();
+  }
+
+  public async refreshCourseData() {
     // const loading = await this.loadingController.create({
     //   message: 'Création de la session...',
     //   spinner: 'bubbles',
@@ -63,6 +75,7 @@ export class SessionListComponent implements OnInit {
         });
     } 
     else if (this.userRole === 'enseignant') {
+      console.log("C'est ceci qui recharge auto chez les enseignants");
       if (!this.enseignantId) {
         //console.error('Enseignant ID requis pour enseignant');
         return;

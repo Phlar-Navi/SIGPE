@@ -43,6 +43,16 @@ export class MetadataService {
     return this.http.get<any[]>(`${this.baseUrl}enseignants`);
   }
 
+  updateDeviceToken(userId: number, token: string, type: string) {
+    if (type === "ENS"){
+      return this.http.post(`${this.baseUrl}enseignants/${userId}/device-token`, { device_token: token });
+    } else {
+      return this.http.post(`${this.baseUrl}etudiants/${userId}/device-token`, { device_token: token });
+    }
+  }
+
+
+
 
   // getFilieresPublic(): Observable<any> {
   //   return this.http.get(`${this.baseUrl}/filieres/`, {

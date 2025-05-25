@@ -1,0 +1,41 @@
+// ion-modal {
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   --background: transparent; /* Pas de fond noir global */
+// }
+
+// ion-modal .modal-wrapper {
+//   width: 90vw;
+//   max-width: 400px;
+//   background: white;
+//   border-radius: 20px;
+//   overflow: hidden;
+//   box-shadow: 0 8px 24px rgb(0 0 0 / 0.2);
+// }
+
+/* Le fond de la modale (= overlay) : on garde sombre mais pas trop sombre */
+// ion-backdrop {
+//   --backdrop-opacity: 0.3; /* ou 0.2, à ajuster */
+// }
+
+// /* Modale : on centre le conteneur, fond transparent pour ion-modal */
+// ion-modal {
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   --background: transparent; /* pas de fond noir sur le conteneur modale */
+// }
+
+// /* Conteneur principal de la modale */
+// ion-modal .modal-wrapper {
+//   width: 90vw;
+//   max-width: 400px;
+//   --background: #fff; /* fond blanc */
+//   border-radius: 24px; /* coins bien arrondis */
+//   overflow: hidden;
+//   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+//   border: 1px solid #e0e0e0; /* légère bordure pour plus de douceur */
+// }
+
+

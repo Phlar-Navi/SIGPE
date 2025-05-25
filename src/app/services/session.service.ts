@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { map, Observable, Subject } from 'rxjs';
 // import { Session } from '../components/session-list/session-list.component';
 import { Session_format } from '../pages/teacher/teacher-course/teacher-course.page';
 import { Session_Laravel } from '../pages/teacher/teacher-course/teacher-course.page';
 import { Storage } from '@ionic/storage-angular';
+import { LoadingController } from '@ionic/angular';
 
 export interface Matiere {
   id: number;
@@ -41,6 +42,34 @@ export interface SessionCours {
   liste_presence: number[];
 }
 
+export interface Etudiant {
+  id: number;
+  nom: string;
+  prenom: string;
+  sexe: string;
+  Date_nais: string;
+  email: string;
+  filiere_id: number;
+  niveau_id: number;
+  photo: string | null;
+  utilisateur: string;
+  password: string;
+  matricule: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Presence {
+  id: number;
+  session_id: number;
+  etudiant_id: number;
+  statut: string;
+  created_at: string;
+  updated_at: string;
+  etudiant: Etudiant;
+}
+
+
 export interface Enseignant{
   id: number;
   nom: string;
@@ -59,7 +88,23 @@ export class SessionService {
     USER_TYPE: 'type_utilisateur'
   };
 
-  constructor(private http: HttpClient, private storage: Storage) { }
+  private sessionCreatedSource = new Subject<void>();
+  sessionCreated$ = this.sessionCreatedSource.asObservable();
+
+  notifySessionCreated() {
+    console.log('[SessionService] Session créée : événement émis');
+    this.sessionCreatedSource.next();
+  }
+
+  markPresent(etudiantId: number, sessionId: number) {
+    return this.http.post('/api/presences/marquer', {
+      etudiant_id: etudiantId,
+      session_id: sessionId
+    });
+  }
+
+
+  constructor(private http: HttpClient, private storage: Storage, private loadingController: LoadingController) { }
 
   getAllMatieres(): Observable<Matiere[]> {
     return this.http.get<Matiere[]>(`${this.apiUrl}matieres`);
@@ -168,9 +213,24 @@ export class SessionService {
     );
   }
 
+  getUpcomingSession(): Observable<Session_Laravel | null> {
+    return this.http.get<Session_Laravel | null>(`${this.apiUrl}sessions/auto-lancer`);
+  }
+
+
   deleteSession(sessionId: number){
     return this.http.delete(`${this.apiUrl}sessions/${sessionId}`);
   }
+
+  lancerSession(sessionId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}sessions/${sessionId}/lancer`, {});
+  }
+
+  getEtudiants(sessionId: number): Observable<Presence[]> {
+    return this.http.get<Presence[]>(`${this.apiUrl}sessions/${sessionId}/inscrits`);
+  }
+
+
 
   // getMatieresByEnseignantAndFilters(
   //     niveauId: number,

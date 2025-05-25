@@ -1,0 +1,53 @@
+<!-- <ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" class="text-gray-500">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header> -->
+
+<!-- <ion-content class="ion-padding"  style="--background: white;">
+  <h2 class="text-center font-bold text-xl mb-4 text-black">{{ notif.data.title }}</h2>
+  
+  <div class="flex justify-center mb-4">
+    <div class="bg-blue-100 p-3 rounded-full">
+      <ion-icon name="notifications" class="text-blue-500 text-3xl"></ion-icon>
+    </div>
+  </div>
+  
+  <p class="text-gray-700 text-center mb-6">
+    La session a commencé. Veuillez vous présenter.
+  </p>
+
+  <div class="flex justify-center mb-6">
+    <div class="inline-flex items-center bg-gray-100 rounded-full px-4 py-2">
+      <ion-icon name="time" class="text-gray-500 mr-2"></ion-icon>
+      <span class="text-sm font-medium text-gray-700">
+        ID: {{ notif.data.session_id }}
+      </span>
+    </div>
+  </div>
+
+  <div class="flex space-x-3">
+    <ion-button expand="block" (click)="dismiss()" class="bg-blue-500 text-white flex-1">
+      Compris
+    </ion-button>
+  </div>
+</ion-content> -->
+
+<ion-header>
+      <ion-toolbar>
+        <ion-title>{{ notif.title }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="dismiss()">Fermer</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <p>{{ notif.body }}</p>
+      <ion-button expand="block" (click)="goToRedirect()" *ngIf="notif.redirect">
+        Aller à la page
+      </ion-button>
+    </ion-content>

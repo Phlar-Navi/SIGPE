@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "336925196017",
+    "project_id": "sigpe-7aef8",
+    "storage_bucket": "sigpe-7aef8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:336925196017:android:5f21abad6095badb55f350",
+        "android_client_info": {
+          "package_name": "com.sigpe.sigpefs"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-FeQvP8yfzkI-lRNKuJIFi0Mwn6YvGR0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

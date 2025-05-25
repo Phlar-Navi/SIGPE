@@ -132,7 +132,7 @@
 
 
     <!-- Étudiants inscrits (si session en cours) -->
-    <div *ngIf="selectedSession.statut === 'En cours'" class="mt-6">
+    <!-- <div *ngIf="selectedSession.statut === 'En cours'" class="mt-6">
       <h4 class="text-lg font-bold text-gray-700 mb-4">Étudiants inscrits</h4>
       <div *ngIf="students.length > 0" class="overflow-x-auto bg-gray-50 rounded-lg p-4 shadow-sm">
         <table class="w-full border-collapse">
@@ -145,8 +145,8 @@
           </thead>
           <tbody>
             <tr *ngFor="let student of students" class="border-b hover:bg-gray-100 transition">
-              <td class="p-3 text-gray-700">{{ student.name }}</td>
-              <td class="p-3 text-gray-700">{{ student.matricule }}</td>
+              <td class="p-3 text-gray-700">{{ student.etudiant.nom }}</td>
+              <td class="p-3 text-gray-700">{{ student.etudiant.matricule }}</td>
               <td class="p-3 text-center">
                 <button *ngIf="role === 'enseignant'" 
                         (click)="removeStudent.emit(student)" 
@@ -159,6 +159,96 @@
                   Voir
                 </button>
               </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div> -->
+
+    <!-- Étudiants inscrits (si session en cours) -->
+    <div *ngIf="selectedSession.statut === 'En cours'" class="mt-6">
+      <h4 class="text-lg font-bold text-gray-700 mb-4">Étudiants inscrits</h4>
+      <div *ngIf="students.length > 0" class="overflow-x-auto bg-gray-50 rounded-lg p-4 shadow-sm">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-200">
+              <th class="p-3 text-left text-gray-700">Nom</th>
+              <th class="p-3 text-left text-gray-700">Matricule</th>
+              <th class="p-3 text-left text-gray-700">Statut</th>
+              <th class="p-3 text-center text-gray-700">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let student of sortedStudents" class="border-b hover:bg-gray-100 transition">
+              <td class="p-3 text-gray-700">{{ student.etudiant.nom }}</td>
+              <td class="p-3 text-gray-700">{{ student.etudiant.matricule }}</td>
+              <td class="p-3 text-gray-700">
+                <span [ngClass]="{
+                  'text-green-600 font-semibold': student.statut === 'présent',
+                  'text-red-600 font-semibold': student.statut === 'absent',
+                  'text-yellow-600 font-semibold': student.statut === 'en retard'
+                }">
+                  {{ student.statut }}
+                </span>
+              </td>
+              <td class="p-3 text-center flex flex-wrap justify-center gap-2">
+                <!-- Voir -->
+                <button
+                  *ngIf="role === 'enseignant'"
+                  (click)="openModal(student)"
+                  class="relative group bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 transition"
+                >
+                  <!-- Icone œil -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7s-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <span
+                    class="absolute bottom-full mb-1 text-xs text-white bg-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                    Voir détails
+                  </span>
+                </button>
+
+                <!-- Marquer présent -->
+                <button
+                  *ngIf="role === 'enseignant'"
+                  (click)="markPresent.emit(student.id)"
+                  class="relative group bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition"
+                >
+                  <!-- Icone check -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span
+                    class="absolute bottom-full mb-1 text-xs text-white bg-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                    Marquer présent
+                  </span>
+                </button>
+
+                <!-- Marquer absent -->
+                <button
+                  *ngIf="role === 'enseignant'"
+                  (click)="markAbsent.emit(student.id)"
+                  class="relative group bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition"
+                >
+                  <!-- Icone croix -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <span
+                    class="absolute bottom-full mb-1 text-xs text-white bg-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                    Marquer absent
+                  </span>
+                </button>
+              </td>
+
             </tr>
           </tbody>
         </table>
@@ -180,8 +270,8 @@
           </thead>
           <tbody>
             <tr *ngFor="let student of students" class="border-b hover:bg-gray-100 transition">
-              <td class="p-3 text-gray-700">{{ student.name }}</td>
-              <td class="p-3 text-gray-700">{{ student.matricule }}</td>
+              <td class="p-3 text-gray-700">{{ student.etudiant.nom }}</td>
+              <td class="p-3 text-gray-700">{{ student.etudiant.matricule }}</td>
               <td class="p-3 text-center">
                 <button 
                   (click)="viewStudent.emit(student.id)" 
@@ -198,7 +288,7 @@
     <!-- Actions disponibles (enseignant uniquement) -->
     <div class="mt-6 space-y-3" *ngIf="role === 'enseignant'">
       <button *ngIf="selectedSession.statut == 'À venir'"
-        (click)="startEditing(selectedSession)" 
+        (click)="startSession(selectedSession)" 
         class="w-full bg-green-500 text-white py-2 rounded-lg font-medium shadow hover:bg-green-600 transition"
       >
         Lancer la session
@@ -222,5 +312,29 @@
         Annuler la session
       </button>
     </div>
+
+    <!-- Modal Étudiant Détails -->
+    <div *ngIf="selectedStudent" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Détails de présence</h2>
+
+        <p class="text-gray-700"><span class="font-semibold">Noms :</span> {{ selectedStudent.etudiant.nom }} {{ selectedStudent.etudiant.prenom }}</p>
+        <p class="text-gray-700"><span class="font-semibold">Matricule :</span> {{ selectedStudent.etudiant.matricule }}</p>
+
+        <!-- Canvas avec ID unique basé sur l'ID étudiant -->
+        <div class="my-4" style="position: relative; height:300px; width:100%">
+          <canvas [id]="'studentChart_' + selectedStudent.etudiant.id"></canvas>
+        </div>
+
+
+        <div class="mt-6 text-right">
+          <button (click)="closeModal()" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
+
+
   </ng-template>
 </div>
