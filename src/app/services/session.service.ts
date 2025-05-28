@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable, Subject } from 'rxjs';
+import { map, Observable, Subject, tap } from 'rxjs';
 // import { Session } from '../components/session-list/session-list.component';
 import { Session_format } from '../pages/teacher/teacher-course/teacher-course.page';
 import { Session_Laravel } from '../pages/teacher/teacher-course/teacher-course.page';
 import { Storage } from '@ionic/storage-angular';
 import { LoadingController } from '@ionic/angular';
+import { environment } from 'src/environments/environment';
 
 export interface Matiere {
   id: number;
@@ -81,7 +82,9 @@ export interface Enseignant{
   providedIn: 'root'
 })
 export class SessionService {
-  private apiUrl = 'http://localhost:8000/api/'; // ajuste l'URL si besoin
+  
+  private apiUrl = environment.apiUrl;
+  //private apiUrl = 'http://localhost:8000/api/';
   private readonly STORAGE_KEYS = {
     ACCESS_TOKEN: 'access_token',
     USER_DATA: 'user_data',
@@ -91,17 +94,23 @@ export class SessionService {
   private sessionCreatedSource = new Subject<void>();
   sessionCreated$ = this.sessionCreatedSource.asObservable();
 
-  notifySessionCreated() {
-    console.log('[SessionService] Session créée : événement émis');
-    this.sessionCreatedSource.next();
-  }
-
   markPresent(etudiantId: number, sessionId: number) {
     return this.http.post('/api/presences/marquer', {
       etudiant_id: etudiantId,
       session_id: sessionId
     });
   }
+
+  changerStatutPresence(sessionId: number, etudiantId: number, statut: 'absent' | 'présent' | 'en retard' | 'excusé') {
+    const payload = {
+      session_id: sessionId,
+      etudiant_id: etudiantId,
+      statut: statut
+    };
+
+    return this.http.post(`${this.apiUrl}changerStatut`, payload);
+  }
+
 
 
   constructor(private http: HttpClient, private storage: Storage, private loadingController: LoadingController) { }
@@ -226,6 +235,10 @@ export class SessionService {
     return this.http.post(`${this.apiUrl}sessions/${sessionId}/lancer`, {});
   }
 
+  terminerSession(sessionId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}sessions/${sessionId}/terminer`, {});
+  }
+
   getEtudiants(sessionId: number): Observable<Presence[]> {
     return this.http.get<Presence[]>(`${this.apiUrl}sessions/${sessionId}/inscrits`);
   }
@@ -268,7 +281,23 @@ export class SessionService {
   }
 
   createSession(sessionData: Session_format): Observable<Session_Laravel> {
-    return this.http.post<Session_Laravel>(`${this.apiUrl}addsession`, sessionData);
+    return this.http.post<Session_Laravel>(`${this.apiUrl}addsession`, sessionData).pipe(
+      tap(() => this.notifySessionCreated())
+    );
+  }
+
+  ajouterPresence(presenceData: {
+    session_id: number;
+    matricule: string;
+    statut: string;  // statut: 'absent' | 'présent' | 'en retard' | 'excusé';
+  }): Observable<any> {
+    return this.http.post(`${this.apiUrl}presences`, presenceData);
+  }
+
+
+  notifySessionCreated() {
+    console.log('[SessionService] Session créée : événement émis');
+    this.sessionCreatedSource.next();
   }
 
   createSession_format(sessionData: any): Observable<Session_format> {

@@ -22,7 +22,7 @@ export class HeaderComponent  implements OnInit {
   apiUrl = 'http://localhost:8000';
 
   @Input() logoUrl: string = 'assets/images/logo.png';
-  @Input() title: string = 'Nom de l\'application';
+  @Input() title: string = 'SIGPE';
   @Input() subtitle: string = 'Tableau de bord administrateur';
   @Input() profileImageUrl: string = 'assets/images/profile-placeholder.png';
   @Input() userName: string = 'Admin User';
@@ -86,9 +86,9 @@ export class HeaderComponent  implements OnInit {
         if (this.user) {
           // Si l'utilisateur existe et les données sont valides
           this.subtitle = `Bienvenue, ${this.user.nom || ''}`;  // Si nom est null ou undefined, on affiche une chaîne vide
-          this.profileImageUrl = this.user.photo && this.user.photo.url 
-            ? `${this.apiUrl}${this.user.photo.url}` // Si une photo est définie, on utilise l'URL
-            : 'assets/images/profil.jpg';  // Sinon, on utilise une image par défaut
+          this.profileImageUrl = this.user.photo
+            ? `${this.apiUrl}${this.user.photo}`
+            : 'assets/images/profil.jpg';
         } else {
           // Si aucune donnée utilisateur n'est trouvée
           this.subtitle = 'Bienvenue !';

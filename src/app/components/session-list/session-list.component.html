@@ -1,5 +1,22 @@
 <div class="bg-white p-4 rounded-lg shadow-md">
   <h3 class="text-xl font-bold text-gray-700 mb-4">Liste des Sessions</h3>
+
+  <div class="flex flex-col md:flex-row gap-4 mb-4">
+    <ion-select [(ngModel)]="selectedStatut" interface="popover" placeholder="Filtrer par statut" (ionChange)="applyFilters()">
+      <ion-select-option value="">Tous</ion-select-option>
+      <ion-select-option value="À venir">À venir</ion-select-option>
+      <ion-select-option value="En cours">En cours</ion-select-option>
+      <ion-select-option value="Terminé">Terminé</ion-select-option>
+    </ion-select>
+
+    <ion-select [(ngModel)]="selectedPeriod" interface="popover" placeholder="Filtrer par période" (ionChange)="applyFilters()">
+      <ion-select-option value="">Toutes les périodes</ion-select-option>
+      <ion-select-option value="jour">Aujourd'hui</ion-select-option>
+      <ion-select-option value="semaine">Cette semaine</ion-select-option>
+    </ion-select>
+  </div>
+
+
   <div *ngIf="sessions" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     <div
       *ngFor="let session of sessions"
@@ -31,20 +48,15 @@
     </div>
   </div>
   <!-- Message quand il n'y a aucune session -->
-  <div *ngIf="sessions && !sessions.length" class="text-center py-8 text-gray-500">
-    <!-- Aucune session disponible -->
+  <div *ngIf="sessions && !sessions.length" class="text-center py-8 text-gray-500 text-lg">
+    Aucune session disponible.
+  </div>
+  <!-- Animation de chargement -->
+  <div *ngIf="!sessions" class="text-center py-8 text-gray-500">
     <div class="flex space-x-2 justify-center items-center">
       <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce"></div>
       <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce [animation-delay:.1s]"></div>
       <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce [animation-delay:.2s]"></div>
     </div>
   </div>
-
-  <!-- Animation de chargement -->
-  <div *ngIf="!sessions" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-green-500 border-solid"></div>
-  </div>
-  <!-- <div *ngIf="!sessions" class="flex justify-center items-center py-12">
-    <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid"></div>
-  </div> -->
 </div>

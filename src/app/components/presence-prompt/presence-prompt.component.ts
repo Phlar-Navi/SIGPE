@@ -77,7 +77,7 @@ export class PresencePromptComponent {
 
     } catch (error) {
       console.error("Erreur biométrique:", error);
-      alert("Une erreur est survenue lors de la vérification biométrique.");
+      alert("Malhereusement, cet appareil ne prend pas en charge ce type de reconnaissance biométrique...");
     }
   }
 

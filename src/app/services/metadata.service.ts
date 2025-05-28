@@ -29,11 +29,19 @@ export interface Matiere {
 })
 export class MetadataService {
   // private baseUrl = environment.apiUrl;
-  private baseUrl = 'http://localhost:8000/api/';
+  //private baseUrl = 'http://localhost:8000/api/';
+  private baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
-  
+  updateEtudiant(id: string, formData: FormData, type: string): Observable<any> {
+    if (type === "ETU"){
+      return this.http.post(`${this.baseUrl}modifierEtudiant`, formData);
+    } else {
+      return this.http.post(`${this.baseUrl}modifierEnseignant`, formData);
+    }
+    
+  }
 
   getMatieres(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}matieres`);

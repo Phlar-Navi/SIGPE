@@ -34,20 +34,27 @@
                     {{ notif.date | date:'dd/MM/yyyy HH:mm' }}
                   </span>
                 </div>
-                <h4 class="text-sm font-medium text-blue-600">
-                  {{ notif.title }}
+                <h4 class="text-sm font-medium text-blue-600" *ngIf="notif.data">
+                  {{ notif.data.title }}
                 </h4>
               </div>
             </div>
       
             <!-- Corps de la notification avec texte tronqué -->
-            <div class="p-4 pt-3">
-              <div class="text-gray-700 text-sm line-clamp-3" [title]="notif.message">
+            <div class="p-4 pt-3" *ngIf="notif.data">
+              <!-- <div class="text-gray-700 text-sm line-clamp-3" [title]="notif.message">
                 {{ (notif.message.length > 150 && !notif.expanded) ? (notif.message | slice:0:150) + '...' : notif.message }}
+              </div> -->
+              <div> <!-- *ngIf="notif.data.message.length > 150 && !notif.expanded" -->
+                {{ notif.data.message | slice:0:150 }}...
               </div>
+              <!-- <div *ngIf="notif.expanded">
+                {{ notif.data.message }}
+              </div> -->
+
               
               <!-- Bouton "Voir plus" conditionnel -->
-              <button *ngIf="notif.message.length > 150" 
+              <button *ngIf="notif.data.message.length > 150" 
                       class="text-blue-500 text-xs font-medium mt-2 hover:text-blue-700 focus:outline-none"
                       (click)="toggleMessageExpansion(notif)">
                 {{ notif.expanded ? 'Voir moins' : 'Voir plus...' }}
@@ -104,7 +111,9 @@
     <div class="bg-gray-100 px-6 py-4 flex items-center gap-4">
       <img [src]="'assets/images/profil.jpg'" class="w-12 h-12 rounded-full object-cover">
       <div>
-        <h2 class="text-lg font-semibold text-gray-900">{{ selectedNotification.title }}</h2>
+        <h2 class="text-lg font-semibold text-gray-900" *ngIf="selectedNotification?.data">
+          {{ selectedNotification.data.title }}
+        </h2>
         <p class="text-sm text-gray-500">
           {{ selectedNotification.expeditor }} · {{ selectedNotification.date | date:'dd/MM/yyyy HH:mm' }}
         </p>
@@ -120,8 +129,8 @@
         </span>
       </div>
 
-      <p class="text-gray-700 leading-relaxed text-sm">
-        {{ selectedNotification.message }}
+      <p class="text-gray-700 leading-relaxed text-sm" *ngIf="selectedNotification?.data">
+        {{ selectedNotification.data.message }}
       </p>
 
       <!-- Pièce jointe -->

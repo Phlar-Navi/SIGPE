@@ -27,7 +27,7 @@
     <div class="flex items-center justify-center h-16 bg-primary">
       <!-- <span class="text-white text-xl font-bold">SIGPE</span> -->
       <div> <!-- Date -->
-        <span class="text-gray-200 text-xl font-bold">Date: {{ today | date:'dd/MM/yyyy' }}</span>
+        <span class="text-gray-200 text-xl font-bold">{{ getActiveRouteName() | titlecase }}</span>
       </div>
     </div>
 

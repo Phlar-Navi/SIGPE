@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Storage } from '@ionic/storage-angular';
+import { MetadataService } from 'src/app/services/metadata.service';
+import { LoadingController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-profile',
@@ -8,6 +13,14 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   standalone: false
 })
 export class ProfilePage implements OnInit {
+  private readonly STORAGE_KEYS = {
+    ACCESS_TOKEN: 'access_token',
+    USER_DATA: 'user_data',
+    USER_TYPE: 'type_utilisateur'
+  };
+
+  user: any;
+
   isMenuOpen = false; // État du menu (ouvert/fermé)
   isSmallScreen = window.innerWidth < 768; // Détecte si l'écran est petit
 
@@ -17,12 +30,21 @@ export class ProfilePage implements OnInit {
 
   profileForm!: FormGroup;
   defaultValues = {
-    nom: 'Doe',
-    prenom: 'John',
-    matricule: '21S00000',
-    telephone: '+33612345678',
-    email: 'john.doe@example.com',
+    nom: '',
+    prenom: '',
+    matricule: '',
+    telephone: '',
+    email: '',
   };
+  // defaultValues = {
+  //   nom: 'Doe',
+  //   prenom: 'John',
+  //   matricule: '21S00000',
+  //   telephone: '+33612345678',
+  //   email: 'john.doe@example.com',
+  // };
+
+  // type: string = 'password';
 
   profilePhoto?: File;
   facialPhoto?: File;
@@ -31,26 +53,50 @@ export class ProfilePage implements OnInit {
     return this.profileForm.get('passwordGroup') as FormGroup;
   }
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, 
+    private storage: Storage, 
+    private metadataService: MetadataService,
+    private loadingController: LoadingController,
+    private toastController: ToastController,
+    private authService: AuthService) {}
 
   ngOnInit(): void {
     this.profileForm = this.fb.group({
-      nom: [this.defaultValues.nom],
-      prenom: [this.defaultValues.prenom],
-      matricule: [this.defaultValues.matricule],
-      telephone: [this.defaultValues.telephone],
-      email: [this.defaultValues.email, [Validators.email]],
+      nom: [''],
+      prenom: [''],
+      matricule: [''],
+      telephone: [''],
+      email: ['', [Validators.email]],
 
-      // Section mot de passe
       passwordGroup: this.fb.group({
         currentPassword: [''],
         newPassword: ['', [Validators.minLength(8)]],
         confirmPassword: [''],
       }, { validators: this.passwordMatchValidator }),
     });
+
+    this.storage.get(this.STORAGE_KEYS.USER_DATA).then(userData => {
+      this.user = userData;
+
+      this.profileForm.patchValue({
+        nom: this.user.nom || '',
+        prenom: this.user.prenom || '',
+        matricule: this.user.matricule || '',
+        email: this.user.email || '',
+        telephone: '+237000000000'
+      });
+
+      this.profileImagePreview = this.user.photo 
+        ? this.user.photo 
+        : 'assets/images/profil.jpg';
+    });
   }
 
-  togglePasswordVisibility(){}
+
+  togglePasswordVisibility(){
+    //this.type = 'text';
+    this.showPassword = !this.showPassword;
+  }
 
   passwordMatchValidator(group: FormGroup) {
     const newPassword = group.get('newPassword')?.value;
@@ -66,7 +112,41 @@ export class ProfilePage implements OnInit {
     }
   }
 
-  onSubmit() {
+  // onSubmit() {
+  //   const formData = new FormData();
+  //   const formValues = this.profileForm.value;
+
+  //   for (let key of ['nom', 'prenom', 'matricule', 'telephone', 'email']) {
+  //     if (formValues[key]) {
+  //       formData.append(key, formValues[key]);
+  //     }
+  //   }
+
+  //   if (formValues.passwordGroup.newPassword) {
+  //     formData.append('newPassword', formValues.passwordGroup.newPassword);
+  //     formData.append('currentPassword', formValues.passwordGroup.currentPassword);
+  //   }
+
+  //   if (this.profilePhoto) formData.append('profilePhoto', this.profilePhoto);
+  //   if (this.facialPhoto) formData.append('facialPhoto', this.facialPhoto);
+
+  //   // Envoie au backend ici...
+  //   console.log('FormData prêt à être envoyé:');
+  //   console.log('Contenu de FormData :');
+  //   formData.forEach((value, key) => {
+  //     console.log(`${key}:`, value);
+  //   });
+
+  // }
+
+  async onSubmit() {
+    const loading = await this.loadingController.create({
+      message: 'Modification du compte...',
+      spinner: 'bubbles',
+      backdropDismiss: false
+    });
+    await loading.present();
+    
     const formData = new FormData();
     const formValues = this.profileForm.value;
 
@@ -77,20 +157,29 @@ export class ProfilePage implements OnInit {
     }
 
     if (formValues.passwordGroup.newPassword) {
-      formData.append('newPassword', formValues.passwordGroup.newPassword);
-      formData.append('currentPassword', formValues.passwordGroup.currentPassword);
+      formData.append('password', formValues.passwordGroup.newPassword);
     }
 
-    if (this.profilePhoto) formData.append('profilePhoto', this.profilePhoto);
-    if (this.facialPhoto) formData.append('facialPhoto', this.facialPhoto);
+    if (this.profilePhoto) {
+      formData.append('photo', this.profilePhoto);
+    }
 
-    // Envoie au backend ici...
-    console.log('FormData prêt à être envoyé:');
-    console.log('Contenu de FormData :');
-    formData.forEach((value, key) => {
-      console.log(`${key}:`, value);
+    formData.append('id', this.user.id);
+    console.log(this.user.id);
+
+    this.metadataService.updateEtudiant(this.user.id, formData, this.user.utilisateur).subscribe({
+      next: async (res) => {
+        await this.authService.refreshUserData();
+        this.showToast("Modification effectuée avec succès!", 'success');
+        //console.log('Mise à jour réussie:', res);
+        await loading.dismiss();
+      },
+      error: async (err) => {
+        this.showToast("Erreur lors de la tentative de modification du compte...", 'danger');
+        //console.error('Erreur lors de la mise à jour:', err);
+        await loading.dismiss();
+      }
     });
-
   }
 
   onDeleteAccount() {
@@ -98,6 +187,16 @@ export class ProfilePage implements OnInit {
       // Appel à la suppression via service
       console.log("Suppression du compte demandée");
     }
+  }
+
+  async showToast(message: string, color: 'success' | 'danger' | 'warning' | 'primary' = 'primary') {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 3000,
+      color: color,
+      position: 'top'
+    });
+    await toast.present();
   }
 
 }

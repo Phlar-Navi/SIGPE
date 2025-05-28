@@ -130,7 +130,6 @@
     
     </div>
 
-
     <!-- Étudiants inscrits (si session en cours) -->
     <!-- <div *ngIf="selectedSession.statut === 'En cours'" class="mt-6">
       <h4 class="text-lg font-bold text-gray-700 mb-4">Étudiants inscrits</h4>
@@ -167,6 +166,9 @@
 
     <!-- Étudiants inscrits (si session en cours) -->
     <div *ngIf="selectedSession.statut === 'En cours'" class="mt-6">
+      <!-- <div *ngIf="role === 'etudiant'">
+
+      </div> -->
       <h4 class="text-lg font-bold text-gray-700 mb-4">Étudiants inscrits</h4>
       <div *ngIf="students.length > 0" class="overflow-x-auto bg-gray-50 rounded-lg p-4 shadow-sm">
         <table class="w-full border-collapse">
@@ -215,7 +217,7 @@
                 <!-- Marquer présent -->
                 <button
                   *ngIf="role === 'enseignant'"
-                  (click)="markPresent.emit(student.id)"
+                  (click)="emitMarkStatut(student.etudiant.id, 'présent')"
                   class="relative group bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition"
                 >
                   <!-- Icone check -->
@@ -233,7 +235,7 @@
                 <!-- Marquer absent -->
                 <button
                   *ngIf="role === 'enseignant'"
-                  (click)="markAbsent.emit(student.id)"
+                  (click)="emitMarkStatut(student.etudiant.id, 'absent')"
                   class="relative group bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition"
                 >
                   <!-- Icone croix -->
@@ -253,6 +255,59 @@
           </tbody>
         </table>
       </div>
+    </div>
+
+    <!-- Prise de présence manuelle -->
+    <div
+      *ngIf="selectedSession?.statut === 'En cours' && role === 'enseignant'"
+      class="bg-white p-6 rounded-lg shadow-lg mt-6 fade-in"
+    >
+      <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">
+        Prendre la présence manuellement
+      </h3>
+
+      <!-- Formulaire -->
+      <form (ngSubmit)="addStudentToAttendance()" class="space-y-4">
+        <!-- Champ Matricule -->
+        <div>
+          <label class="block text-gray-700 font-medium mb-2">Matricule de l'étudiant</label>
+          <input
+            type="text"
+            [(ngModel)]="newStudent.matricule"
+            name="matricule"
+            placeholder="Entrez le matricule"
+            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <!-- Champ Statut -->
+        <div>
+          <label class="block text-gray-700 font-medium mb-2">Statut</label>
+          <select
+            [(ngModel)]="newStudent.statut"
+            name="statut"
+            class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          >
+            <option value="" disabled selected>Sélectionnez un statut</option>
+            <option value="présent">Présent</option>
+            <option value="absent">Absent</option>
+            <option value="en retard">En retard</option>
+            <option value="excusé">Excusé</option>
+          </select>
+        </div>
+
+        <!-- Bouton de soumission -->
+        <div class="flex justify-end">
+          <button
+            type="submit"
+            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+          >
+            Ajouter à la présence
+          </button>
+        </div>
+      </form>
     </div>
 
     <!-- Étudiants présents (si session Terminée) -->
@@ -301,7 +356,7 @@
       </button>
 
       <button *ngIf="selectedSession.statut === 'En cours'" 
-              (click)="terminateSession.emit()" 
+              (click)="endSession(selectedSession)" 
               class="w-full bg-red-500 text-white py-2 rounded-lg font-medium shadow hover:bg-red-700 transition">
         Terminer la session
       </button>
@@ -312,6 +367,22 @@
         Annuler la session
       </button>
     </div>
+
+    <!-- Actions disponibles (etudiant uniquement) -->
+    <div *ngIf="role === 'etudiant'">
+      <button *ngIf="selectedSession.statut === 'En cours'" 
+              (click)="showModalFn()" 
+              class="w-full bg-green-500 text-white py-2 rounded-lg font-medium shadow hover:bg-green-700 transition">
+        Se présenter
+      </button>
+    </div>
+
+    <!-- Affichage modal si demandé -->
+    <app-presence-prompt *ngIf="showModal" 
+                        [notification]="notification" 
+                        (validated)="onModalValidated($event)" 
+                        (cancelled)="onModalCancelled()">
+    </app-presence-prompt>
 
     <!-- Modal Étudiant Détails -->
     <div *ngIf="selectedStudent" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

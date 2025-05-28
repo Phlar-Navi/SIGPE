@@ -16,6 +16,7 @@ import { Presence } from 'src/app/services/session.service';
 import { Chart } from 'chart.js/auto';
 import { ElementRef } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
+import { PresencePromptComponent } from '../presence-prompt/presence-prompt.component';
 
 type Statut = 'présent' | 'en retard' | 'absent';
 
@@ -24,7 +25,7 @@ type Statut = 'présent' | 'en retard' | 'absent';
   templateUrl: './session-details.component.html',
   styleUrls: ['./session-details.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, PresencePromptComponent]
 })
 export class SessionDetailsComponent {
   private readonly STORAGE_KEYS = {
@@ -56,6 +57,10 @@ export class SessionDetailsComponent {
   @Output() terminateSession = new EventEmitter<void>();
   @Output() cancelSession = new EventEmitter<void>();
 
+  //@Output() markStatut = new EventEmitter<{ etudiantId: number, statut: 'absent' | 'présent' | 'en retard' | 'excusé' }>();
+
+  @Output() markStatut = new EventEmitter<{ etudiantId: number, statut: 'absent' | 'présent' | 'en retard' | 'excusé' }>();
+
   matieres: any[] = [];
   salles: any[] = [];
   filieres: any[] = [];
@@ -74,6 +79,151 @@ export class SessionDetailsComponent {
 
   selectedStudent: any;
   chartInstance: Chart | null = null;
+
+  newStudent = {
+    matricule: '',
+    statut: ''
+  };
+
+  showModal = false;
+
+  notification = {
+    title: "Présentez vous !",
+    body: "Veuillez choisir une méthode pour confirmer votre présence :",
+    data: {
+      course: "",
+      room: "",
+      time: "",
+      session_id: 0
+    }
+  };
+
+  showModalFn() {
+    this.showModal = true;
+  }
+
+  onModalValidated(method: 'fingerprint' | 'face') {
+    console.log("Présence validée par:", method);
+    this.showModal = false;
+  }
+
+  onModalCancelled() {
+    this.showModal = false;
+  }
+
+  addStudentToAttendance() {
+    if (!this.selectedSession?.id || !this.newStudent.matricule || !this.newStudent.statut) {
+      this.showToast('Tous les champs sont requis.', 'warning');
+      return;
+    }
+
+    const presencePayload = {
+      session_id: this.selectedSession.id,
+      matricule: this.newStudent.matricule.trim(),
+      statut: this.newStudent.statut
+    };
+
+    this.sessionService.ajouterPresence(presencePayload).subscribe({
+      next: (response) => {
+        console.log('Présence ajoutée avec succès :', response);
+        this.showToast('Nouvel étudiant ajouté avec succès', 'success');
+        // Reset formulaire
+        this.newStudent = { matricule: '', statut: '' };
+      },
+      error: (error) => {
+        console.error('Erreur lors de l’ajout de la présence :', error);
+
+        switch (error.status) {
+          case 409:
+            this.showToast('Cette présence est déjà enregistrée.', 'warning');
+            break;
+          case 404:
+            // Gestion spécifique pour étudiant non trouvé ou session non trouvée
+            if (error.error?.message?.includes('étudiant')) {
+              this.showToast('Aucun étudiant trouvé avec ce matricule.', 'danger');
+            } else if (error.error?.message?.includes('Session')) {
+              this.showToast('Session introuvable.', 'danger');
+            } else {
+              this.showToast('Ressource introuvable.', 'danger');
+            }
+            break;
+          case 403:
+            this.showToast(error.error?.message || "L'étudiant ne correspond pas à la filière ou au niveau.", 'danger');
+            break;
+          case 422:
+            this.showToast('Données invalides.', 'warning');
+            break;
+          default:
+            this.showToast('Une erreur est survenue. Veuillez réessayer.', 'danger');
+            break;
+        }
+      }
+    });
+  }
+
+  updateNotificationFromSession(session: Session_Laravel) {
+    this.notification = {
+      title: "Présentez vous !",
+      body: `Veuillez choisir une méthode pour confirmer votre présence pour le cours de ${session.matiere?.nom || '...'}`, // adapte selon la structure de session
+      data: {
+        course: session.matiere?.nom || "Inconnu",
+        room: session.salle?.nom || "Inconnue",
+        time: `${session.heure_debut || '??'} - ${session.heure_fin || '??'}`,
+        session_id: session.id || 0
+      }
+    };
+  }
+
+
+  // addStudentToAttendance() {
+  //   if (!this.selectedSession?.id || !this.newStudent.matricule || !this.newStudent.statut) {
+  //     console.error('Tous les champs sont requis.');
+  //     return;
+  //   }
+
+  //   const presencePayload = {
+  //     session_id: this.selectedSession.id,
+  //     matricule: this.newStudent.matricule.trim(),
+  //     statut: this.newStudent.statut
+  //   };
+
+  //   this.sessionService.ajouterPresence(presencePayload).subscribe({
+  //     next: (response) => {
+  //       console.log('Présence ajoutée avec succès :', response);
+  //       this.showToast("Nouvel etudiant ajouté avec succès", 'success');
+  //       // Optionnel : reset du formulaire
+  //       this.newStudent = { matricule: '', statut: '' };
+  //     },
+  //     error: (error) => {
+  //       console.error('Erreur lors de l’ajout de la présence :', error);
+  //       if (error.status === 409) {
+  //         alert('Cette présence est déjà enregistrée.');
+  //       } else if (error.status === 404) {
+  //         alert('Aucun étudiant trouvé avec ce matricule.');
+  //       }
+  //     }
+  //   });
+  // }
+
+  emitMarkStatut(etudiantId: number, statut: 'absent' | 'présent' | 'en retard' | 'excusé') {
+    this.markStatut.emit({ etudiantId, statut });
+  }
+
+  // onMarkStatut(etudiantId: number, statut: 'absent' | 'présent' | 'en retard' | 'excusé') {
+  //   if (!this.selectedSession?.id) return;
+
+  //   this.sessionService.changerStatutPresence(this.selectedSession.id, etudiantId, statut)
+  //     .subscribe({
+  //       next: res => {
+  //         console.log('Statut mis à jour', res);
+  //         // (optionnel) Recharger les données ou afficher une notification
+  //       },
+  //       error: err => {
+  //         console.error('Erreur lors du changement de statut', err);
+  //       }
+  //     });
+  // }
+
 
   openModal(student: any) {
     this.selectedStudent = student;
@@ -159,6 +309,22 @@ export class SessionDetailsComponent {
     });
   }
 
+  async endSession(session: any){
+    const loading = await this.loadingController.create({
+      message: 'Terminaison de la session...',
+      spinner: 'bubbles',
+      backdropDismiss: false
+    });
+    await loading.present();
+
+    this.sessionService.terminerSession(session.id).subscribe(async () => {
+      this.selectedSession = null;
+      this.sessionUpdated.emit();
+      await loading.dismiss();
+      this.showToast("Session achevée", 'primary');
+    });
+  }
+
   loadList(session: Session_Laravel | null) {
     if (!session) return;
 
@@ -169,6 +335,8 @@ export class SessionDetailsComponent {
       },
       error: (err) => {
         console.error('Erreur lors du chargement des étudiants :', err);
+        const message = err?.message || err?.error?.message || JSON.stringify(err);
+        alert("Erreur lors du chargement des étudiants : " + message);
       }
     });
   }
@@ -354,6 +522,7 @@ export class SessionDetailsComponent {
     if (changes['selectedSession'] && this.selectedSession) {
       this.isEditing = false;
       this.loadList(this.selectedSession);
+      this.updateNotificationFromSession(this.selectedSession);
     }
   }
 
@@ -412,6 +581,18 @@ export class SessionDetailsComponent {
 
   async ngOnInit() {
     const user = await this.storage.get(this.STORAGE_KEYS.USER_DATA);
+    if (this.selectedSession) {
+      if (this.selectedSession.salle) {
+        if (this.selectedSession.matiere) {
+          this.notification.data = {
+            course: this.selectedSession?.matiere?.nom,
+            room: this.selectedSession?.salle?.nom,
+            time: this.selectedSession?.heure_debut,
+            session_id: this.selectedSession?.id
+          }
+        }
+      }
+    }
     //this.listenToLevelAndFiliereChanges();
   }
 
@@ -433,8 +614,8 @@ export class SessionDetailsComponent {
     switch (status?.trim()) {
       case 'En cours': 
           return '🟡 En cours';
-      case 'Terminée': 
-          return '🔴 Terminée';
+      case 'Terminé': 
+          return '🔴 Terminé';
       case 'À venir': 
           return '🟢 À venir'; 
       case 'Planifiée': 
@@ -448,7 +629,7 @@ export class SessionDetailsComponent {
     return {
       'En cours': 'bg-yellow-100 text-yellow-700 border-yellow-500',
       'À venir': 'bg-green-100 text-green-700 border-green-500',
-      'Terminée': 'bg-red-100 text-red-700 border-red-500'
+      'Terminé': 'bg-red-100 text-red-700 border-red-500'
     }[status] ?? 'bg-gray-100 text-gray-700 border-gray-500';
   }
 

@@ -8,6 +8,7 @@ import { Filiere, Salle, Niveau } from './session.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {from, tap } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export interface Specialite{
   id: string;
@@ -19,7 +20,8 @@ export interface Specialite{
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8000/api/';
+  //private apiUrl = 'http://localhost:8000/api/';
+  private apiUrl = environment.apiUrl;
   private isAuthenticated_ = new BehaviorSubject(false);
   private currentUserSubject = new BehaviorSubject<any>(null);
   private _storage: Storage | null = null;
@@ -184,6 +186,101 @@ export class AuthService {
       this.redirectBasedOnUserType(user.utilisateur);
     }
   }
+
+  async refreshUserData(): Promise<void> {
+    const token = await this.storage.get(this.STORAGE_KEYS.ACCESS_TOKEN);
+    const userType = await this.storage.get(this.STORAGE_KEYS.USER_TYPE);
+    console.log(userType, token);
+
+    if (!token || !userType) {
+      throw new Error('Token ou type utilisateur manquant');
+    }
+
+    let type = '';
+    let endpoint = '';
+
+    switch (userType.toUpperCase()) {
+      case 'ETUDIANT':
+        type = 'etudiant';
+        endpoint = 'etudiant/me';
+        break;
+      case 'ENSEIGNANT':
+        type = 'enseignant';
+        endpoint = 'enseignant/me';
+        break;
+      case 'ADMIN':
+        type = 'admin';
+        endpoint = 'admin/me';
+        break;
+      default:
+        throw new Error('Type d\'utilisateur invalide');
+    }
+
+    try {
+      const response: any = await this.http.get(`${this.apiUrl}${endpoint}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json'
+        }
+      }).toPromise();
+
+      if (response && response[type]) {
+        const userData = response[type];
+        const accessToken = response.access_token || token;
+
+        await Promise.all([
+          this.storage.set(this.STORAGE_KEYS.ACCESS_TOKEN, accessToken),
+          this.storage.set(this.STORAGE_KEYS.USER_DATA, userData),
+          this.storage.set(this.STORAGE_KEYS.USER_TYPE, userType.toUpperCase())
+        ]);
+      } else {
+        throw new Error('Données utilisateur non trouvées dans la réponse');
+      }
+
+    } catch (error) {
+      console.error('Erreur lors du rafraîchissement des données utilisateur :', error);
+    }
+  }
+
+
+
+  // async fetchUserProfileAfterUpdate(): Promise<void> {
+  //   const token = await this.storage.get(this.STORAGE_KEYS.ACCESS_TOKEN);
+  //   const userType = await this.storage.get(this.STORAGE_KEYS.USER_TYPE); // "ETUDIANT", "ENSEIGNANT", "ADMIN"
+
+  //   const endpoint = {
+  //     ETUDIANT: '/etudiant/me',
+  //     ENSEIGNANT: '/enseignant/me',
+  //     ADMIN: '/admin/me'
+  //   }[userType];
+
+  //   if (!endpoint) {
+  //     throw new Error('Type d\'utilisateur inconnu');
+  //   }
+
+  //   const headers = new HttpHeaders({
+  //     'Authorization': `Bearer ${token}`
+  //   });
+
+  //   this.http.get(`${this.apiUrl}${endpoint}`, { headers }).subscribe({
+  //     next: async (response: any) => {
+  //       let newUserData;
+  //       if (response.etudiant) newUserData = response.etudiant;
+  //       else if (response.enseignant) newUserData = response.enseignant;
+  //       else if (response.admin) newUserData = response.admin;
+
+  //       await Promise.all([
+  //         this.storage.set(this.STORAGE_KEYS.USER_DATA, newUserData),
+  //         this.userData.next(newUserData)
+  //       ]);
+  //     },
+  //     error: err => {
+  //       console.error('Erreur lors de la récupération des données utilisateur:', err);
+  //     }
+  //   });
+  // }
+
+
 
   async getUsersId(){
     const user = await this.storage.get(this.STORAGE_KEYS.USER_DATA);

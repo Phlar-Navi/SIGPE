@@ -1,30 +1,43 @@
 import { Component, OnInit } from '@angular/core';
+import { NotificationData, NotificationService } from 'src/app/services/notification.service';
 
-interface Notification {
-  id: string;
-  type: 'presence' | 'absence' | 'justificatif' | 'system';
-  title: string;
-  message: string;
-  expeditor: string;
-  expanded: false;
-  date: Date;
+interface Notification extends NotificationData {
   read: boolean;
-  urgent?: boolean;
-  course?: {
-    name: string;
-    date: Date;
-    professor: string;
-  };
-  attachment?: {
-    url: string;
-    type: 'pdf' | 'image';
-  };
-  status?: 'accepted' | 'refused' | 'pending'; // Pour justificatifs
-  action?: {
-    label: string;
-    route: string;
+  date: Date;
+  expeditor: string;
+  expanded: boolean;
+  data: {
+    title: string;
+    message: string;
+    type: 'info' | 'alert' | 'survey';
   };
 }
+
+// interface Notification {
+//   id: string;
+//   type: 'presence' | 'absence' | 'justificatif' | 'system';
+//   title: string;
+//   message: string;
+//   expeditor: string;
+//   expanded: false;
+//   date: Date;
+//   read: boolean;
+//   urgent?: boolean;
+//   course?: {
+//     name: string;
+//     date: Date;
+//     professor: string;
+//   };
+//   attachment?: {
+//     url: string;
+//     type: 'pdf' | 'image';
+//   };
+//   status?: 'accepted' | 'refused' | 'pending'; // Pour justificatifs
+//   action?: {
+//     label: string;
+//     route: string;
+//   };
+// }
 
 @Component({
   selector: 'app-notification',
@@ -39,99 +52,135 @@ export class NotificationPage implements OnInit {
   
   filterType: string = "";
   filterStatus: string = "";
-  notifications: Notification[] = [
-    {
-      id: "",
-      type: 'system',
-      title: "Test de fonctionnalité",
-      message: "Ceci est un test sur la fonctionnalité de notifications, ce message est inutilement long pour vérifier son comportement",
-      expeditor: "Système",
-      date: new Date(),
-      read: true,
-      expanded: false
-    },
-    {
-      id: "",
-      type: 'system',
-      title: "Test de fonctionnalité",
-      message: "Ceci est un test sur la fonctionnalité de notifications, ce message est inutilement long pour vérifier son comportement",
-      expeditor: "Système",
-      date: new Date(),
-      read: false,
-      expanded: false
-    },
-    {
-      id: "",
-      type: 'system',
-      title: "Test de fonctionnalité",
-      message: "Ceci est un test sur la fonctionnalité de notifications, ce message est inutilement long pour vérifier son comportement",
-      expeditor: "Système",
-      date: new Date(),
-      read: false,
-      expanded: false
-    },
-    {
-      id: "",
-      type: 'system',
-      title: "Test de fonctionnalité",
-      message: "Ceci est un test sur la fonctionnalité de notifications, ce message est inutilement long pour vérifier son comportement",
-      expeditor: "Système",
-      date: new Date(),
-      read: false,
-      expanded: false
-    },
-    {
-      id: "",
-      type: 'system',
-      title: "Test de fonctionnalité",
-      message: "Ceci est un test sur la fonctionnalité de notifications, ce message est inutilement long pour vérifier son comportement",
-      expeditor: "Système",
-      date: new Date(),
-      read: false,
-      expanded: false
-    },
-    {
-      id: "",
-      type: 'system',
-      title: "Test de fonctionnalité",
-      message: "Ceci est un test sur la fonctionnalité de notifications, ce message est inutilement long pour vérifier son comportement",
-      expeditor: "Système",
-      date: new Date(),
-      read: false,
-      expanded: false
-    }
-  ];
+  // notifications: Notification[] = [
+  //   {
+  //     id: "",
+  //     type: 'system',
+  //     title: "Test de fonctionnalité",
+  //     message: "Ceci est un test sur la fonctionnalité de notifications, ce message est inutilement long pour vérifier son comportement",
+  //     expeditor: "Système",
+  //     date: new Date(),
+  //     read: true,
+  //     expanded: false
+  //   },
+  //   {
+  //     id: "",
+  //     type: 'system',
+  //     title: "Test de fonctionnalité",
+  //     message: "Ceci est un test sur la fonctionnalité de notifications, ce message est inutilement long pour vérifier son comportement",
+  //     expeditor: "Système",
+  //     date: new Date(),
+  //     read: false,
+  //     expanded: false
+  //   },
+  //   {
+  //     id: "",
+  //     type: 'system',
+  //     title: "Test de fonctionnalité",
+  //     message: "Ceci est un test sur la fonctionnalité de notifications, ce message est inutilement long pour vérifier son comportement",
+  //     expeditor: "Système",
+  //     date: new Date(),
+  //     read: false,
+  //     expanded: false
+  //   },
+  //   {
+  //     id: "",
+  //     type: 'system',
+  //     title: "Test de fonctionnalité",
+  //     message: "Ceci est un test sur la fonctionnalité de notifications, ce message est inutilement long pour vérifier son comportement",
+  //     expeditor: "Système",
+  //     date: new Date(),
+  //     read: false,
+  //     expanded: false
+  //   },
+  //   {
+  //     id: "",
+  //     type: 'system',
+  //     title: "Test de fonctionnalité",
+  //     message: "Ceci est un test sur la fonctionnalité de notifications, ce message est inutilement long pour vérifier son comportement",
+  //     expeditor: "Système",
+  //     date: new Date(),
+  //     read: false,
+  //     expanded: false
+  //   },
+  //   {
+  //     id: "",
+  //     type: 'system',
+  //     title: "Test de fonctionnalité",
+  //     message: "Ceci est un test sur la fonctionnalité de notifications, ce message est inutilement long pour vérifier son comportement",
+  //     expeditor: "Système",
+  //     date: new Date(),
+  //     read: false,
+  //     expanded: false
+  //   }
+  // ];
   filteredNotifications: Notification[] = [];
-  selectedNotification: Notification = {
-    id: "",
-    type: 'system',
-    title: "Test de fonctionnalité",
-    message: " SELECTED NOTIFICATION Ceci est un test sur la fonctionnalité de notifications, ce message est inutilement long pour vérifier son comportement",
-    expeditor: "Système",
-    date: new Date(),
-    read: true,
-    expanded: false
-  }
+  // selectedNotification: Notification = {
+  //   id: "",
+  //   type: 'system',
+  //   title: "Test de fonctionnalité",
+  //   message: " SELECTED NOTIFICATION Ceci est un test sur la fonctionnalité de notifications, ce message est inutilement long pour vérifier son comportement",
+  //   expeditor: "Système",
+  //   date: new Date(),
+  //   read: true,
+  //   expanded: false
+  // }
+  selectedNotification!: Notification;
 
-  constructor() { }
+  notifications: Notification[] = [];
+
+  constructor(private notificationService: NotificationService) { }
 
   ngOnInit() {
+    this.loadNotifications();
+    //console.log(this.notifications[0]);
   }
+
+  loadNotifications() {
+    this.notificationService.getNotifications().subscribe((data) => {
+      this.notifications = data.map((notif: NotificationData) => ({
+        ...notif,
+        read: !!notif.read_at,
+        date: new Date(notif.created_at),
+        expeditor: 'Administration',
+        expanded: false,
+        data: {
+          title: notif.data?.title ?? '',
+          message: notif.data?.message ?? '',
+          type: this.parseNotificationType(notif.data?.type ?? 'info'),
+        }
+      }));
+      
+      // Déplacé ici
+      console.log(this.notifications[0]);
+    });
+  }
+
+
+  parseNotificationType(type: string): 'info' | 'alert' | 'survey' {
+    if (type === 'alert' || type === 'survey') return type;
+    return 'info';
+  }
+
 
   openModal(notif: any) {
     notif.read = true;
-    //this.selectedNotification = notif;
+    this.selectedNotification = notif;
     this.isModalOpen = true;
   }
   
   closeModal() {
     // this.selectedNotification.read = true;
+    this.markAsRead(this.selectedNotification);
     this.isModalOpen = false;
   }
 
   sortByDate(){}
 
-  toggleMessageExpansion(type: Notification){}
+  toggleMessageExpansion(notification: Notification) {
+    notification.expanded = !notification.expanded;
+  }
+
 
   getNotificationTypeLabel(type: string): string {
     switch (type) {
@@ -163,11 +212,21 @@ export class NotificationPage implements OnInit {
 
   downloadAttachment(notif: Notification){}
 
-  markAsRead(notif: Notification){
-    notif.read = true;
+  markAsRead(notif: Notification) {
+    if (!notif.read) {
+      this.notificationService.markAsRead(notif.id).subscribe(() => {
+        notif.read = true;
+      });
+    }
   }
 
-  markAllAsRead(){}
+
+  markAllAsRead() {
+    this.notificationService.markAllAsRead().subscribe(() => {
+      this.notifications.forEach(n => n.read = true);
+    });
+  }
+
 
   deleteNotification(notif: Notification){}
 

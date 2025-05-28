@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Couleur de base -->
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+  <!-- Couleurs de base -->
+  <color name="colorPrimary">#6200EE</color>
+  <color name="colorPrimaryDark">#3700B3</color>
+  <color name="colorAccent">#03DAC5</color>
 
-    <!-- Corriger l'erreur -->
-    <color name="accent">#03DAC5</color>
+  <!-- Alias pour compatibilité -->
+  <color name="primary">#6200EE</color>
+  <color name="accent">#03DAC5</color>
 
-    <!-- Autres couleurs utiles -->
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
+  <!-- Autres couleurs utiles -->
+  <color name="white">#FFFFFF</color>
+  <color name="black">#000000</color>
 </resources>

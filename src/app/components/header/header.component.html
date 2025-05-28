@@ -24,13 +24,13 @@
     <!-- Image de profil + notification -->
     <div class="relative group">
       <img [src]="profileImageUrl" alt="Profil" class="w-10 h-10 rounded-full cursor-pointer" />
-      <div *ngIf="hasNotification" class="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
+      <!-- <div *ngIf="hasNotification" class="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full animate-ping"></div> -->
 
       <!-- Menu dropdown (optionnel) -->
-      <div class="hidden group-hover:flex flex-col absolute right-0 mt-2 w-40 bg-white text-black shadow-md rounded z-10">
-        <button class="px-4 py-2 hover:bg-gray-100 text-left" >Profil</button> <!-- (click)="goToProfile()" -->
-        <button class="px-4 py-2 hover:bg-gray-100 text-left" >Déconnexion</button> <!-- (click)="logout()" -->
-      </div>
+      <!-- <div class="hidden group-hover:flex flex-col absolute right-0 mt-2 w-40 bg-white text-black shadow-md rounded z-10">
+        <button class="px-4 py-2 hover:bg-gray-100 text-left" >Profil</button>
+        <button class="px-4 py-2 hover:bg-gray-100 text-left" >Déconnexion</button>
+      </div> -->
     </div>
   </div>
 </div>

@@ -7,8 +7,9 @@ import { FirebaseMessagingService } from './services/firebase-messaging.service'
 import { NotificationService } from './services/notification.service';
 import { NotificationModalComponent } from './components/notification-modal/notification-modal.component';
 import { SessionService } from './services/session.service';
-import { BackgroundFetch } from '@transistorsoft/capacitor-background-fetch';
+//import { BackgroundFetch } from '@transistorsoft/capacitor-background-fetch';
 import { LoadingController } from '@ionic/angular';
+import { LocationService } from './services/location.service';
 
 @Component({
   selector: 'app-root',
@@ -30,7 +31,8 @@ export class AppComponent {
     private notificationService: NotificationService,
     private modalCtrl: ModalController,
     private sessionService : SessionService,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private locationService: LocationService
   ) {
     this.platform.ready().then(() => {
       this.firebaseMessagingService.initPush();
@@ -56,22 +58,34 @@ export class AppComponent {
     this.firebaseMessagingService.listenToMessages();
   }
 
+  async updatePosition() {
+    const userType = await this.authService.getUsersType();
+    if (userType === "ETU"){
+      const etudiantId = await this.authService.getUserId();
+      if (etudiantId) {
+        this.locationService.sendLocationToBackend(etudiantId)
+        .then(() => console.log("Position envoyée"))
+        .catch(err => console.error("Erreur d'envoi", err));
+      }
+    }
+  }
+
   onPromptCancelled() {
     this.showPrompt = false;
   }
 
   ngOnInit() {
     this.startAutoSessionCheck();
-    this.platform.ready().then(() => {
-      this.initializeBackgroundFetch(); // ✅ Lancer ici une seule fois
-    });
+    // this.platform.ready().then(() => {
+    //   this.initializeBackgroundFetch(); // ✅ Lancer ici une seule fois
+    // });
 
     // this.firebaseMessagingService.listenToMessages().subscribe((message: any) => {
     //   console.log('Message reçu via service :', message);
     //   this.notificationData = message; // par exemple, passer à ton composant
     //   this.showPrompt = true;
     // });
-
+    this.updatePosition();
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('firebase-messaging-sw.js')
@@ -136,10 +150,13 @@ export class AppComponent {
     });
   }
 
-  startAutoSessionCheck() {
-    setInterval(() => {
-      this.checkAndStartSession();
-    }, 1 * 60 * 1000); // toutes les 1 minute
+  async startAutoSessionCheck() {
+    const userType = await this.authService.getUsersType();
+    if (userType === "ENS") {
+        setInterval(() => {
+        this.checkAndStartSession();
+      }, 1 * 60 * 1000); // toutes les 1 minute
+    }
   }
 
   checkAndStartSession() {
@@ -157,19 +174,19 @@ export class AppComponent {
     });
   }
 
-  initializeBackgroundFetch() {
-    BackgroundFetch.configure({
-      minimumFetchInterval: 1, // mettre au moins 15 min sur iOS, sinon ignoré (tant pis)
-      stopOnTerminate: false,
-      enableHeadless: true
-    }, async (taskId) => {
-      console.log('[BackgroundFetch] task: ', taskId);
-      await this.checkAndStartSession();
-      BackgroundFetch.finish(taskId);
-    }, (error) => {
-      console.warn('Background fetch failed to start', error);
-    });
-  }
+  // initializeBackgroundFetch() {
+  //   BackgroundFetch.configure({
+  //     minimumFetchInterval: 1, // mettre au moins 15 min sur iOS, sinon ignoré (tant pis)
+  //     stopOnTerminate: false,
+  //     enableHeadless: true
+  //   }, async (taskId) => {
+  //     console.log('[BackgroundFetch] task: ', taskId);
+  //     await this.checkAndStartSession();
+  //     BackgroundFetch.finish(taskId);
+  //   }, (error) => {
+  //     console.warn('Background fetch failed to start', error);
+  //   });
+  // }
 
 
 }

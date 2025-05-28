@@ -20,6 +20,7 @@ export class SidebarComponent  implements OnInit {
   activePage: number = 1;
   showLogoutModal = false;
   today = new Date();
+  position: string = '';
 
   routesByUserType: any = {
     'ETU': {
@@ -99,7 +100,21 @@ export class SidebarComponent  implements OnInit {
     const currentRoute = this.router.url;
     return currentRoute === this.getRoute(key);
   }
-  
+
+  getActiveRouteName(): string {
+    const url = this.router.url; // ex: "/student-dashboard" ou "/profile"
+    
+    // Parcourir les routes possibles (routesByUserType) pour trouver la clé correspondant à l'url active
+    if (!this.user || !this.user.utilisateur) return '';
+
+    const routes = this.routesByUserType[this.user.utilisateur];
+    for (const [key, path] of Object.entries(routes)) {
+      if (path === url) {
+        return key; // par exemple 'dashboard' ou 'profile'
+      }
+    }
+    return '';
+  }
 
   async ngOnInit() {
     this.checkScreenSize();

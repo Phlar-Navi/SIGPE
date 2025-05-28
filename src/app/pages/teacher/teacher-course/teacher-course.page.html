@@ -180,8 +180,6 @@
         >
         </app-session-list>
 
-
-
         <!-- Détails de la session sélectionnée -->
         <app-session-details
           [selectedSession]="selectedSession"
@@ -190,7 +188,8 @@
           [teacher_id]="enseignantId"
           (terminateSession)="showAttendance = true"
           (sessionUpdated)="onSessionUpdated()"
-          (cancelSession)="onSessionDeleted()">
+          (cancelSession)="onSessionDeleted()"
+          (markStatut)="onMarkStatut($event)">
         </app-session-details>
 
 
@@ -201,15 +200,12 @@
         </ng-template>
 
         <!-- Prise de présence manuelle -->
-        <div
+        <!-- <div
           *ngIf="selectedSession?.statut === 'En cours'"
           class="bg-white p-6 rounded-lg shadow-lg mt-6 fade-in"
         >
           <h3 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">Prendre la présence manuellement</h3>
-
-          <!-- Formulaire pour ajouter un étudiant -->
           <form (ngSubmit)="addStudentToAttendance()" class="space-y-4">
-            <!-- Champ Nom -->
             <div>
               <label class="block text-gray-700 font-medium mb-2">Nom de l'étudiant</label>
               <input
@@ -221,8 +217,6 @@
                 required
               />
             </div>
-
-            <!-- Champ Matricule -->
             <div>
               <label class="block text-gray-700 font-medium mb-2">Matricule de l'étudiant</label>
               <input
@@ -233,8 +227,6 @@
                 required
               />
             </div>
-
-            <!-- Boutons d'action -->
             <div class="flex justify-end space-x-4">
               <button
                 [ngClass]="{'disabled-button': !isSessionOn}"
@@ -246,7 +238,7 @@
             </div>
           </form>
           
-        </div>
+        </div> -->
 
         <!-- Statistiques de la session -->
         <div>

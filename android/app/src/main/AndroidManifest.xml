@@ -7,7 +7,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
 
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation"
@@ -35,12 +36,11 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
-        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" 
+        <meta-data android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@mipmap/ic_launcher" />
 
         <!-- Pour lancer les session automatiquement meme avec l'appli en background ou fermée -->
-        <receiver
-            android:name="com.transistorsoft.tsbackgroundfetch.FetchAlarmReceiver"
+        <!-- <receiver
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -48,14 +48,18 @@
                 <action android:name="android.intent.action.REBOOT" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
-        </receiver>
+        </receiver> -->
 
     </application>
 
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
-    
+    <!-- Recuperer la position géographique des utilisateurs -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-feature android:name="android.hardware.location.gps" />
+
     <!-- Pour lancer les session automatiquement meme avec l'appli en background ou fermée -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 </manifest>

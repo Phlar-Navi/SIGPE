@@ -11,6 +11,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { Matiere, MetadataService } from 'src/app/services/metadata.service';
 import { SessionListComponent } from 'src/app/components/session-list/session-list.component';
 import { AlertController } from '@ionic/angular';
+import { SessionDetailsComponent } from 'src/app/components/session-details/session-details.component';
 
 export interface Session_format {
   id?: string; // UUID généré par le backend
@@ -103,6 +104,8 @@ export interface APISession {
 export class TeacherCoursePage implements OnInit, AfterViewChecked {
 
   @ViewChild(SessionListComponent) sessionListComponent!: SessionListComponent;
+  @ViewChild(SessionDetailsComponent) sessionDetailsComponent!: SessionDetailsComponent;
+
   // UI states
   showStats = false;
   showAttendance = true;
@@ -155,6 +158,26 @@ export class TeacherCoursePage implements OnInit, AfterViewChecked {
     //this.loadTeachingData();
   }
 
+  onMarkStatut(event: { etudiantId: number, statut: 'absent' | 'présent' | 'en retard' | 'excusé' }) {
+    const sessionId = this.selectedSession?.id;
+    if (!sessionId) return;
+
+    this.sessionService.changerStatutPresence(sessionId, event.etudiantId, event.statut)
+      .subscribe({
+        next: res => {
+          console.log('Statut mis à jour avec succès :', res);
+          // Rafraîchir la liste dans le composant enfant
+          if (this.sessionDetailsComponent && this.selectedSession) {
+            this.sessionDetailsComponent.loadList(this.selectedSession);
+          }
+        },
+        error: err => {
+          console.error('Erreur lors de la mise à jour du statut :', err);
+        }
+      });
+  }
+
+
   async loadMatieres() {
     try {
         this.sessionService.getMatieresByEnseignant(this.enseignantId).subscribe({
@@ -187,33 +210,7 @@ export class TeacherCoursePage implements OnInit, AfterViewChecked {
   onSessionsLoaded(loadedSessions: Session_Laravel[]) {
     this.sessions = loadedSessions;
   }
-
-  // private async tryEnableMatiereField() {
-  //     const niveau = this.sessionForm.get('niveau')?.value;
-  //     const filiere = this.sessionForm.get('filiere')?.value;
-  //     //console.log(niveau, filiere);
-    
-  //     if (niveau && filiere) {
-  //       this.sessionForm.get('matiere')?.enable();
-    
-  //       // Charger les matières pour l'enseignant + ce niveau + cette filière
-  //       try {
-  //         const response = await this.metaDataService.getMatieresByEnseignantAndFilters(
-  //           this.enseignantId,
-  //           niveau, //.id || niveau
-  //           filiere // .id || filiere
-  //         ).toPromise();
-
-  //         this.matieres = response?.matieres ?? [];
-  //       } catch (error) {
-  //         console.error('Erreur lors du chargement des matières filtrées', error);
-  //         this.matieres = [];
-  //       }
-  //     } else {
-  //       this.sessionForm.get('matiere')?.disable();
-  //       this.matieres = []; // Remettre à zéro si pas encore prêt
-  //     }
-  // }
+  
   private async tryEnableMatiereField() {
     const niveau = this.sessionForm.get('niveau')?.value;
     const filiere = this.sessionForm.get('filiere')?.value;
@@ -276,15 +273,6 @@ export class TeacherCoursePage implements OnInit, AfterViewChecked {
       this.salles = data.salles;
     });
   }
-
-  // private async loadTeachingData() {
-  //   try {
-  //     this.matieres = await this.sessionService.getMatieresByEnseignant(this.enseignantId).toPromise() || [];
-  //     this.salles = await this.sessionService.getSalles().toPromise() || [];
-  //   } catch (error) {
-  //     console.error('Erreur lors de la récupération des données d\'enseignement', error);
-  //   }
-  // }
 
   async onSubmit() {
     if (this.sessionForm.invalid) return;

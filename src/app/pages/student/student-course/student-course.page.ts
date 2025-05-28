@@ -1,9 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Chart } from 'chart.js/auto';
 // import { Session } from 'src/app/components/session-list/session-list.component';
 import { Session_Laravel } from '../../teacher/teacher-course/teacher-course.page';
 import { Storage } from '@ionic/storage-angular';
 import { SessionListComponent } from 'src/app/components/session-list/session-list.component';
+import { Subscription } from 'rxjs';
+import { SessionService } from 'src/app/services/session.service';
 
 export interface Student {
   nom: string;
@@ -15,8 +17,9 @@ export interface Student {
   styleUrls: ['./student-course.page.scss'],
   standalone: false
 })
-export class StudentCoursePage implements OnInit {
+export class StudentCoursePage implements OnInit, OnDestroy {
   @ViewChild(SessionListComponent) sessionListComponent!: SessionListComponent;
+  private sessionCreatedSub!: Subscription;
   
   showStats: boolean = true;
   //selectedSession: number = 0;
@@ -24,7 +27,7 @@ export class StudentCoursePage implements OnInit {
   showCreateSession = false;
   isSmallScreen = false;
   isMenuOpen = false; // État du menu (ouvert/fermé)
-  sessions: Session_Laravel[] = [];
+  sessions: Session_Laravel[] | null = [];
   // {
   //     // date: '2023-10-10, 10:00',
   //     // date_fin: '2023-10-10, 12:00',
@@ -74,7 +77,7 @@ export class StudentCoursePage implements OnInit {
   };
 
 
-  constructor(private storage: Storage) { }
+  constructor(private storage: Storage, private sessionService: SessionService) { }
 
   async ngOnInit() {
     this.generate_charts();
@@ -85,6 +88,33 @@ export class StudentCoursePage implements OnInit {
     const user = await this.storage.get(this.STORAGE_KEYS.USER_DATA);
     this.filiere_id = user.filiere_id;
     this.niveau_id = user.niveau_id;
+
+    this.sessionCreatedSub = this.sessionService.sessionCreated$.subscribe(() => {
+      console.log('Rafraîchissement déclenché depuis student-page');
+      this.forceRefresh();
+    });
+  }
+
+  private forceRefresh() {
+    // Réinitialise les données pour forcer le refresh
+    this.sessions = null;
+    
+    if (this.sessionListComponent) {
+      this.sessionListComponent.refreshCourseData();
+    } else {
+      // Fallback si le composant enfant n'est pas encore chargé
+      setTimeout(() => {
+        if (this.sessionListComponent) {
+          this.sessionListComponent.refreshCourseData();
+        }
+      }, 500);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.sessionCreatedSub) {
+      this.sessionCreatedSub.unsubscribe();
+    }
   }
 
   onSessionsLoaded(loadedSessions: Session_Laravel[]) {
