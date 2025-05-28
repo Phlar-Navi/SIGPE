@@ -4,9 +4,10 @@ import { SessionService } from 'src/app/services/session.service';
 import { Session_Laravel } from 'src/app/pages/teacher/teacher-course/teacher-course.page';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { LoadingController } from '@ionic/angular';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
+import { SessionEventService } from 'src/app/services/session-event.service';
 
 @Component({
   selector: 'app-session-list',
@@ -31,7 +32,11 @@ export class SessionListComponent implements OnInit, OnDestroy {
   selectedStatut: string = '';
   selectedPeriod: string = '';
 
-  constructor(private sessionService: SessionService, private loadingController: LoadingController) {}
+  private refreshTrigger$ = new Subject<void>();
+
+  constructor(private sessionService: SessionService, 
+    private loadingController: LoadingController,
+    private sessionEventService: SessionEventService) {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (
@@ -45,11 +50,19 @@ export class SessionListComponent implements OnInit, OnDestroy {
   }
   
   ngOnInit() {
+    this.refreshTrigger$.subscribe(() => {
+      this.refreshCourseData(); // ta méthode de chargement
+    });
+
     this.refreshCourseData();
 
     // 🔁 Abonnement à l'événement de création
     this.sessionCreatedSub = this.sessionService.sessionCreated$.subscribe(() => {
       console.log('[SessionListComponent] Événement reçu : on refresh');
+      this.refreshCourseData();
+    });
+
+    this.sessionEventService.refreshTrigger$.subscribe(() => {
       this.refreshCourseData();
     });
     //console.log(this.filiereId, this.niveauId);

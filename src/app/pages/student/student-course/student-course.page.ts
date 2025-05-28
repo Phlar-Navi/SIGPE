@@ -6,6 +6,7 @@ import { Storage } from '@ionic/storage-angular';
 import { SessionListComponent } from 'src/app/components/session-list/session-list.component';
 import { Subscription } from 'rxjs';
 import { SessionService } from 'src/app/services/session.service';
+import { SessionDetailsComponent } from 'src/app/components/session-details/session-details.component';
 
 export interface Student {
   nom: string;
@@ -19,6 +20,7 @@ export interface Student {
 })
 export class StudentCoursePage implements OnInit, OnDestroy {
   @ViewChild(SessionListComponent) sessionListComponent!: SessionListComponent;
+  @ViewChild(SessionDetailsComponent) sessionDetailsComponent!: SessionDetailsComponent;
   private sessionCreatedSub!: Subscription;
   
   showStats: boolean = true;
@@ -89,8 +91,15 @@ export class StudentCoursePage implements OnInit, OnDestroy {
     this.filiere_id = user.filiere_id;
     this.niveau_id = user.niveau_id;
 
+    this.sessionService.sessionUpdated$.subscribe(() => {
+      console.log("Mise à jour détectée depuis teacher page !");
+      if (this.sessionDetailsComponent && this.selectedSession) {
+        this.sessionDetailsComponent.loadList(this.selectedSession);
+      }
+    });
+
     this.sessionCreatedSub = this.sessionService.sessionCreated$.subscribe(() => {
-      console.log('Rafraîchissement déclenché depuis student-page');
+      //console.log('Rafraîchissement déclenché depuis student-page');
       this.forceRefresh();
     });
   }
@@ -161,10 +170,11 @@ export class StudentCoursePage implements OnInit, OnDestroy {
   ngAfterViewInit() {
     // Patiente un peu pour laisser Angular appliquer les @Input()
     setTimeout(() => {
-      if (this.sessionListComponent) {
-        this.sessionListComponent.refreshCourseData();
-      }
-    });
+      this.sessionListComponent?.refreshCourseData();
+      // if (this.sessionListComponent) {
+      //   this.sessionListComponent.refreshCourseData();
+      // }
+    }, 0);
   }
 
 

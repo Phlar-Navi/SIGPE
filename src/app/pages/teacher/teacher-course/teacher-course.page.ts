@@ -4,6 +4,7 @@ import { LoadingController } from '@ionic/angular';
 import { Storage } from '@ionic/storage-angular';
 import { Chart } from 'chart.js/auto';
 import { ToastController } from '@ionic/angular';
+import { ToastService } from 'src/app/services/toast.service';
 
 // import { Session } from 'src/app/components/session-list/session-list.component';
 import { SessionService } from 'src/app/services/session.service';
@@ -12,6 +13,7 @@ import { Matiere, MetadataService } from 'src/app/services/metadata.service';
 import { SessionListComponent } from 'src/app/components/session-list/session-list.component';
 import { AlertController } from '@ionic/angular';
 import { SessionDetailsComponent } from 'src/app/components/session-details/session-details.component';
+import { SessionEventService } from 'src/app/services/session-event.service';
 
 export interface Session_format {
   id?: string; // UUID généré par le backend
@@ -147,7 +149,9 @@ export class TeacherCoursePage implements OnInit, AfterViewChecked {
     private authService: AuthService,
     private metaDataService: MetadataService,
     private toastController: ToastController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private toastService: ToastService,
+    private sessionEventService: SessionEventService 
   ) { }
 
   async ngOnInit() {
@@ -167,6 +171,7 @@ export class TeacherCoursePage implements OnInit, AfterViewChecked {
         next: res => {
           console.log('Statut mis à jour avec succès :', res);
           // Rafraîchir la liste dans le composant enfant
+          this.sessionService.notifySessionUpdated();
           if (this.sessionDetailsComponent && this.selectedSession) {
             this.sessionDetailsComponent.loadList(this.selectedSession);
           }
@@ -292,14 +297,17 @@ export class TeacherCoursePage implements OnInit, AfterViewChecked {
     this.sessionService.createSession(sessionData).subscribe({
       next: async (session: Session_Laravel) => {
         await loading.dismiss();
-        this.showToast("Session crée avec succès", 'success');
+        this.toastService.show('Session créée avec succès !', 'success');
+
+        // Optionnel : ajoute à ta propre liste locale si affichée
         this.sessions.push(session);
+
         this.sessionForm.reset();
         this.showCreateSession = false;
-        this.sessionService.notifySessionCreated();
-        // if (this.sessionListComponent) {
-        //   this.sessionListComponent.refreshCourseData();
-        // }
+
+        // 🔥 Déclencher la logique partagée de refresh
+        this.sessionEventService.triggerRefresh();       // Met à jour les sessions listées
+        this.sessionEventService.triggerResetSelected(); // Vide le composant de détail
       },
       error: async (error) => {
         await loading.dismiss();
@@ -411,7 +419,7 @@ export class TeacherCoursePage implements OnInit, AfterViewChecked {
                 this.selectedSession = null;
                 await this.sessionListComponent.refreshCourseData();
                 await loading.dismiss();
-                this.showToast("Session supprimée avec succès", 'success');
+                this.toastService.show("Session supprimée avec succès", 'success');
               });
             }
           }

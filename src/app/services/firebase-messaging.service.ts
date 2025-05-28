@@ -18,6 +18,7 @@ import { ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { NotificationModalComponent } from '../components/notification-modal/notification-modal.component';
+import { ToastService } from './toast.service';
 
 
 export const FCM_TOKEN = 'push_notification_token'
@@ -36,7 +37,8 @@ export class FirebaseMessagingService {
     private http: HttpClient,
     private toastController: ToastController,
     private router: Router,
-    private modalCtrl: ModalController) {}
+    private modalCtrl: ModalController,
+    private toastService: ToastService) {}
 
   requestPermissionAndGetToken() {
     return Notification.requestPermission().then(permission => {
@@ -89,16 +91,58 @@ export class FirebaseMessagingService {
   //       }
   //   });
   // }
+
+  // listenToMessages() {
+  //   onMessage(this.messaging, async (payload) => {
+  //     console.log('Notification reçue en foreground :', payload);
+
+  //     const type = payload.data?.['type'] || 'info';
+  //     const title = payload.notification?.title || 'Notification';
+  //     const body = payload.notification?.body || 'Vous avez une nouvelle notification';
+
+  //     if (payload.data?.['redirect'] === '/student-course') { // if (payload.data)
+  //       // Déclencher le prompt
+  //       this.promptPresence$.next();
+  //     } else {
+  //       this.toastService.show(`${title} : ${body}`, 'prompt');
+  //     }
+  //   });
+  // }
+
   listenToMessages() {
     onMessage(this.messaging, async (payload) => {
+      const data = payload.data;
+      const message = payload.notification;
+      const type = data?.['type'];
+
       console.log('Notification reçue en foreground :', payload);
 
-      if (payload.data) {
-        // Déclencher le prompt
-        this.promptPresence$.next();
+      switch (type) {
+        case 'modal':
+          this.promptPresence$.next(); // ou showPrompt(data)
+          break;
+        case 'alert':
+          this.toastService.show(message?.['body'] || 'Alerte', 'error');
+          break;
+        case 'info':
+          this.toastService.show(message?.['body'] || 'Information', 'info');
+          break;
+        case 'warning':
+          this.toastService.show(message?.['body'] || 'Information', 'warning');
+          break;
+        case 'prompt':
+          this.toastService.show(message?.['body'] || 'Information', 'prompt');
+          break;
+        // case 'survey':
+        //   this.modalService.openSurvey(data);
+        //   break;
+        default:
+          console.warn('Type de notification inconnu :', type);
+          break;
       }
     });
   }
+
 
   public initPush(){
     if (Capacitor.getPlatform() !== 'web') {

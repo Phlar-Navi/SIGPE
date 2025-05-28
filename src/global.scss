@@ -39,3 +39,49 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+
+/* global.scss */
+
+.custom-toast {
+  --border-radius: 10px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 60px;
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 500;
+  position: relative;
+  padding-left: 40px !important; // espace pour l'icône
+}
+
+.custom-toast::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* Icônes selon le type (tu peux remplacer par des images SVG si besoin) */
+.toast-info::before {
+  background-image: url('/assets/icons/info.svg');
+}
+
+.toast-success::before {
+  background-image: url('/assets/icons/check.svg');
+}
+
+.toast-error::before {
+  background-image: url('/assets/icons/error.svg');
+}
+
+.toast-warning::before {
+  background-image: url('/assets/icons/warning.svg');
+}
+

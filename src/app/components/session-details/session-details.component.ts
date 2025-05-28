@@ -17,6 +17,8 @@ import { Chart } from 'chart.js/auto';
 import { ElementRef } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 import { PresencePromptComponent } from '../presence-prompt/presence-prompt.component';
+import { ToastService } from 'src/app/services/toast.service';
+import { SessionEventService } from 'src/app/services/session-event.service';
 
 type Statut = 'présent' | 'en retard' | 'absent';
 
@@ -113,7 +115,7 @@ export class SessionDetailsComponent {
 
   addStudentToAttendance() {
     if (!this.selectedSession?.id || !this.newStudent.matricule || !this.newStudent.statut) {
-      this.showToast('Tous les champs sont requis.', 'warning');
+      this.toastService.show('Tous les champs sont requis.', 'warning');
       return;
     }
 
@@ -125,8 +127,8 @@ export class SessionDetailsComponent {
 
     this.sessionService.ajouterPresence(presencePayload).subscribe({
       next: (response) => {
-        console.log('Présence ajoutée avec succès :', response);
-        this.showToast('Nouvel étudiant ajouté avec succès', 'success');
+        // console.log('Présence ajoutée avec succès :', response);
+        this.toastService.show('Nouvel étudiant ajouté avec succès', 'success');
         // Reset formulaire
         this.newStudent = { matricule: '', statut: '' };
       },
@@ -135,26 +137,26 @@ export class SessionDetailsComponent {
 
         switch (error.status) {
           case 409:
-            this.showToast('Cette présence est déjà enregistrée.', 'warning');
+            this.toastService.show('Cette présence est déjà enregistrée.', 'warning');
             break;
           case 404:
             // Gestion spécifique pour étudiant non trouvé ou session non trouvée
             if (error.error?.message?.includes('étudiant')) {
-              this.showToast('Aucun étudiant trouvé avec ce matricule.', 'danger');
+              this.toastService.show('Aucun étudiant trouvé avec ce matricule.', 'error');
             } else if (error.error?.message?.includes('Session')) {
-              this.showToast('Session introuvable.', 'danger');
+              this.toastService.show('Session introuvable.', 'error');
             } else {
-              this.showToast('Ressource introuvable.', 'danger');
+              this.toastService.show('Ressource introuvable.', 'error');
             }
             break;
           case 403:
-            this.showToast(error.error?.message || "L'étudiant ne correspond pas à la filière ou au niveau.", 'danger');
+            this.toastService.show(error.error?.message || "L'étudiant ne correspond pas à la filière ou au niveau.", 'error');
             break;
           case 422:
-            this.showToast('Données invalides.', 'warning');
+            this.toastService.show('Données invalides.', 'warning');
             break;
           default:
-            this.showToast('Une erreur est survenue. Veuillez réessayer.', 'danger');
+            this.toastService.show('Une erreur est survenue. Veuillez réessayer.', 'error');
             break;
         }
       }
@@ -190,7 +192,7 @@ export class SessionDetailsComponent {
   //   this.sessionService.ajouterPresence(presencePayload).subscribe({
   //     next: (response) => {
   //       console.log('Présence ajoutée avec succès :', response);
-  //       this.showToast("Nouvel etudiant ajouté avec succès", 'success');
+  //       this.toastService.show("Nouvel etudiant ajouté avec succès", 'success');
   //       // Optionnel : reset du formulaire
   //       this.newStudent = { matricule: '', statut: '' };
   //     },
@@ -305,25 +307,33 @@ export class SessionDetailsComponent {
       this.selectedSession = null;
       this.sessionUpdated.emit();
       await loading.dismiss();
-      this.showToast("Session lancée", 'primary');
+      this.toastService.show("Session lancée", 'prompt');
     });
   }
 
-  async endSession(session: any){
+  async endSession(session: any) {
     const loading = await this.loadingController.create({
-      message: 'Terminaison de la session...',
+      message: 'Cloture de la session...',
       spinner: 'bubbles',
       backdropDismiss: false
     });
     await loading.present();
 
-    this.sessionService.terminerSession(session.id).subscribe(async () => {
-      this.selectedSession = null;
-      this.sessionUpdated.emit();
-      await loading.dismiss();
-      this.showToast("Session achevée", 'primary');
+    this.sessionService.terminerSession(session.id).subscribe({
+      next: async () => {
+        this.selectedSession = null;
+        this.sessionUpdated.emit();
+        await loading.dismiss();
+        this.toastService.show("Session achevée", 'prompt');
+      },
+      error: async (error) => {
+        console.error("Erreur lors de la fin de session :", error);
+        await loading.dismiss();
+        this.toastService.show("Une erreur est survenue.", 'error');
+      }
     });
   }
+
 
   loadList(session: Session_Laravel | null) {
     if (!session) return;
@@ -463,7 +473,7 @@ export class SessionDetailsComponent {
 
   async saveSession() {
     const loading = await this.loadingController.create({
-      message: 'Création de la session...',
+      message: 'Modification de la session...',
       spinner: 'bubbles',
       backdropDismiss: false
     });
@@ -479,7 +489,7 @@ export class SessionDetailsComponent {
           //this.sessionListComponent.refreshCourseData();
           this.sessionUpdated.emit();
           await loading.dismiss();
-          this.showToast("Session modifiée avec succès", 'success');
+          this.toastService.show("Session modifiée avec succès", 'success');
         },
         error: async (error) => {
           await loading.dismiss();
@@ -493,7 +503,7 @@ export class SessionDetailsComponent {
       };
     } else {
       await loading.dismiss();
-      this.showToast("Informations manquante : Matière", 'danger');
+      this.toastService.show("Informations manquante : Matière", 'error');
     }
 
     this.isEditing = false;
@@ -515,7 +525,9 @@ export class SessionDetailsComponent {
     private http: HttpClient,
     private toastController: ToastController,
     private loadingController: LoadingController,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toastService: ToastService,
+    private sessionEventService: SessionEventService
   ) {}
 
   ngOnChanges(changes: SimpleChanges) {
@@ -593,6 +605,9 @@ export class SessionDetailsComponent {
         }
       }
     }
+    this.sessionEventService.resetSelected$.subscribe(() => {
+      this.selectedSession = null;
+    });
     //this.listenToLevelAndFiliereChanges();
   }
 

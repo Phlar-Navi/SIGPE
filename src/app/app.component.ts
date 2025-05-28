@@ -10,6 +10,8 @@ import { SessionService } from './services/session.service';
 //import { BackgroundFetch } from '@transistorsoft/capacitor-background-fetch';
 import { LoadingController } from '@ionic/angular';
 import { LocationService } from './services/location.service';
+import { ToastService } from './services/toast.service';
+import { SessionEventService } from './services/session-event.service';
 
 @Component({
   selector: 'app-root',
@@ -32,7 +34,9 @@ export class AppComponent {
     private modalCtrl: ModalController,
     private sessionService : SessionService,
     private loadingController: LoadingController,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private toastService: ToastService,
+    private sessionEventService: SessionEventService
   ) {
     this.platform.ready().then(() => {
       this.firebaseMessagingService.initPush();
@@ -155,7 +159,7 @@ export class AppComponent {
     if (userType === "ENS") {
         setInterval(() => {
         this.checkAndStartSession();
-      }, 1 * 60 * 1000); // toutes les 1 minute
+      }, 0.5 * 60 * 1000); // toutes les 1 minute
     }
   }
 
@@ -164,15 +168,37 @@ export class AppComponent {
       if (session && session.statut === 'À venir') {
         this.sessionService.lancerSession(session.id).subscribe({
           next: res => {
-            console.log('Session lancée avec succès', res);
+            this.toastService.show(`Session de ${session.matiere?.code} prévue pour ${session.heure_debut} lancée automatiquement avec succès !`, 'prompt');
+
+            // Déclencher les mises à jour
+            this.sessionEventService.triggerRefresh();      // pour session-list
+            this.sessionEventService.triggerResetSelected(); // pour session-details
           },
           error: err => {
+            this.toastService.show('Erreur lors du lancement de la session', 'error');
             console.error('Erreur lors du lancement de la session', err);
           }
         });
       }
     });
   }
+
+  // checkAndStartSession() {
+  //   this.sessionService.getUpcomingSession().subscribe(session => {
+  //     if (session && session.statut === 'À venir') {
+  //       this.sessionService.lancerSession(session.id).subscribe({
+  //         next: res => {
+  //           this.toastService.show(`Session de ${session.matiere?.code} prévue pour ${session.heure_debut} lancée automatiquement avec succès !`, 'prompt');
+  //           //console.log('Session lancée avec succès', res);
+  //         },
+  //         error: err => {
+  //           this.toastService.show('Erreur lors du lancement de la session', 'error');
+  //           console.error('Erreur lors du lancement de la session', err);
+  //         }
+  //       });
+  //     }
+  //   });
+  // }
 
   // initializeBackgroundFetch() {
   //   BackgroundFetch.configure({

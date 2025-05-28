@@ -5,6 +5,7 @@ import { MetadataService } from 'src/app/services/metadata.service';
 import { LoadingController } from '@ionic/angular';
 import { ToastController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth.service';
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-profile',
@@ -58,7 +59,8 @@ export class ProfilePage implements OnInit {
     private metadataService: MetadataService,
     private loadingController: LoadingController,
     private toastController: ToastController,
-    private authService: AuthService) {}
+    private authService: AuthService,
+    private toastService: ToastService) {}
 
   ngOnInit(): void {
     this.profileForm = this.fb.group({
@@ -165,17 +167,17 @@ export class ProfilePage implements OnInit {
     }
 
     formData.append('id', this.user.id);
-    console.log(this.user.id);
+    //console.log(this.user.id);
 
     this.metadataService.updateEtudiant(this.user.id, formData, this.user.utilisateur).subscribe({
       next: async (res) => {
         await this.authService.refreshUserData();
-        this.showToast("Modification effectuée avec succès!", 'success');
+        this.toastService.show("Modification effectuée avec succès!", 'success');
         //console.log('Mise à jour réussie:', res);
         await loading.dismiss();
       },
       error: async (err) => {
-        this.showToast("Erreur lors de la tentative de modification du compte...", 'danger');
+        this.toastService.show("Erreur lors de la tentative de modification du compte...", 'error');
         //console.error('Erreur lors de la mise à jour:', err);
         await loading.dismiss();
       }

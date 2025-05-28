@@ -93,6 +93,8 @@ export class SessionService {
 
   private sessionCreatedSource = new Subject<void>();
   sessionCreated$ = this.sessionCreatedSource.asObservable();
+  private sessionUpdatedSubject = new Subject<void>();
+  sessionUpdated$ = this.sessionUpdatedSubject.asObservable();
 
   markPresent(etudiantId: number, sessionId: number) {
     return this.http.post('/api/presences/marquer', {
@@ -294,10 +296,29 @@ export class SessionService {
     return this.http.post(`${this.apiUrl}presences`, presenceData);
   }
 
+  // listenToSessionUpdates(sessionId: string): Observable<Session> {
+  //   return new Observable(observer => {
+  //     const docRef = this.afs.doc<Session>(`sessions/${sessionId}`);
+  //     const unsubscribe = docRef.snapshotChanges().subscribe(snapshot => {
+  //       if (snapshot.payload.exists) {
+  //         const data = snapshot.payload.data();
+  //         observer.next({ id: snapshot.payload.id, ...data });
+  //       }
+  //     });
+
+  //     // Clean up on unsubscribe
+  //     return () => unsubscribe.unsubscribe();
+  //   });
+  // }
+
 
   notifySessionCreated() {
-    console.log('[SessionService] Session créée : événement émis');
+    //console.log('[SessionService] Session créée : événement émis');
     this.sessionCreatedSource.next();
+  }
+
+  notifySessionUpdated() {
+    this.sessionUpdatedSubject.next();
   }
 
   createSession_format(sessionData: any): Observable<Session_format> {

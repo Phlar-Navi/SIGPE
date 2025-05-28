@@ -7,6 +7,7 @@ import { lastValueFrom } from 'rxjs';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { Storage } from '@ionic/storage-angular'
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-register',
@@ -43,7 +44,8 @@ export class RegisterPage implements OnInit {
     private alertController: AlertController,
     private metadataService: MetadataService,
     private authService: AuthService,
-    private _storage: Storage) { }
+    private _storage: Storage,
+    private toastService: ToastService) { }
 
   ngOnInit() {
     this.filieres = ['Informatique', 'Mathematiques', 'Physiques'];
@@ -174,7 +176,7 @@ export class RegisterPage implements OnInit {
   
     console.log(response);
     // Affichage du feedback
-    await this.showToast('Inscription réussie !', 'success');
+    this.toastService.show('Inscription réussie !', 'success');
   
     // Redirection adaptée
     this.redirectBasedOnUserType(response.type_utilisateur);
@@ -224,30 +226,30 @@ export class RegisterPage implements OnInit {
   async signUpWithGoogle() {
     try {
       console.log('Google Signup initiated');
-      this.showToast('Inscription avec Google', 'primary');
+      this.toastService.show('Inscription avec Google', 'success');
       // TODO: Implement Google Sign-Up
     } catch (error) {
-      this.showToast('Erreur de connexion Google', 'danger');
+      this.toastService.show('Erreur de connexion Google', 'error');
     }
   }
 
   async signUpWithFacebook() {
     try {
       console.log('Facebook Signup initiated');
-      this.showToast('Inscription avec Facebook', 'primary');
+      this.toastService.show('Inscription avec Facebook', 'success');
       // TODO: Implement Facebook Sign-Up
     } catch (error) {
-      this.showToast('Erreur de connexion Facebook', 'danger');
+      this.toastService.show('Erreur de connexion Facebook', 'error');
     }
   }
 
   async signUpWithApple() {
     try {
       console.log('Apple Signup initiated');
-      this.showToast('Inscription avec Apple', 'primary');
+      this.toastService.show('Inscription avec Apple', 'success');
       // TODO: Implement Apple Sign-Up
     } catch (error) {
-      this.showToast('Erreur de connexion Apple', 'danger');
+      this.toastService.show('Erreur de connexion Apple', 'error');
     }
   }
 

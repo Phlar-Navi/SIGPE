@@ -190,7 +190,7 @@ export class AuthService {
   async refreshUserData(): Promise<void> {
     const token = await this.storage.get(this.STORAGE_KEYS.ACCESS_TOKEN);
     const userType = await this.storage.get(this.STORAGE_KEYS.USER_TYPE);
-    console.log(userType, token);
+    // console.log(userType, token);
 
     if (!token || !userType) {
       throw new Error('Token ou type utilisateur manquant');

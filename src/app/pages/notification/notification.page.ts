@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NotificationData, NotificationService } from 'src/app/services/notification.service';
+import { LoadingController } from '@ionic/angular';
 
 interface Notification extends NotificationData {
   read: boolean;
@@ -129,15 +130,23 @@ export class NotificationPage implements OnInit {
 
   notifications: Notification[] = [];
 
-  constructor(private notificationService: NotificationService) { }
+  constructor(private notificationService: NotificationService, 
+    private loadingController: LoadingController) { }
 
   ngOnInit() {
     this.loadNotifications();
     //console.log(this.notifications[0]);
   }
 
-  loadNotifications() {
-    this.notificationService.getNotifications().subscribe((data) => {
+  async loadNotifications() {
+    const loading = await this.loadingController.create({
+      message: 'Chargement...',
+      spinner: 'bubbles',
+      backdropDismiss: false
+    });
+    await loading.present();
+    
+    this.notificationService.getNotifications().subscribe(async (data) => {
       this.notifications = data.map((notif: NotificationData) => ({
         ...notif,
         read: !!notif.read_at,
@@ -151,8 +160,9 @@ export class NotificationPage implements OnInit {
         }
       }));
       
+      await loading.dismiss();
       // Déplacé ici
-      console.log(this.notifications[0]);
+      //console.log(this.notifications[0]);
     });
   }
 
@@ -164,7 +174,6 @@ export class NotificationPage implements OnInit {
 
 
   openModal(notif: any) {
-    notif.read = true;
     this.selectedNotification = notif;
     this.isModalOpen = true;
   }
@@ -173,6 +182,7 @@ export class NotificationPage implements OnInit {
     // this.selectedNotification.read = true;
     this.markAsRead(this.selectedNotification);
     this.isModalOpen = false;
+    this.selectedNotification.read = true;
   }
 
   sortByDate(){}
@@ -228,8 +238,18 @@ export class NotificationPage implements OnInit {
   }
 
 
-  deleteNotification(notif: Notification){}
+  deleteNotification(notif: Notification){
+    this.notificationService.deletenotif(notif.id).subscribe(() => {
+      this.loadNotifications();
+      console.log("Suppression effectuée !");
+    });
+  }
 
-  clearAll(){}
+  clearAll(){
+    this.notificationService.deleteall().subscribe(() => {
+      this.loadNotifications();
+      console.log("Suppressions effectuées !");
+    });
+  }
 
 }
