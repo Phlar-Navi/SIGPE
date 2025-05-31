@@ -9,3 +9,40 @@
   .sidebar-close {
     transform: translateX(-100%);
   }
+
+.period-radio {
+  @apply h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300;
+}
+
+// teacher-dashboard.page.scss
+table {
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th {
+    padding: 0.75rem 1.5rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: #f9fafb;
+  }
+
+  td {
+    padding: 1rem 1.5rem;
+    white-space: nowrap;
+    font-size: 0.875rem;
+
+    &.text-gray-500 {
+      color: #6b7280;
+    }
+
+    &.text-gray-900 {
+      color: #111827;
+      font-weight: 500;
+    }
+  }
+}

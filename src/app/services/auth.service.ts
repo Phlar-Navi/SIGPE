@@ -35,8 +35,6 @@ export class AuthService {
     USER_TYPE: 'type_utilisateur'
   };
 
-
-
   constructor(private http: HttpClient, private storage: Storage, private toastController: ToastController, private router: Router) {
     // this.storage.create();
     this.init();

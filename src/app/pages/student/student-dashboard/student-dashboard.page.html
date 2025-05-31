@@ -12,36 +12,120 @@
       </app-header>
 
       <!-- Notification urgente -->
-      <div class="mt-6 bg-yellow-100 p-4 rounded-lg shadow-md">
+      <!-- <div class="mt-6 bg-yellow-100 p-4 rounded-lg shadow-md">
         <h2 class="text-lg font-bold text-yellow-800">Notification urgente</h2>
         <p class="text-yellow-700">Vous avez 1 réponse à votre justificatif.</p>
+      </div> -->
+
+      <!-- Bloc des statistiques -->
+      <div class="bg-white p-4 mt-4 rounded-lg shadow-md">
+        <!-- Filtres -->
+        <div class="flex space-x-4 mb-4">
+          <select [(ngModel)]="periode" (change)="updateStats()">
+            <option value="">-- Période --</option>
+            <option value="jour">Jour</option>
+            <option value="semaine">Semaine</option>
+            <option value="mois">Mois</option>
+            <option value="semestre">Semestre</option>
+            <option value="annee">Année</option>
+          </select>
+
+          <select [(ngModel)]="matiereId" (change)="updateStats()">
+            <option value="">-- Matière --</option>
+            <option *ngFor="let m of matieres" [value]="m.id">{{ m.nom }}</option>
+          </select>
+        </div>
+
+        <h2 class="text-xl font-bold text-gray-700 mb-4">Nombre total de présences</h2>
+        <div class="flex space-x-4 mb-4">
+        <div class="text-center">
+            <p class="text-sm text-gray-500">Sessions</p>
+            <p class="text-2xl font-bold text-indigo-600">{{totalSessions}}</p>
+        </div>
+        <div class="text-center">
+            <p class="text-sm text-gray-500">Présences</p>
+            <p class="text-2xl font-bold text-green-500">{{totalPresences}}</p>
+        </div>
+        <div class="text-center">
+            <p class="text-sm text-gray-500">Excusés</p>
+            <p class="text-2xl font-bold text-amber-500">{{totalExcused}}</p>
+        </div>
+        <div class="text-center">
+            <p class="text-sm text-gray-500">Taux présence</p>
+            <p class="text-2xl font-bold text-blue-500">
+                {{totalSessions > 0 ? (totalPresences / totalSessions * 100 | number:'1.0-0') : 0}}%
+            </p>
+        </div>
+       </div>
+        <!-- <p class="text-3xl font-bold text-blue-600">{{ totalPresences }} présences</p> -->
+
+        <div class="relative h-[400px]">
+          <canvas id="presenceChart" class="absolute inset-0"></canvas>
+        </div>
       </div>
 
-      <!-- Graphique des présences et absences -->
-      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <!-- Titre du graphique dans un cadre coloré -->
-        <!-- <div class="bg-blue-50 p-3 rounded-t-lg border-b-4 border-blue-600">
-          <h2 class="text-xl font-bold text-blue-900">Présences et absences</h2>
-        </div> -->
-        <h2 class="text-xl font-bold text-gray-700">Présences et absences</h2>
-        <!-- Graphique -->
-        <canvas id="presenceChart" class="mt-4"></canvas>
+      <!-- Taux 'assiduité par matières -->
+      <div class="mt-6 bg-white p-6 rounded-xl shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-4"> Assiduité par matières</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div *ngFor="let subject of attendanceBySubject"
+              class="p-5 rounded-xl border shadow-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl cursor-pointer group"
+              [ngClass]="{
+                  'bg-green-50 border-green-200': subject.participationRate >= 75,
+                  'bg-amber-50 border-amber-200': subject.participationRate >= 50 && subject.participationRate < 75,
+                  'bg-red-50 border-red-200': subject.participationRate < 50
+              }">
+
+            <h3 class="font-bold text-lg mb-4 text-gray-800 group-hover:text-blue-600 transition-colors duration-300">
+              {{ subject.matiere }}
+            </h3>
+
+            <div class="flex justify-between text-sm text-gray-700 mb-1">
+              <span> Sessions totales :</span>
+              <span>{{ subject.totalSessions }}</span>
+            </div>
+
+            <div class="flex justify-between text-sm text-green-700 mb-1">
+              <span> Présences :</span>
+              <span>{{ subject.presences }}</span>
+            </div>
+
+            <div class="flex justify-between text-sm text-yellow-700 mb-4">
+              <span> Excusés :</span>
+              <span>{{ subject.excused }}</span>
+            </div>
+
+            <div class="border-t pt-3">
+              <div class="flex justify-between text-sm font-semibold mb-1 text-gray-800">
+                <span> Taux de participation :</span>
+                <span [ngClass]="{
+                    'text-green-600': subject.participationRate >= 75,
+                    'text-amber-600': subject.participationRate >= 50 && subject.participationRate < 75,
+                    'text-red-600': subject.participationRate < 50
+                  }">
+                  {{ subject.participationRate }}%
+                </span>
+              </div>
+
+              <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div class="h-2 transition-all duration-500 ease-in-out rounded-full"
+                    [ngClass]="{
+                        'bg-green-500': subject.participationRate >= 75,
+                        'bg-amber-500': subject.participationRate >= 50 && subject.participationRate < 75,
+                        'bg-red-500': subject.participationRate < 50
+                    }"
+                    [style.width]="subject.participationRate + '%'">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Nombre total de cours déjà effectués -->
-      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">Nombre total de cours déjà effectués</h2>
-        <p class="text-3xl font-bold text-blue-600">45 cours</p>
-      </div>
-
-      <!-- Repère avec des courbes/matières -->
-      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">Cours assistés et non assistés</h2>
-        <canvas id="courseChart"></canvas>
-      </div>
 
       <!-- Vision sommaire des justificatifs -->
-      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+      <!-- <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
         <h2 class="text-xl font-bold text-gray-700 mb-4">Justificatifs récents</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="bg-gray-50 p-4 rounded-lg">
@@ -50,10 +134,10 @@
             <p class="text-sm text-green-600">Statut: Validé</p>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Pourcentages d'assiduité par matière -->
-      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+      <!-- <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
         <h2 class="text-xl font-bold text-gray-700 mb-4">Assiduité par matière</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="bg-gray-50 p-4 rounded-lg">
@@ -65,10 +149,10 @@
             <p class="text-2xl font-bold text-blue-600">90%</p>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Liste des profils en ligne -->
-      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
+      <!-- <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
         <h2 class="text-xl font-bold text-gray-700 mb-4">Profils en ligne</h2>
         <div class="flex space-x-4">
           <div class="bg-gray-50 p-4 rounded-lg">
@@ -80,59 +164,68 @@
             <p class="text-sm text-green-600">En ligne</p>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Historique de présence -->
       <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
         <h2 class="text-xl font-bold text-gray-700 mb-4">Historique de présence</h2>
-        <table class="w-full">
-          <thead>
-            <tr class="bg-gray-200">
-              <th class="p-2">Cours</th>
-              <th class="p-2">Date</th>
-              <th class="p-2">Statut</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="border-b">
-              <td class="p-2">Mathématiques</td>
-              <td class="p-2">2023-10-01</td>
-              <td class="p-2 text-green-600">Présent</td>
-            </tr>
-            <tr class="border-b">
-              <td class="p-2">Informatique</td>
-              <td class="p-2">2023-10-02</td>
-              <td class="p-2 text-red-600">Absent</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        
+        <!-- Filtres indépendants -->
+        <div class="flex flex-wrap gap-4 mb-4">
+          <select [(ngModel)]="historyPeriode" (change)="filterHistory()" class="p-2 border rounded">
+            <option value="">-- Période --</option>
+            <option value="jour">Jour</option>
+            <option value="semaine">Semaine</option>
+            <option value="mois">Mois</option>
+            <option value="semestre">Semestre</option>
+            <option value="annee">Année</option>
+          </select>
 
-      <!-- Liste des salles et des cours -->
-      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">Liste des salles et des cours</h2>
-        <table class="w-full">
-          <thead>
-            <tr class="bg-gray-200">
-              <th class="p-2">Salle</th>
-              <th class="p-2">Cours</th>
-              <th class="p-2">Enseignant</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="border-b">
-              <td class="p-2">A101</td>
-              <td class="p-2">Mathématiques</td>
-              <td class="p-2">Dr. Moskolai</td>
-            </tr>
-            <tr class="border-b">
-              <td class="p-2">B202</td>
-              <td class="p-2">Informatique</td>
-              <td class="p-2">Dr. Smith</td>
-            </tr>
-          </tbody>
-        </table>
+          <select [(ngModel)]="historyMatiereId" (change)="filterHistory()" class="p-2 border rounded">
+            <option value="">-- Toutes les matières --</option>
+            <option *ngFor="let m of matieres" [value]="m.id">{{ m.nom }}</option>
+          </select>
+
+          <input type="text" [(ngModel)]="searchTerm" 
+                (input)="filterHistory()"
+                placeholder="Rechercher par code ou date..."
+                class="p-2 border rounded flex-grow">
+        </div>
+
+        <!-- Tableau des résultats -->
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="bg-gray-200">
+                <th class="p-2 text-left">Code</th>
+                <th class="p-2 text-left">Matière</th>
+                <th class="p-2 text-left">Date</th>
+                <th class="p-2 text-left">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of filteredHistory" class="border-b hover:bg-gray-50">
+                <td class="p-2">{{ item.session.matiere?.code || '-' }}</td>
+                <td class="p-2">{{ item.session.matiere?.nom || 'Inconnu' }}</td>
+                <td class="p-2">{{ item.session.heure_debut | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td class="p-2" [ngClass]="{
+                      'text-green-600': item.statut.toLowerCase() === 'present' || item.statut.toLowerCase() === 'pr\u00e9sent',
+                      'text-amber-600': item.statut.toLowerCase() === 'excus\u00e9',
+                      'text-red-600': item.statut.toLowerCase() === 'absent'
+                    }">
+                  {{ getStatusText(item.statut) }}
+                </td>
+              </tr>
+              <tr *ngIf="filteredHistory.length === 0">
+                <td colspan="4" class="p-4 text-center text-gray-500">
+                  Aucun résultat trouvé
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
+      
     </div>
     
   </div>

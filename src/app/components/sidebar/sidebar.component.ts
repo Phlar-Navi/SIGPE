@@ -22,19 +22,25 @@ export class SidebarComponent  implements OnInit {
   today = new Date();
   position: string = '';
 
+  private readonly STORAGE_KEYS = {
+    ACCESS_TOKEN: 'access_token',
+    USER_DATA: 'user_data',
+    USER_TYPE: 'type_utilisateur'
+  };
+
   routesByUserType: any = {
     'ETU': {
       dashboard: '/student-dashboard',
       profile: '/profile',
       notifications: '/notification',
-      justificatifs: '/justification',
+      justificatifs: '/student-justificatif',
       sessions: '/student-course'
     },
     'ENS': {
       dashboard: '/teacher-dashboard',
       profile: '/profile',
       notifications: '/notification',
-      justificatifs: '/justification',
+      justificatifs: '/teacher-justificatif',
       sessions: '/teacher-course'
     },
     'ADM': {
@@ -57,30 +63,44 @@ export class SidebarComponent  implements OnInit {
   ){}
 
   async showLogoutAlert() {
-    const alert = await this.alertController.create({
-      header: 'Déconnexion',
-      message: 'Voulez-vous vraiment vous déconnecter ?',
-      cssClass: 'custom-alert',
-      buttons: [
-        {
-          text: 'Annuler',
-          role: 'cancel',
-          cssClass: 'secondary'
-        },
-        {
-          text: 'Déconnexion',
-          role: 'confirm',
-          handler: async () => {
-            await this.storage.clear();
-            await this.authService.logout();
-            this.router.navigate(['/login']);
+  const alert = await this.alertController.create({
+    header: 'Déconnexion',
+    message: 'Voulez-vous vraiment vous déconnecter ?',
+    cssClass: 'custom-alert',
+    buttons: [
+      {
+        text: 'Annuler',
+        role: 'cancel',
+        cssClass: 'secondary'
+      },
+      {
+        text: 'Déconnexion',
+        role: 'confirm',
+        handler: async () => {
+          try {
+            // 1. Déconnexion éventuelle côté serveur
+            await this.authService.logout(); // à conserver si tu fais appel à une API
+
+            // 2. Nettoyer les données utilisateur
+            await this.storage.remove(this.STORAGE_KEYS.ACCESS_TOKEN);
+            await this.storage.remove(this.STORAGE_KEYS.USER_DATA);
+            await this.storage.remove(this.STORAGE_KEYS.USER_TYPE);
+
+            // 3. (Optionnel) Nettoyer d’autres caches/mémoires en local (ex: variable utilisateur en mémoire)
+
+            // 4. Redirection vers login
+            this.router.navigate(['/login'], { replaceUrl: true }); // replaceUrl évite retour en arrière via bouton "back"
+          } catch (error) {
+            console.error('Erreur lors de la déconnexion :', error);
           }
         }
-      ]
-    });
-  
-    await alert.present();
-  }
+      }
+    ]
+  });
+
+  await alert.present();
+}
+
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event) {

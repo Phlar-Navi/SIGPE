@@ -21,6 +21,9 @@ import { FirebaseX } from '@awesome-cordova-plugins/firebase-x/ngx';
 
 import { PresencePromptComponent } from './components/presence-prompt/presence-prompt.component';
 
+import { AngularFireModule } from '@angular/fire/compat';
+import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
+
 const firebaseConfig = {
   apiKey: "AIzaSyAgXFtEtlxPNcHwAHSxT2i4uWMql3EzjL0",
   authDomain: "sigpe-7aef8.firebaseapp.com",
@@ -46,7 +49,9 @@ registerLocaleData(localeFr);
     CommonModule, 
     HttpClientModule,
     IonicStorageModule.forRoot(),
-    PresencePromptComponent
+    PresencePromptComponent,
+    AngularFireModule.initializeApp(firebaseConfig),
+    AngularFirestoreModule,
     // FormsModule,
     // ReactiveFormsModule
   ],

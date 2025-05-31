@@ -1,2 +1,12 @@
 // For information on how to create your own theme, please see:
 // http://ionicframework.com/docs/theming/
+$card-md-background-color: #000;
+$card-ios-background-color: #000;
+
+:root {
+  /* Set the background of the entire app */
+  --ion-background-color: #fff;
+
+  /* Set the font family of the entire app */
+  // --ion-font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Roboto', sans-serif;
+}

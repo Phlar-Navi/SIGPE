@@ -19,8 +19,17 @@ import { ChangeDetectorRef } from '@angular/core';
 import { PresencePromptComponent } from '../presence-prompt/presence-prompt.component';
 import { ToastService } from 'src/app/services/toast.service';
 import { SessionEventService } from 'src/app/services/session-event.service';
+import { environment } from 'src/environments/environment';
 
 type Statut = 'présent' | 'en retard' | 'absent';
+
+interface StudentSessionStat {
+  session_id: number;
+  date: string;
+  statut: 'présent' | 'absent' | 'en retard' | 'excusé';
+  justificatif: any;
+}
+
 
 @Component({
   selector: 'app-session-details',
@@ -35,6 +44,7 @@ export class SessionDetailsComponent {
     USER_DATA: 'user_data',
     USER_TYPE: 'type_utilisateur'
   };
+  private apiUrl = environment.apiUrl;
 
   @ViewChild(SessionListComponent) sessionListComponent!: SessionListComponent;
   @Output() sessionUpdated = new EventEmitter<void>();
@@ -80,6 +90,7 @@ export class SessionDetailsComponent {
   editedSession: any = {};
 
   selectedStudent: any;
+  selectedMatiereId: any;
   chartInstance: Chart | null = null;
 
   newStudent = {
@@ -88,6 +99,11 @@ export class SessionDetailsComponent {
   };
 
   showModal = false;
+
+  studentSessionStats: any;
+  studentChart: Chart | null = null;
+
+  sessionStats: any = null;
 
   notification = {
     title: "Présentez vous !",
@@ -99,6 +115,8 @@ export class SessionDetailsComponent {
       session_id: 0
     }
   };
+
+  sessionChart: Chart | null = null;
 
   showModalFn() {
     this.showModal = true;
@@ -176,64 +194,164 @@ export class SessionDetailsComponent {
     };
   }
 
-
-  // addStudentToAttendance() {
-  //   if (!this.selectedSession?.id || !this.newStudent.matricule || !this.newStudent.statut) {
-  //     console.error('Tous les champs sont requis.');
-  //     return;
-  //   }
-
-  //   const presencePayload = {
-  //     session_id: this.selectedSession.id,
-  //     matricule: this.newStudent.matricule.trim(),
-  //     statut: this.newStudent.statut
-  //   };
-
-  //   this.sessionService.ajouterPresence(presencePayload).subscribe({
-  //     next: (response) => {
-  //       console.log('Présence ajoutée avec succès :', response);
-  //       this.toastService.show("Nouvel etudiant ajouté avec succès", 'success');
-  //       // Optionnel : reset du formulaire
-  //       this.newStudent = { matricule: '', statut: '' };
-  //     },
-  //     error: (error) => {
-  //       console.error('Erreur lors de l’ajout de la présence :', error);
-  //       if (error.status === 409) {
-  //         alert('Cette présence est déjà enregistrée.');
-  //       } else if (error.status === 404) {
-  //         alert('Aucun étudiant trouvé avec ce matricule.');
-  //       }
-  //     }
-  //   });
-  // }
-
   emitMarkStatut(etudiantId: number, statut: 'absent' | 'présent' | 'en retard' | 'excusé') {
     this.markStatut.emit({ etudiantId, statut });
   }
 
-  // onMarkStatut(etudiantId: number, statut: 'absent' | 'présent' | 'en retard' | 'excusé') {
-  //   if (!this.selectedSession?.id) return;
-
-  //   this.sessionService.changerStatutPresence(this.selectedSession.id, etudiantId, statut)
-  //     .subscribe({
-  //       next: res => {
-  //         console.log('Statut mis à jour', res);
-  //         // (optionnel) Recharger les données ou afficher une notification
-  //       },
-  //       error: err => {
-  //         console.error('Erreur lors du changement de statut', err);
-  //       }
-  //     });
-  // }
-
-
-  openModal(student: any) {
+  openModal(student: any, matiereId: number) {
     this.selectedStudent = student;
-    console.log('Ouverture modal pour :', student);
+    this.selectedMatiereId = matiereId;
+    console.log('Etudiant ID envoyé:', student.etudiant_id);
+    console.log('Matiere ID envoyé:', matiereId);
 
-    setTimeout(() => {
-      this.renderStudentChart();
-    }, 200); // 200ms plus sûr
+    this.sessionService.getEtudiantStatistiquesParMatiere(student.etudiant_id, matiereId).subscribe({
+      next: (stats) => {
+        this.studentSessionStats = stats;
+        setTimeout(() => {
+          this.prepareStudentChart();
+        }, 200); 
+      },
+      error: (err) => {
+        console.error('Erreur chargement stats par matière', err);
+        this.studentSessionStats = [];
+      }
+    });
+  }
+
+  prepareStudentChart(): void {
+    if (!this.studentSessionStats || this.studentSessionStats.length === 0) return;
+
+    // Définir un type sécurisé pour les statuts autorisés
+    type Statut = 'présent' | 'absent' | 'en retard' | 'excusé';
+
+    const counts: Record<Statut, number> = {
+      présent: 0,
+      absent: 0,
+      'en retard': 0,
+      excusé: 0
+    };
+
+    // Compter les occurrences des statuts valides
+    this.studentSessionStats.forEach((p: any) => {
+      const rawStatut = p.statut?.toLowerCase();
+      if (rawStatut && rawStatut in counts) {
+        counts[rawStatut as Statut]++;
+      }
+    });
+
+    // Récupérer le canvas
+    const canvasId = 'studentChart_' + this.selectedStudent.etudiant.id;
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Détruire le graphique précédent si existant
+    if (this.studentChart) {
+      this.studentChart.destroy();
+    }
+
+    // Créer un nouveau graphique
+    this.studentChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: Object.keys(counts),
+        datasets: [{
+          data: Object.values(counts),
+          backgroundColor: [
+            'rgba(75, 192, 192, 0.7)',   // Présent
+            'rgba(255, 99, 132, 0.7)',   // Absent
+            'rgba(255, 206, 86, 0.7)',   // En retard
+            'rgba(153, 102, 255, 0.7)'   // Excusé
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          },
+          title: {
+            display: true,
+            text: 'Répartition des présences'
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const dataset = context.dataset.data as number[];
+                const total = dataset.reduce((a, b) => a + b, 0);
+                const value = context.raw as number;
+                const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+                return `${context.label}: ${value} (${percent}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  loadSessionStats(sessionId: number) {
+    this.sessionService.getStatsBySession(sessionId).subscribe({
+      next: (data) => {
+        this.sessionStats = data;
+
+        // ✅ Attendre que le DOM ait affiché le canvas
+        setTimeout(() => {
+          this.renderSessionPieChart();
+        }, 0);
+      },
+      error: (err) => {
+        console.error('Erreur chargement stats session', err);
+      }
+    });
+  }
+
+  renderSessionPieChart() {
+    const canvas = document.getElementById('sessionChart') as HTMLCanvasElement;
+  if (!canvas) {
+    console.warn('Canvas non trouvé');
+    return;
+  }
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  if (this.sessionChart) this.sessionChart.destroy();
+
+    // ✅ Créer et stocker le nouveau chart
+    this.sessionChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Présent', 'Absent', 'En retard', 'Excusé'],
+        datasets: [{
+          data: [
+            this.sessionStats.present,
+            this.sessionStats.absent,
+            this.sessionStats.en_retard,
+            this.sessionStats.excuse
+          ],
+          backgroundColor: [
+            'rgba(75, 192, 192, 0.7)', // Présent
+            'rgba(255, 99, 132, 0.7)', // Absent
+            'rgba(255, 206, 86, 0.7)', // Retard
+            'rgba(153, 102, 255, 0.7)' // Excusé
+          ]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' },
+          title: {
+            display: true,
+            text: 'Statistiques de présence - Session'
+          }
+        }
+      }
+    });
   }
 
 
@@ -286,13 +404,22 @@ export class SessionDetailsComponent {
     });
   }
 
-
   closeModal() {
-    if (this.chartInstance) {
-      this.chartInstance.destroy();
-      this.chartInstance = null;
-    }
     this.selectedStudent = null;
+
+    if (this.studentChart) {
+      this.studentChart.destroy();
+      this.studentChart = null;
+    }
+
+    if (this.sessionChart) {
+      this.sessionChart.destroy();
+      this.sessionChart = null;
+    }
+  }
+
+  eraseSelectedSession(){
+    this.selectedSession = null;
   }
 
   async startSession(session: any){
@@ -373,7 +500,6 @@ export class SessionDetailsComponent {
       ordre[a.statut as Statut] - ordre[b.statut as Statut]
     );
   }
-
 
   startEditing(session: any) {
     this.isEditing = true;
@@ -479,35 +605,43 @@ export class SessionDetailsComponent {
     });
     await loading.present();
 
-    const sessionPayload = this.prepareSessionData(this.editedSession);
+    try {
+      const sessionPayload = this.prepareSessionData(this.editedSession);
+      console.log('Session sauvegardée:', sessionPayload);
 
-    console.log('Session sauvegardée:', sessionPayload);
+      if (this.selectedSession && this.editedSession.matiere_id !== 0) {
+        this.http.patch(`${this.apiUrl}sessions/${this.selectedSession.id}/`, sessionPayload).subscribe({
+          next: async () => {
+            // this.sessionListComponent.refreshCourseData();
+            this.sessionUpdated.emit();
+            await loading.dismiss();
+            this.toastService.show("Session modifiée avec succès", 'success');
+          },
+          error: async (error) => {
+            await loading.dismiss();
+            console.error('Erreur lors de la mise à jour de la session', error);
+            this.toastService.show("Erreur lors de la mise à jour", 'error');
+          }
+        });
 
-    if (this.selectedSession && this.editedSession.matiere_id !== 0){
-      this.http.patch(`http://localhost:8000/api/sessions/${this.selectedSession.id}/`, sessionPayload).subscribe({
-        next: async () => {
-          //this.sessionListComponent.refreshCourseData();
-          this.sessionUpdated.emit();
-          await loading.dismiss();
-          this.toastService.show("Session modifiée avec succès", 'success');
-        },
-        error: async (error) => {
-          await loading.dismiss();
-          console.error('Erreur lors de la mise à jour de la session', error);
-        }
-      });
+        this.selectedSession = {
+          ...this.selectedSession,
+          ...sessionPayload
+        };
+      } else {
+        await loading.dismiss();
+        this.toastService.show("Informations manquantes : Matière", 'error');
+      }
 
-      this.selectedSession = {
-        ...this.selectedSession,
-        ...sessionPayload
-      };
-    } else {
+    } catch (error: any) {
       await loading.dismiss();
-      this.toastService.show("Informations manquante : Matière", 'error');
+      console.error('Erreur dans prepareSessionData:', error);
+      this.toastService.show(error.message || "Données invalides", 'error');
     }
 
     this.isEditing = false;
   }
+
 
 
   private loadMetadata() {
@@ -535,6 +669,10 @@ export class SessionDetailsComponent {
       this.isEditing = false;
       this.loadList(this.selectedSession);
       this.updateNotificationFromSession(this.selectedSession);
+      if (this.sessionChart) {
+        this.sessionChart.destroy();
+      }
+      this.sessionStats = null;
     }
   }
 
@@ -607,6 +745,10 @@ export class SessionDetailsComponent {
     }
     this.sessionEventService.resetSelected$.subscribe(() => {
       this.selectedSession = null;
+    });
+    
+    this.sessionEventService.refreshTrigger$.subscribe(() => {
+      this.eraseSelectedSession();
     });
     //this.listenToLevelAndFiliereChanges();
   }

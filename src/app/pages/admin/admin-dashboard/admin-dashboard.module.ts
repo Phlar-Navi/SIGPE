@@ -10,6 +10,8 @@ import { AdminDashboardPage } from './admin-dashboard.page';
 import { SidebarComponent } from 'src/app/components/sidebar/sidebar.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
 
+import { ReactiveFormsModule } from '@angular/forms';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -18,7 +20,8 @@ import { HeaderComponent } from 'src/app/components/header/header.component';
     IonicModule,
     AdminDashboardPageRoutingModule,
     SidebarComponent,
-    HeaderComponent
+    HeaderComponent,
+    ReactiveFormsModule
   ],
   declarations: [AdminDashboardPage]
 })

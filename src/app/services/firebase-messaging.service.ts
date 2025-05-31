@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, NgZone } from '@angular/core';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { MetadataService } from './metadata.service';
 import { AuthService } from './auth.service';
@@ -20,6 +20,9 @@ import { ModalController } from '@ionic/angular';
 import { NotificationModalComponent } from '../components/notification-modal/notification-modal.component';
 import { ToastService } from './toast.service';
 
+import { SessionService } from './session.service';
+import { SessionEventService } from './session-event.service';
+
 
 export const FCM_TOKEN = 'push_notification_token'
 
@@ -38,7 +41,10 @@ export class FirebaseMessagingService {
     private toastController: ToastController,
     private router: Router,
     private modalCtrl: ModalController,
-    private toastService: ToastService) {}
+    private toastService: ToastService,
+    private sessionService: SessionService,
+    private sessionEventService: SessionEventService,
+    @Inject(NgZone) private zone: NgZone) {}
 
   requestPermissionAndGetToken() {
     return Notification.requestPermission().then(permission => {
@@ -114,8 +120,20 @@ export class FirebaseMessagingService {
       const data = payload.data;
       const message = payload.notification;
       const type = data?.['type'];
+      const action = payload.data?.['action'];
+      const context = payload.data?.['context'];
 
       console.log('Notification reçue en foreground :', payload);
+
+      if (action === 'refresh') {
+        this.sessionEventService.triggerRefresh();
+      }
+
+      // if (action === 'refresh' && context === 'justificatif') {
+      //   this.zone.run(() => {
+      //     this.sessionEventService.triggerRefresh();
+      //   });
+      // }
 
       switch (type) {
         case 'modal':

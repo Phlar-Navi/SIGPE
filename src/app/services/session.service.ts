@@ -121,6 +121,66 @@ export class SessionService {
     return this.http.get<Matiere[]>(`${this.apiUrl}matieres`);
   }
 
+  getAssiduiteParEtudiant(enseignantId: number, filters: any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}enseignants/${enseignantId}/assiduite`, {
+      params: filters
+    });
+  }
+
+  getGlobalPresenceStats(
+    periode: string,
+    filiereId?: number,
+    niveauId?: number
+  ): Observable<any> {
+    const params: any = { periode };
+
+    if (filiereId) params.filiere_id = filiereId;
+    if (niveauId) params.niveau_id = niveauId;
+
+    return this.http.get(`${this.apiUrl}enseignant/global-presences`, { params });
+  }
+
+  getStatutEtudiant(matricule: string, matiereId: number, date: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}etudiant/statut`, {
+      params: {
+        matricule,
+        matiere_id: matiereId,
+        date
+      }
+    });
+  }
+
+  getStatistiquesEtudiantParSession(etudiantId: number, sessionId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}statistiques/etudiant-session`, {
+      params: {
+        etudiant_id: etudiantId,
+        session_id: sessionId
+      }
+    });
+  }
+
+  getStatsBySession(sessionId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}sessions/${sessionId}/stats`);
+  }
+
+
+  getEtudiantStatistiquesParMatiere(etudiantId: number, matiereId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}etudiant/statistiques-par-matiere`, {
+      params: {
+        etudiant_id: etudiantId,
+        matiere_id: matiereId
+      }
+    });
+  }
+
+
+
+  getMatieresEnseignant(enseignantId: number): Observable<Matiere[]> {
+    return this.http.get<{ matieres: Matiere[] }>(`${this.apiUrl}enseignants/${enseignantId}/matieres`)
+      .pipe(map(response => response.matieres));
+  }
+
+
   async loadCourseData(): Promise<any[]> {
     await this.storage.create();
     const user = await this.storage.get(this.STORAGE_KEYS.USER_DATA);
@@ -268,7 +328,17 @@ export class SessionService {
       map(response => response.sessions)  // On extrait uniquement la liste de matières
     );
   }
- 
+
+  getTeacherSubjects(enseignantId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}enseignant/${enseignantId}/matieres`);
+  }
+
+  getFilieresByEnseignant(enseignantId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}enseignants/${enseignantId}/filieres`);
+  }
+  getNiveauxByEnseignant(enseignantId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}enseignants/${enseignantId}/niveaux`);
+  }
 
   getSalles(): Observable<Salle[]> {
     return this.http.get<Salle[]>(`${this.apiUrl}/salles/`);
@@ -354,6 +424,10 @@ export class SessionService {
         }
       )
       .pipe(map(response => response.matieres));
+  }
+
+  getPresencesByEtudiant(etudiantId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}etudiants/${etudiantId}/presences`);
   }
 
   getEnseignantByFiliereAndNiveau(

@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { NotificationData, NotificationService } from 'src/app/services/notification.service';
 import { LoadingController } from '@ionic/angular';
+import { AlertController } from '@ionic/angular';
+import { SessionEventService } from 'src/app/services/session-event.service';
+import { Subscription } from 'rxjs';
 
 interface Notification extends NotificationData {
   read: boolean;
@@ -50,7 +53,7 @@ export class NotificationPage implements OnInit {
   isMenuOpen = false;
   isSmallScreen = false;
   isModalOpen = false;
-  
+  private refreshSub!: Subscription;
   filterType: string = "";
   filterStatus: string = "";
   // notifications: Notification[] = [
@@ -131,12 +134,23 @@ export class NotificationPage implements OnInit {
   notifications: Notification[] = [];
 
   constructor(private notificationService: NotificationService, 
-    private loadingController: LoadingController) { }
+    private loadingController: LoadingController,
+    private alertController: AlertController,
+    private sessionEventService: SessionEventService) { }
 
   ngOnInit() {
     this.loadNotifications();
-    //console.log(this.notifications[0]);
+
+    this.refreshSub = this.sessionEventService.refreshTrigger$.subscribe(() => {
+      console.log('🔁 Rafraîchissement des notifications via event');
+      this.loadNotifications();
+    });
   }
+
+  ngOnDestroy() {
+    this.refreshSub?.unsubscribe(); // pour éviter les fuites mémoire
+  }
+
 
   async loadNotifications() {
     const loading = await this.loadingController.create({
@@ -145,7 +159,7 @@ export class NotificationPage implements OnInit {
       backdropDismiss: false
     });
     await loading.present();
-    
+
     this.notificationService.getNotifications().subscribe(async (data) => {
       this.notifications = data.map((notif: NotificationData) => ({
         ...notif,
@@ -159,12 +173,37 @@ export class NotificationPage implements OnInit {
           type: this.parseNotificationType(notif.data?.type ?? 'info'),
         }
       }));
-      
       await loading.dismiss();
-      // Déplacé ici
-      //console.log(this.notifications[0]);
     });
   }
+
+  // async loadNotifications() {
+  //   const loading = await this.loadingController.create({
+  //     message: 'Chargement...',
+  //     spinner: 'bubbles',
+  //     backdropDismiss: false
+  //   });
+  //   await loading.present();
+    
+  //   this.notificationService.getNotifications().subscribe(async (data) => {
+  //     this.notifications = data.map((notif: NotificationData) => ({
+  //       ...notif,
+  //       read: !!notif.read_at,
+  //       date: new Date(notif.created_at),
+  //       expeditor: 'Administration',
+  //       expanded: false,
+  //       data: {
+  //         title: notif.data?.title ?? '',
+  //         message: notif.data?.message ?? '',
+  //         type: this.parseNotificationType(notif.data?.type ?? 'info'),
+  //       }
+  //     }));
+      
+  //     await loading.dismiss();
+  //     // Déplacé ici
+  //     //console.log(this.notifications[0]);
+  //   });
+  // }
 
 
   parseNotificationType(type: string): 'info' | 'alert' | 'survey' {
@@ -237,19 +276,70 @@ export class NotificationPage implements OnInit {
     });
   }
 
+  async deleteprompt(notif: any) {
+    const alert = await this.alertController.create({
+      header: 'Supression',
+      message: 'Voulez-vous vraiment supprimer ce justificatif ?',
+      cssClass: 'custom-alert',
+      buttons: [
+        {
+          text: 'Annuler',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Supprimer',
+          role: 'confirm',
+          handler: async () => {
+              this.deleteNotification(notif)
+          }
+        }
+      ]
+    });
+  
+    await alert.present();
+  }
 
-  deleteNotification(notif: Notification){
-    this.notificationService.deletenotif(notif.id).subscribe(() => {
+  async deleteNotification(notif: Notification){
+    const loading = await this.loadingController.create({
+      message: 'Suppression de la notification...',
+      spinner: 'bubbles',
+      backdropDismiss: false
+    });
+    await loading.present();
+
+    this.notificationService.deletenotif(notif.id).subscribe(async () => {
       this.loadNotifications();
+      await loading.dismiss();
       console.log("Suppression effectuée !");
     });
   }
 
-  clearAll(){
-    this.notificationService.deleteall().subscribe(() => {
-      this.loadNotifications();
-      console.log("Suppressions effectuées !");
+  async clearAll(){
+    const alert = await this.alertController.create({
+      header: 'Supression',
+      message: 'Voulez-vous vraiment toutes les notifications ?',
+      cssClass: 'custom-alert',
+      buttons: [
+        {
+          text: 'Annuler',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Supprimer',
+          role: 'confirm',
+          handler: async () => {
+              this.notificationService.deleteall().subscribe(() => {
+                this.loadNotifications();
+                console.log("Suppressions effectuées !");
+              });
+          }
+        }
+      ]
     });
+  
+    await alert.present();
   }
 
 }

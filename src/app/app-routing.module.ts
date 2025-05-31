@@ -73,6 +73,14 @@ const routes: Routes = [
     path: 'import',
     loadChildren: () => import('./pages/import/import.module').then( m => m.ImportPageModule)
   },
+  {
+    path: 'teacher-justificatif',
+    loadChildren: () => import('./pages/teacher/teacher-justificatif/teacher-justificatif.module').then( m => m.TeacherJustificatifPageModule)
+  },
+  {
+    path: 'student-justificatif',
+    loadChildren: () => import('./pages/student/student-justificatif/student-justificatif.module').then( m => m.StudentJustificatifPageModule)
+  },
 
 
 ];

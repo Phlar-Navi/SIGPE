@@ -85,9 +85,10 @@ export class HeaderComponent  implements OnInit {
   
         if (this.user) {
           // Si l'utilisateur existe et les données sont valides
+          console.log(this.user.photo);
           this.subtitle = `Bienvenue, ${this.user.nom || ''}`;  // Si nom est null ou undefined, on affiche une chaîne vide
           this.profileImageUrl = this.user.photo
-            ? `${this.apiUrl}${this.user.photo}`
+            ? `${this.user.photo}`
             : 'assets/images/profil.jpg';
         } else {
           // Si aucune donnée utilisateur n'est trouvée

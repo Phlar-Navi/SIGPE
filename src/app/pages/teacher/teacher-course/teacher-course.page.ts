@@ -407,28 +407,44 @@ export class TeacherCoursePage implements OnInit, AfterViewChecked {
           text: 'Supprimer',
           role: 'confirm',
           handler: async () => {
-            if (this.selectedSession){
-              const loading = await this.loadingController.create({
-                message: 'Annulation de la session...',
-                spinner: 'bubbles',
-                backdropDismiss: false
+            if (!this.selectedSession) return;
+
+            const loading = await this.loadingController.create({
+              message: 'Annulation de la session...',
+              spinner: 'bubbles',
+              backdropDismiss: false
+            });
+
+            await loading.present();
+
+            try {
+              this.sessionService.deleteSession(this.selectedSession.id).subscribe({
+                next: async () => {
+                  this.sessions = this.sessions.filter(session => session.id !== this.selectedSession!.id);
+                  this.selectedSession = null;
+                  await this.sessionListComponent.refreshCourseData();
+                  await loading.dismiss();
+                  this.toastService.show("Session supprimée avec succès", 'success');
+                },
+                error: async (err) => {
+                  console.error("Erreur lors de la suppression :", err);
+                  await loading.dismiss();
+                  this.toastService.show("Échec de la suppression de la session", 'error');
+                }
               });
-              await loading.present();
-              this.sessionService.deleteSession(this.selectedSession.id).subscribe(async () => {
-                this.sessions = this.sessions.filter(session => session.id !== this.selectedSession!.id);
-                this.selectedSession = null;
-                await this.sessionListComponent.refreshCourseData();
-                await loading.dismiss();
-                this.toastService.show("Session supprimée avec succès", 'success');
-              });
+            } catch (err) {
+              console.error("Erreur inattendue :", err);
+              await loading.dismiss();
+              this.toastService.show("Erreur inconnue", 'error');
             }
           }
         }
       ]
     });
-  
+
     await alert.present();
   }
+
 
   addStudentToAttendance() {
     if (this.newStudent.name && this.newStudent.matricule) {

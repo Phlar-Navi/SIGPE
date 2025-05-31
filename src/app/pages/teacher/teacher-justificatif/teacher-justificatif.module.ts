@@ -4,24 +4,21 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { TeacherDashboardPageRoutingModule } from './teacher-dashboard-routing.module';
+import { TeacherJustificatifPageRoutingModule } from './teacher-justificatif-routing.module';
 
-import { TeacherDashboardPage } from './teacher-dashboard.page';
+import { TeacherJustificatifPage } from './teacher-justificatif.page';
 import { SidebarComponent } from 'src/app/components/sidebar/sidebar.component';
 import { HeaderComponent } from 'src/app/components/header/header.component';
-
-import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    TeacherDashboardPageRoutingModule,
+    TeacherJustificatifPageRoutingModule,
     SidebarComponent,
-    HeaderComponent,
-     ReactiveFormsModule
+    HeaderComponent
   ],
-  declarations: [TeacherDashboardPage]
+  declarations: [TeacherJustificatifPage]
 })
-export class TeacherDashboardPageModule {}
+export class TeacherJustificatifPageModule {}

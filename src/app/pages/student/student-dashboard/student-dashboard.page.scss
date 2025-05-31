@@ -9,6 +9,11 @@
   .sidebar-close {
     transform: translateX(-100%);
   }
+
+  /* Pour les barres de progression */
+.progress-bar {
+  transition: width 0.5s ease;
+}
   // .display{
   //   display: flex;
   //   flex-direction: row;

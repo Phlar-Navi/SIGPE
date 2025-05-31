@@ -1,0 +1,343 @@
+<ion-content>
+  <div class="min-h-screen bg-gray-50 text-gray-800">
+    <!-- Sidebar Menu -->
+    <app-sidebar></app-sidebar>
+
+    <!-- Contenu principal -->
+    <div class="p-6 transition-all duration-300 ease-in-out" [ngClass]="{ 'md:ml-64': !isSmallScreen }">
+      <!-- Header -->
+      <app-header>
+      </app-header>
+
+      <div class="mt-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
+        
+        <h2 class="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-2">
+          <ion-icon name="time-outline"></ion-icon>
+          Sessions pour lesquelles vous etes absent
+        </h2>
+
+        <div class="mt-4 w-full overflow-hidden rounded-lg shadow-xs bg-white">
+          <div class="w-full overflow-x-auto">
+            <table class="w-full whitespace-no-wrap">
+              <thead>
+                <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-50">
+                  <th class="px-4 py-3">Matière</th>
+                  <th class="px-4 py-3">Date</th>
+                  <th class="px-4 py-3">Statut</th>
+                  <th class="px-4 py-3">Action</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y">
+                <tr *ngFor="let absence of absences"
+                    class="text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                  <td class="px-4 py-3 font-medium text-sm">
+                    {{ absence.session_details.matiere?.nom || 'Matière inconnue' }}
+                  </td>
+                  <td class="px-4 py-3 text-sm">
+                    {{ absence.session_details.heure_debut }}
+                  </td>
+                  <!-- <td class="px-4 py-3 text-sm">
+                    {{ absence.session_details.heure_debut }}
+                  </td> -->
+                  <td class="px-4 py-3">
+                    <span class="px-2 py-1 text-xs font-semibold leading-tight text-gray-700 bg-gray-100 rounded-full">
+                      Absent
+                    </span>
+                  </td>
+                  <td>
+                    <!-- Rédiger -->
+                    <button (click)="selectAbsence(absence)"
+                            class="text-indigo-500 hover:text-indigo-700"
+                            title="Rédiger"> <!-- (click)="redigerJustificatif(justificatif)" -->
+                      <ion-icon name="create-outline"></ion-icon>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tableau des justificatifs -->
+      <div class="mt-6 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
+        
+        <h2 class="text-2xl font-bold mb-6 text-blue-600 flex items-center gap-2">
+          <ion-icon name="time-outline"></ion-icon>
+          Vos justificatifs
+        </h2>
+
+        <div class="mt-4 w-full overflow-hidden rounded-lg shadow-xs bg-white">
+          <div class="w-full overflow-x-auto">
+            <table class="w-full whitespace-no-wrap">
+              <thead>
+                <tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b bg-gray-50">
+                  <th class="px-4 py-3">Destinataire</th>
+                  <th class="px-4 py-3">Session</th>
+                  <th class="px-4 py-3">Statut</th>
+                  <th class="px-4 py-3">Date</th>
+                  <th class="px-4 py-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y">
+                <tr *ngFor="let justificatif of justificatifs" class="text-gray-700 hover:bg-gray-50 transition-colors">
+                  <td class="px-4 py-3">
+                    <div class="flex items-center text-sm">
+                      <div class="relative w-8 h-8 mr-3 rounded-full">
+                        <img class="object-cover w-full h-full rounded-full border border-gray-200" 
+                            [src]="justificatif.enseignant.photo" 
+                            [alt]="justificatif.expeditor">
+                        <div class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true"></div>
+                      </div>
+                      <div>
+                        <p class="font-semibold"> M./Dr./Pr. {{ justificatif.enseignant.nom }}</p>
+                        <p class="text-xs text-gray-500">{{ justificatif.enseignant.prenom }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-3 text-sm">
+                    {{ justificatif.matiere.nom }}
+                  </td>
+                  <td class="px-4 py-3 text-xs">
+                    <span class="px-2 py-1 font-semibold leading-tight rounded-full"
+                          [ngClass]="{
+                            'text-green-700 bg-green-200': justificatif.statut === 'Accepté',
+                            'text-yellow-700 bg-yellow-100': justificatif.statut === 'En cours',
+                            'text-orange-400 bg-orange-100': justificatif.statut === 'Renvoyé',
+                            'text-red-700 bg-red-100': justificatif.statut === 'Refusé',
+                            'text-blue-700 bg-blue-100': justificatif.statut === 'Nouveau',
+                          }">
+                      {{ justificatif.statut }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-sm">
+                    {{ justificatif.presence.session.heure_debut | date:'dd/MM/yyyy' }}
+                  </td>
+                  <!-- Actions conditionnelles -->
+            <td class="px-4 py-3 text-sm">
+              <div class="flex space-x-2 items-center">
+                <!-- Rédiger -->
+                <!-- <button *ngIf="justificatif.statut === 'Nouveau'"
+                        
+                        class="text-indigo-500 hover:text-indigo-700"
+                        title="Rédiger">
+                  <ion-icon name="create-outline"></ion-icon>
+                </button> -->
+
+                <!-- Modifier -->
+                <button *ngIf="justificatif.statut === 'Renvoyé' || justificatif.statut === 'En cours'"
+                        (click)="modifyJustificatif(justificatif)"
+                        class="text-blue-500 hover:text-blue-700"
+                        title="Editer"> <!-- (click)="modifierJustificatif(justificatif)" -->
+                  <ion-icon name="eye-outline"></ion-icon>
+                </button>
+
+                <!-- Supprimer -->
+                <button *ngIf="['Accepté', 'Renvoyé', 'Refusé', 'En cours'].includes(justificatif.statut)"
+                        (click)="deleteJustification(justificatif)"
+                        class="text-red-600 hover:text-red-800"
+                        title="Supprimer"> <!-- (click)="supprimerJustificatif(justificatif)" -->
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+
+                <!-- Voir -->
+                <!-- <button *ngIf="['Accepté', 'Renvoyé', 'Refusé', 'En cours'].includes(justificatif.statut)"
+                        
+                        class="text-blue-500 hover:text-blue-700"
+                        title="Voir">
+                  <ion-icon name="eye-outline"></ion-icon>
+                </button> -->
+
+                <!-- Télécharger -->
+                <!-- <button *ngIf="justificatif.document"
+                        
+                        class="text-green-500 hover:text-green-700"
+                        title="Télécharger">
+                  <ion-icon name="download-outline"></ion-icon>
+                </button> -->
+              </div>
+            </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <!-- <div class="px-4 py-3 text-xs font-semibold tracking-wide text-gray-500 uppercase border-t bg-gray-50">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+              <span class="mb-2 sm:mb-0">
+                Affichage de {{ debut }} à {{ fin }} sur {{ total }} éléments
+              </span>
+              <nav aria-label="Pagination">
+                <ul class="inline-flex items-center space-x-1">
+                  <li>
+                    <button (click)="pagePrecedente()" 
+                            class="px-3 py-1 rounded-md rounded-l-lg focus:outline-none hover:bg-gray-100"
+                            [disabled]="page === 1">
+                      <ion-icon name="chevron-back"></ion-icon>
+                    </button>
+                  </li>
+                  <li *ngFor="let p of pages" [class.hidden]="p === '...'">
+                    <button (click)="allerPage(p)"
+                            class="px-3 py-1 rounded-md focus:outline-none"
+                            [class.bg-blue-500]="p === page"
+                            [class.text-white]="p === page"
+                            [class.hover:bg-gray-100]="p !== page">
+                      {{ p }}
+                    </button>
+                  </li>
+                  <li>
+                    <button (click)="pageSuivante()"
+                            class="px-3 py-1 rounded-md rounded-r-lg focus:outline-none hover:bg-gray-100"
+                            [disabled]="page === totalPages">
+                      <ion-icon name="chevron-forward"></ion-icon>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div> -->
+        </div>
+      </div>
+      <!-- Modal pour créer un justificatif -->
+      <!-- <ion-modal [isOpen]="showJustificatifModal" (didDismiss)="showJustificatifModal = false">
+        <ng-template>
+          <ion-header>
+            <ion-toolbar>
+              <ion-title>Créer un justificatif</ion-title>
+              <ion-buttons slot="end">
+                <ion-button (click)="showJustificatifModal = false">Fermer</ion-button>
+              </ion-buttons>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content class="ion-padding">
+            <ion-item>
+              <ion-label position="stacked">Message</ion-label>
+              <ion-textarea [(ngModel)]="justification.message" rows="5"></ion-textarea>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="stacked">Pièce jointe (optionnelle)</ion-label>
+              <input type="file" (change)="onFileChange($event)" accept=".pdf,.jpg,.png">
+            </ion-item>
+
+            <ion-button expand="block" (click)="submitJustification()" [disabled]="!justification.message">
+              Envoyer le justificatif
+            </ion-button>
+          </ion-content>
+        </ng-template>
+      </ion-modal> -->
+
+      <!-- MODAL Créer Justificatif -->
+      <div *ngIf="showJustificatifModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white w-full max-w-xl rounded-lg shadow-lg overflow-hidden">
+          <div class="flex justify-between items-center px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold">Créer un justificatif</h3>
+            <button class="text-gray-500 hover:text-gray-700" (click)="showJustificatifModal = false">Fermer</button>
+          </div>
+
+          <div class="p-6 space-y-6">
+            <div>
+              <label class="block font-medium mb-2">Message</label>
+              <textarea [(ngModel)]="justification.message"
+                        rows="5"
+                        class="w-full p-3 border border-gray-300 rounded focus:ring focus:ring-blue-300 resize-none"></textarea>
+            </div>
+
+            <div>
+              <label class="block font-medium mb-2">Pièce jointe (optionnelle)</label>
+              <input type="file"
+                    (change)="onFileChange($event)"
+                    accept=".pdf,.jpg,.png"
+                    class="block w-full border border-gray-300 rounded p-2 file:mr-4 file:py-2 file:px-4 file:border file:rounded file:border-gray-300 file:bg-gray-100 file:text-sm file:text-gray-700" />
+            </div>
+
+            <button (click)="submitJustification()"
+                    [disabled]="!justification.message"
+                    class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition disabled:opacity-50">
+              Envoyer le justificatif
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL Détail / Modifier Justificatif -->
+      <div *ngIf="showModifModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white w-full max-w-3xl rounded-lg shadow-lg overflow-hidden">
+          <div class="flex justify-between items-center px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold">Détail du justificatif</h3>
+            <button class="text-gray-500 hover:text-gray-700" (click)="cancelEdit()">Fermer</button>
+          </div>
+
+          <div class="p-6 space-y-6">
+            <div class="bg-gray-100 p-4 rounded-md">
+              <div class="font-semibold text-lg">
+                Destinataire : {{ selectedJustificatif?.enseignant.nom }} {{ selectedJustificatif?.enseignant.prenom }}
+              </div>
+              <div class="text-sm text-gray-600 mt-1">
+                Matière : {{ selectedJustificatif?.matiere.nom }}<br />
+                Date : {{ selectedJustificatif?.presence.session.heure_debut | date:'short' }}
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-medium mb-2">Message de justification</label>
+              <textarea [(ngModel)]="selectedJustificatif.message"
+                        [readonly]="!isEditing || utilisateur !== 'ETU'"
+                        class="w-full p-3 border border-gray-300 rounded focus:ring focus:ring-blue-300 resize-none"
+                        rows="3"></textarea>
+            </div>
+
+            <div *ngIf="selectedJustificatif.piece_jointes">
+              <label class="block font-medium mb-2">Pièce jointe</label>
+              <a [href]="getPieceJointeUrl(selectedJustificatif.piece_jointes)" target="_blank" download
+                class="inline-flex items-center text-blue-600 hover:underline">
+                📎 Télécharger
+              </a>
+            </div>
+
+            <div *ngIf="isEditing && utilisateur === 'ETU'">
+              <label class="block font-medium mb-2">Nouvelle pièce jointe</label>
+              <input type="file"
+                    (change)="handleFileInput($event)"
+                    class="block w-full border border-gray-300 rounded p-2 file:mr-4 file:py-2 file:px-4 file:border file:rounded file:border-gray-300 file:bg-gray-100 file:text-sm file:text-gray-700" />
+            </div>
+
+            <div>
+              <label class="block font-medium mb-2">Réponse de l’enseignant</label>
+              <textarea [(ngModel)]="selectedJustificatif.reponse_enseignant"
+                        [readonly]="!isEditing || utilisateur !== 'ENS'"
+                        class="w-full p-3 border border-gray-300 rounded focus:ring focus:ring-blue-300 resize-none"
+                        rows="3"></textarea>
+            </div>
+
+            <div>
+              <label class="block font-medium mb-2">Statut</label>
+              <select [(ngModel)]="selectedJustificatif.statut"
+                      [disabled]="!isEditing || utilisateur !== 'ENS'"
+                      class="w-full p-3 border border-gray-300 rounded focus:ring focus:ring-blue-300">
+                <option value="En cours">En cours</option>
+                <option value="Accepté">Accepté</option>
+                <option value="Refusé">Refusé</option>
+                <option value="Renvoyé">Renvoyé</option>
+              </select>
+            </div>
+
+            <div *ngIf="!isEditing" class="text-right">
+              <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" (click)="startEdit()">Modifier</button>
+            </div>
+
+            <div *ngIf="isEditing" class="flex justify-end gap-4">
+              <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" (click)="submitModification()">Enregistrer</button>
+              <button class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700" (click)="cancelEdit()">Annuler</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+  </div>
+</ion-content>

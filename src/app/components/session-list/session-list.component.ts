@@ -29,8 +29,8 @@ export class SessionListComponent implements OnInit, OnDestroy {
   sessions: Session_Laravel[] | null = null;
 
   originalSessions: Session_Laravel[] = [];
-  selectedStatut: string = '';
-  selectedPeriod: string = '';
+  selectedStatut: string = 'À venir';
+  selectedPeriod: string = 'jour';
 
   private refreshTrigger$ = new Subject<void>();
 
@@ -65,7 +65,6 @@ export class SessionListComponent implements OnInit, OnDestroy {
     this.sessionEventService.refreshTrigger$.subscribe(() => {
       this.refreshCourseData();
     });
-    //console.log(this.filiereId, this.niveauId);
   }
 
   ngOnDestroy() {

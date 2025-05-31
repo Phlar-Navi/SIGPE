@@ -10,208 +10,161 @@
       <app-header>
       </app-header>
 
-      <!-- Notification urgente -->
-      <div class="mt-6 bg-yellow-100 p-4 rounded-lg shadow-md">
-        <h2 class="text-lg font-bold text-yellow-800">
-          <ion-icon name="notifications"></ion-icon>
-          Notification urgente
-        </h2>
-        <p class="text-yellow-700">Vous avez 3 justificatifs en attente de validation.</p>
-      </div>
+      <!-- Gestion des données -->
+      <div class="mt-6 bg-white p-6 rounded-lg shadow-md">
+        <div class="container mx-auto p-6">
+          <h1 class="text-2xl font-bold mb-6">Gestion des données</h1>
 
-      <!-- Liste des profils -->
-      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">
-          <ion-icon name="people"></ion-icon>
-          Liste des profils
-        </h2>
-        <input
-          type="text"
-          placeholder="Rechercher un profil..."
-          class="w-full p-2 border rounded-lg mb-4"
-        />
-        <select class="w-full p-2 border rounded-lg mb-4">
-          <option value="all">Tous les statuts</option>
-          <option value="online">En ligne</option>
-          <option value="offline">Hors ligne</option>
-        </select>
-        <table class="w-full">
-          <thead>
-            <tr class="bg-gray-200">
-              <th class="p-2">Nom</th>
-              <th class="p-2">Rôle</th>
-              <th class="p-2">Statut</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="border-b">
-              <td class="p-2">Jean Dupont</td>
-              <td class="p-2">Étudiant</td>
-              <td class="p-2 text-green-600">En ligne</td>
-            </tr>
-            <tr class="border-b">
-              <td class="p-2">Dr. Moskolai</td>
-              <td class="p-2">Enseignant</td>
-              <td class="p-2 text-green-600">En ligne</td>
-            </tr>
-            <tr class="border-b">
-              <td class="p-2">Marie Curie</td>
-              <td class="p-2">Étudiant</td>
-              <td class="p-2 text-red-600">Hors ligne</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Liste des cours -->
-      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">
-          <ion-icon name="clipboard"></ion-icon>
-          Liste des cours
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <select class="p-2 border rounded-lg">
-            <option value="all">Tous les niveaux</option>
-            <option value="L1">L1</option>
-            <option value="L2">L2</option>
-            <option value="L3">L3</option>
-          </select>
-          <select class="p-2 border rounded-lg">
-            <option value="all">Toutes les filières</option>
-            <option value="Informatique">Informatique</option>
-            <option value="Mathématiques">Mathématiques</option>
-            <option value="Physique">Physique</option>
-          </select>
-          <select class="p-2 border rounded-lg">
-            <option value="all">Tous les semestres</option>
-            <option value="S1">S1</option>
-            <option value="S2">S2</option>
-          </select>
-        </div>
-        <!-- Conteneur avec débordement contrôlé -->
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead>
-              <tr class="bg-gray-200">
-                <th class="p-2">Cours</th>
-                <th class="p-2">Niveau</th>
-                <th class="p-2">Filière</th>
-                <th class="p-2">Semestre</th> <!-- Ajout de la colonne Semestre -->
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="border-b">
-                <td class="p-2">Mathématiques</td>
-                <td class="p-2">L1</td>
-                <td class="p-2">Informatique</td>
-                <td class="p-2">S1</td>
-              </tr>
-              <tr class="border-b">
-                <td class="p-2">Informatique</td>
-                <td class="p-2">L2</td>
-                <td class="p-2">Mathématiques</td>
-                <td class="p-2">S2</td>
-              </tr>
-              <tr class="border-b">
-                <td class="p-2">Physique</td>
-                <td class="p-2">L3</td>
-                <td class="p-2">Physique</td>
-                <td class="p-2">S1</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Liste des salles -->
-      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">
-          <ion-icon name="home"></ion-icon>
-          Liste des salles
-        </h2>
-        <table class="w-full">
-          <thead>
-            <tr class="bg-gray-200">
-              <th class="p-2">Salle</th>
-              <th class="p-2">Capacité</th>
-              <th class="p-2">Disponibilité</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="border-b">
-              <td class="p-2">A101</td>
-              <td class="p-2">50</td>
-              <td class="p-2 text-green-600">Disponible</td>
-            </tr>
-            <tr class="border-b">
-              <td class="p-2">B202</td>
-              <td class="p-2">30</td>
-              <td class="p-2 text-red-600">Occupée</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Taux de présence -->
-      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">
-          <ion-icon name="podium"></ion-icon>
-          Taux de présence
-        </h2>
-        <canvas id="presenceChart"></canvas>
-      </div>
-
-      <!-- Vision sommaire des justificatifs -->
-      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">
-          <ion-icon name="checkmark-circle"></ion-icon>
-          Justificatifs récents
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <p class="text-gray-700">Jean Dupont - 2023-10-01</p>
-            <p class="text-sm text-gray-500">Raison: Maladie</p>
-            <p class="text-sm text-yellow-600">Statut: En attente</p>
+          <!-- Sélection du modèle -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Entité à gérer</label>
+            <select [(ngModel)]="selectedModel" (change)="onModelChange()" 
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+              <option *ngFor="let model of models" [value]="model.name">{{ model.label }}</option>
+            </select>
           </div>
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <p class="text-gray-700">Marie Curie - 2023-10-02</p>
-            <p class="text-sm text-gray-500">Raison: Problème de transport</p>
-            <p class="text-sm text-green-600">Statut: Validé</p>
-          </div>
-        </div>
-      </div>
 
-      <!-- Historique de présence -->
-      <div class="mt-6 bg-white p-4 rounded-lg shadow-md">
-        <h2 class="text-xl font-bold text-gray-700 mb-4">
-          <ion-icon name="calendar"></ion-icon>
-          Historique de présence
-        </h2>
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead>
-              <tr class="bg-gray-200">
-                <th class="p-2">Étudiant</th>
-                <th class="p-2">Cours</th>
-                <th class="p-2">Date</th>
-                <th class="p-2">Statut</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="border-b">
-                <td class="p-2">Jean Dupont</td>
-                <td class="p-2">Mathématiques</td>
-                <td class="p-2">2023-10-01</td>
-                <td class="p-2 text-green-600">Présent</td>
-              </tr>
-              <tr class="border-b">
-                <td class="p-2">Marie Curie</td>
-                <td class="p-2">Informatique</td>
-                <td class="p-2">2023-10-02</td>
-                <td class="p-2 text-red-600">Absent</td>
-              </tr>
-            </tbody>
-          </table>
+          <!-- Formulaire CRUD -->
+          <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">
+              {{ isEditing ? 'Modifier' : 'Ajouter' }} {{ getCurrentModelLabel() }}
+            </h2>
+            
+            <form [formGroup]="itemForm" (ngSubmit)="onSubmit()">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div *ngFor="let controlName of getFormControlNames()">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ controlName | titlecase }}
+                  </label>
+                  <input [type]="getInputType(controlName)" 
+                        [formControlName]="controlName"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                  <div *ngIf="itemForm.get(controlName)?.invalid && itemForm.get(controlName)?.touched" 
+                      class="text-red-500 text-xs mt-1">
+                    Champ invalide
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex justify-end space-x-3">
+                <button type="button" *ngIf="isEditing" (click)="resetForm()"
+                        class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">
+                  Annuler
+                </button>
+                <button type="submit" [disabled]="itemForm.invalid"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300">
+                  {{ isEditing ? 'Mettre à jour' : 'Ajouter' }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Tableau des éléments -->
+          <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Liste des {{ getCurrentModelLabel() }}</h2>
+            
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th *ngFor="let column of getTableColumns()" 
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {{ column | titlecase }}
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr *ngFor="let item of items">
+                    <td *ngFor="let column of getTableColumns()" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {{ item[column] }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button (click)="onEdit(item)" class="text-indigo-600 hover:text-indigo-900 mr-3">Modifier</button>
+                      <button (click)="onDelete(item.id)" class="text-red-600 hover:text-red-900">Supprimer</button>
+                      <button *ngIf="selectedModel === 'enseignants'" (click)="loadTeacherRelations(item)"
+                              class="text-blue-600 hover:text-blue-900 ml-3">
+                        Gérer relations
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-4 flex justify-between items-center">
+              <button (click)="prevPage()" [disabled]="currentPage === 1"
+                      class="px-4 py-2 border rounded-md text-sm font-medium disabled:opacity-50">
+                Précédent
+              </button>
+              <span class="text-sm text-gray-700">
+                Page {{ currentPage }} sur {{ totalPages }}
+              </span>
+              <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+                      class="px-4 py-2 border rounded-md text-sm font-medium disabled:opacity-50">
+                Suivant
+              </button>
+            </div>
+          </div>
+
+          <!-- Modal pour les relations enseignant -->
+          <div *ngIf="selectedTeacher" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
+              <h2 class="text-xl font-semibold mb-4">
+                Gérer les relations pour {{ selectedTeacher.nom }} {{ selectedTeacher.prenom }}
+              </h2>
+              
+              <div class="space-y-4">
+                <!-- Filières -->
+                <div>
+                  <h3 class="font-medium mb-2">Filières</h3>
+                  <div class="flex flex-wrap gap-2">
+                    <label *ngFor="let filiere of availableFilieres" class="inline-flex items-center">
+                      <input type="checkbox" [checked]="isFiliereSelected(filiere.id)"
+                            (change)="toggleFiliere(filiere.id)" class="rounded text-blue-600">
+                      <span class="ml-2">{{ filiere.nom }}</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <!-- Niveaux -->
+                <div>
+                  <h3 class="font-medium mb-2">Niveaux</h3>
+                  <div class="flex flex-wrap gap-2">
+                    <label *ngFor="let niveau of availableNiveaux" class="inline-flex items-center">
+                      <input type="checkbox" [checked]="isNiveauSelected(niveau.id)"
+                            (change)="toggleNiveau(niveau.id)" class="rounded text-blue-600">
+                      <span class="ml-2">{{ niveau.nom }}</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <!-- Matières -->
+                <div>
+                  <h3 class="font-medium mb-2">Matières</h3>
+                  <div class="flex flex-wrap gap-2">
+                    <label *ngFor="let matiere of availableMatieres" class="inline-flex items-center">
+                      <input type="checkbox" [checked]="isMatiereSelected(matiere.id)"
+                            (change)="toggleMatiere(matiere.id)" class="rounded text-blue-600">
+                      <span class="ml-2">{{ matiere.nom }}</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-6 flex justify-end space-x-3">
+                <button (click)="selectedTeacher = null" class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">
+                  Annuler
+                </button>
+                <button (click)="saveTeacherRelations()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                  Enregistrer
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -222,7 +175,7 @@
           Importer un fichier pour ajouter des informations dans la base de donnée
         </h2>
 
-        <form #form="ngForm" (ngSubmit)="onSubmit(form)">
+        <form #form="ngForm" (ngSubmit)="onImport(form)">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             <!-- Champ de fichier -->
@@ -275,6 +228,92 @@
         </form>
       </div>
 
+      <div class="mt-6 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-6 flex items-center gap-2">
+          <ion-icon name="cloud-upload"></ion-icon>
+          Taux d'usage de l'application
+        </h2>
+        <div class="chart-container">
+          <canvas id="usageChart"></canvas>
+        </div>
+      </div>
+
+      <div class="mt-6 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold text-gray-700 mb-6 flex items-center gap-2">
+          <ion-icon name="cloud-upload"></ion-icon>
+          Taux de présences globaux par critères
+        </h2>
+        <!-- Formulaire de filtrage -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+          <h2 class="text-xl font-semibold mb-4">Statistiques de présence</h2>
+          
+          <form [formGroup]="filterForm" (ngSubmit)="loadStats()">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
+                <input type="date" formControlName="start_date" class="w-full rounded-md border-gray-300 shadow-sm">
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
+                <input type="date" formControlName="end_date" class="w-full rounded-md border-gray-300 shadow-sm">
+              </div>
+              
+              <!-- Ajoutez des selects pour les autres filtres si nécessaire -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Enseignant</label>
+                <select formControlName="enseignant_id" class="w-full rounded-md border-gray-300 shadow-sm">
+                  <option value="">Tous</option>
+                  <option *ngFor="let teacher of teachers" [value]="teacher.id">
+                    {{ teacher.nom }} {{ teacher.prenom }}
+                  </option>
+                </select>
+              </div>
+              
+              <!-- Ajoutez des selects similaires pour etudiant, salle, filiere, niveau -->
+            </div>
+            
+            <button type="submit" [disabled]="filterForm.invalid" 
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300">
+              Générer les statistiques
+            </button>
+          </form>
+        </div>
+
+        <!-- Graphique -->
+        <div *ngIf="statsData" class="bg-white p-6 rounded-lg shadow-md mb-6">
+          <h3 class="text-lg font-semibold mb-4">Résultats</h3>
+          <div class="chart-container" style="position: relative; height:400px; width:100%">
+            <canvas id="statsChart"></canvas>
+          </div>
+          
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-green-50 p-4 rounded-lg">
+              <h4 class="font-medium text-green-800">Présents</h4>
+              <p class="text-2xl font-bold">{{ statsData.present }}</p>
+              <p>{{ (statsData.present / statsData.total * 100).toFixed(1) }}%</p>
+            </div>
+            
+            <div class="bg-red-50 p-4 rounded-lg">
+              <h4 class="font-medium text-red-800">Absents</h4>
+              <p class="text-2xl font-bold">{{ statsData.absent }}</p>
+              <p>{{ (statsData.absent / statsData.total * 100).toFixed(1) }}%</p>
+            </div>
+            
+            <div class="bg-yellow-50 p-4 rounded-lg">
+              <h4 class="font-medium text-yellow-800">En retard</h4>
+              <p class="text-2xl font-bold">{{ statsData.late }}</p>
+              <p>{{ (statsData.late / statsData.total * 100).toFixed(1) }}%</p>
+            </div>
+            
+            <div class="bg-purple-50 p-4 rounded-lg">
+              <h4 class="font-medium text-purple-800">Excusés</h4>
+              <p class="text-2xl font-bold">{{ statsData.excused }}</p>
+              <p>{{ (statsData.excused / statsData.total * 100).toFixed(1) }}%</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </div>
   </div>
