@@ -77,21 +77,32 @@ export class ProfilePage implements OnInit {
       }, { validators: this.passwordMatchValidator }),
     });
 
-    this.storage.get(this.STORAGE_KEYS.USER_DATA).then(userData => {
-      this.user = userData;
-
-      this.profileForm.patchValue({
-        nom: this.user.nom || '',
-        prenom: this.user.prenom || '',
-        matricule: this.user.matricule || '',
-        email: this.user.email || '',
-        telephone: '+237000000000'
-      });
-
-      this.profileImagePreview = this.user.photo 
-        ? this.user.photo 
-        : 'assets/images/profil.jpg';
+    this.authService.currentUser$.subscribe(user => {
+        this.user = user;
+        if (user?.photo) {
+          this.profileImagePreview = user.photo + '?t=' + Date.now(); // 🔥 force refresh navigateur
+        }
     });
+
+    this.loadUserData();
+  }
+
+  loadUserData(){
+    this.storage.get(this.STORAGE_KEYS.USER_DATA).then(userData => {
+          this.user = userData;
+
+          this.profileForm.patchValue({
+            nom: this.user.nom || '',
+            prenom: this.user.prenom || '',
+            matricule: this.user.matricule || '',
+            email: this.user.email || '',
+            telephone: '+237000000000'
+          });
+
+          this.profileImagePreview = this.user.photo 
+            ? this.user.photo 
+            : 'assets/images/profil.jpg';
+        });
   }
 
 
@@ -172,9 +183,11 @@ export class ProfilePage implements OnInit {
     this.metadataService.updateEtudiant(this.user.id, formData, this.user.utilisateur).subscribe({
       next: async (res) => {
         await this.authService.refreshUserData();
+        this.loadUserData();
         this.toastService.show("Modification effectuée avec succès!", 'success');
         //console.log('Mise à jour réussie:', res);
         await loading.dismiss();
+        window.location.reload();
       },
       error: async (err) => {
         this.toastService.show("Erreur lors de la tentative de modification du compte...", 'error');

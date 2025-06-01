@@ -34,6 +34,10 @@ export class FirebaseMessagingService {
   private _redirect = new BehaviorSubject<any>(null);
   public promptPresence$ = new Subject<void>();
 
+  private notificationDataSubject = new BehaviorSubject<any | null>(null);
+  notificationData$ = new BehaviorSubject<any | null>(null);
+
+
   constructor(private metadataService: MetadataService, 
     private authService: AuthService,
     private storage: Storage,
@@ -45,6 +49,10 @@ export class FirebaseMessagingService {
     private sessionService: SessionService,
     private sessionEventService: SessionEventService,
     @Inject(NgZone) private zone: NgZone) {}
+
+    setNotificationData(data: any) {
+      this.notificationDataSubject.next(data);
+    }
 
   requestPermissionAndGetToken() {
     return Notification.requestPermission().then(permission => {
@@ -125,18 +133,23 @@ export class FirebaseMessagingService {
 
       console.log('Notification reçue en foreground :', payload);
 
+      if (action === 'refresh_list') {
+        this.sessionEventService.triggerRefresh_list();
+      }
+
       if (action === 'refresh') {
         this.sessionEventService.triggerRefresh();
       }
 
-      // if (action === 'refresh' && context === 'justificatif') {
-      //   this.zone.run(() => {
-      //     this.sessionEventService.triggerRefresh();
-      //   });
-      // }
+      if (action === 'refresh' && context === 'justificatif') {
+        this.zone.run(() => {
+          this.sessionEventService.triggerRefresh();
+        });
+      }
 
       switch (type) {
         case 'modal':
+          this.notificationData$.next(payload.data);
           this.promptPresence$.next(); // ou showPrompt(data)
           break;
         case 'alert':

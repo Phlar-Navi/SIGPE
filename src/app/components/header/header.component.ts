@@ -97,6 +97,13 @@ export class HeaderComponent  implements OnInit {
         }
       }
     });
+    
+    this.authService.currentUser$.subscribe(user => {
+      this.user = user;
+      if (user?.photo) {
+        this.profileImageUrl = user.photo + '?t=' + Date.now(); // 🔥 force refresh navigateur
+      }
+    });
   }
   
 

@@ -20,6 +20,10 @@ import { PresencePromptComponent } from '../presence-prompt/presence-prompt.comp
 import { ToastService } from 'src/app/services/toast.service';
 import { SessionEventService } from 'src/app/services/session-event.service';
 import { environment } from 'src/environments/environment';
+import { FirebaseMessagingService } from 'src/app/services/firebase-messaging.service';
+import { Subscription } from 'rxjs';
+import { ImportService } from 'src/app/services/import.service';
+import { jsPDF } from 'jspdf';
 
 type Statut = 'présent' | 'en retard' | 'absent';
 
@@ -29,7 +33,6 @@ interface StudentSessionStat {
   statut: 'présent' | 'absent' | 'en retard' | 'excusé';
   justificatif: any;
 }
-
 
 @Component({
   selector: 'app-session-details',
@@ -57,6 +60,7 @@ export class SessionDetailsComponent {
   //@Input() students: any[] = [];
 
   students: Presence[] = [];
+  student_user: any;
 
   @Input() matieres_specifiques: any[] = [];
   @Input() role: 'etudiant' | 'enseignant' = 'etudiant';
@@ -117,6 +121,40 @@ export class SessionDetailsComponent {
   };
 
   sessionChart: Chart | null = null;
+
+  private refreshSub!: Subscription;
+
+  isLoadingStudents: boolean = true;
+
+  async exportToPdf() {
+    // Capturez le graphique si disponible
+    let chartImage;
+    if (this.sessionStats) {
+      const canvas = document.getElementById('sessionChart') as HTMLCanvasElement;
+      chartImage = canvas.toDataURL('image/jpeg', 1.0);
+    }
+
+    // Formatage des données de session
+    if (this.selectedSession) {
+      const sessionData = {
+        ...this.selectedSession,
+        // date: new Date(this.selectedSession.date).toLocaleDateString(),
+        heure_debut: this.formatTime(this.selectedSession.heure_debut),
+        heure_fin: this.formatTime(this.selectedSession.heure_fin)
+      };
+      this.pdfService.generateSessionReport(
+        sessionData,
+        this.students,
+        chartImage
+      );
+    }
+  }
+
+  private formatTime(timeString: string): string {
+    if (!timeString) return '';
+    const date = new Date(timeString);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
 
   showModalFn() {
     this.showModal = true;
@@ -182,17 +220,38 @@ export class SessionDetailsComponent {
   }
 
   updateNotificationFromSession(session: Session_Laravel) {
-    this.notification = {
+    const notification = {
       title: "Présentez vous !",
-      body: `Veuillez choisir une méthode pour confirmer votre présence pour le cours de ${session.matiere?.nom || '...'}`, // adapte selon la structure de session
+      body: `Veuillez choisir une méthode pour confirmer votre présence pour le cours de ${session.matiere?.nom || '...'}`,
       data: {
         course: session.matiere?.nom || "Inconnu",
         room: session.salle?.nom || "Inconnue",
         time: `${session.heure_debut || '??'} - ${session.heure_fin || '??'}`,
-        session_id: session.id || 0
+        session_id: session.id || 0,
+        latitude: session.salle?.latitude,
+        longitude: session.salle?.longitude,
+        rayon: session.salle?.rayon_metres
       }
     };
+
+    this.notification = notification;
+    this.firebaseService.setNotificationData(notification); // 🔁 Mise à jour centrale
+    // this.showModal = true;
   }
+
+
+  // updateNotificationFromSession(session: Session_Laravel) {
+  //   this.notification = {
+  //     title: "Présentez vous !",
+  //     body: `Veuillez choisir une méthode pour confirmer votre présence pour le cours de ${session.matiere?.nom || '...'}`, // adapte selon la structure de session
+  //     data: {
+  //       course: session.matiere?.nom || "Inconnu",
+  //       room: session.salle?.nom || "Inconnue",
+  //       time: `${session.heure_debut || '??'} - ${session.heure_fin || '??'}`,
+  //       session_id: session.id || 0
+  //     }
+  //   };
+  // }
 
   emitMarkStatut(etudiantId: number, statut: 'absent' | 'présent' | 'en retard' | 'excusé') {
     this.markStatut.emit({ etudiantId, statut });
@@ -343,6 +402,7 @@ export class SessionDetailsComponent {
       },
       options: {
         responsive: true,
+        backgroundColor: 'white',
         plugins: {
           legend: { position: 'bottom' },
           title: {
@@ -422,21 +482,46 @@ export class SessionDetailsComponent {
     this.selectedSession = null;
   }
 
-  async startSession(session: any){
+  async startSession(session: any) {
     const loading = await this.loadingController.create({
       message: 'Lancement de la session...',
       spinner: 'bubbles',
       backdropDismiss: false
     });
+
     await loading.present();
 
-    this.sessionService.lancerSession(session.id).subscribe(async () => {
-      this.selectedSession = null;
-      this.sessionUpdated.emit();
-      await loading.dismiss();
-      this.toastService.show("Session lancée", 'prompt');
+    this.sessionService.lancerSession(session.id).subscribe({
+      next: async () => {
+        this.selectedSession = null;
+        this.sessionUpdated.emit();
+        await loading.dismiss();
+        this.toastService.show("Session lancée", 'prompt');
+      },
+      error: async (err) => {
+        console.error('Erreur lors du lancement de la session :', err);
+        await loading.dismiss();
+        this.toastService.show("Échec du lancement de la session.", 'error');
+      }
     });
   }
+
+
+  // async startSession(session: any){
+  //   const loading = await this.loadingController.create({
+  //     message: 'Lancement de la session...',
+  //     spinner: 'bubbles',
+  //     backdropDismiss: false
+  //   });
+  //   await loading.present();
+
+  //   this.sessionService.lancerSession(session.id).subscribe(async () => {
+  //     this.selectedSession = null;
+  //     this.sessionUpdated.emit();
+  //     await loading.dismiss();
+  //     this.toastService.show("Session lancée", 'prompt');
+  //   });
+  // }
 
   async endSession(session: any) {
     const loading = await this.loadingController.create({
@@ -461,16 +546,17 @@ export class SessionDetailsComponent {
     });
   }
 
-
   loadList(session: Session_Laravel | null) {
     if (!session) return;
-
+    this.isLoadingStudents = true;
     this.sessionService.getEtudiants(session.id).subscribe({
       next: (data) => {
         this.students = data;
         this.sortStudents();
+        this.isLoadingStudents = false;
       },
       error: (err) => {
+        this.isLoadingStudents = false;
         console.error('Erreur lors du chargement des étudiants :', err);
         const message = err?.message || err?.error?.message || JSON.stringify(err);
         alert("Erreur lors du chargement des étudiants : " + message);
@@ -661,7 +747,9 @@ export class SessionDetailsComponent {
     private loadingController: LoadingController,
     private cdr: ChangeDetectorRef,
     private toastService: ToastService,
-    private sessionEventService: SessionEventService
+    private sessionEventService: SessionEventService,
+    private firebaseService: FirebaseMessagingService,
+    private pdfService: ImportService
   ) {}
 
   ngOnChanges(changes: SimpleChanges) {
@@ -731,6 +819,7 @@ export class SessionDetailsComponent {
 
   async ngOnInit() {
     const user = await this.storage.get(this.STORAGE_KEYS.USER_DATA);
+    this.student_user = user;
     if (this.selectedSession) {
       if (this.selectedSession.salle) {
         if (this.selectedSession.matiere) {
@@ -749,6 +838,11 @@ export class SessionDetailsComponent {
     
     this.sessionEventService.refreshTrigger$.subscribe(() => {
       this.eraseSelectedSession();
+    });
+
+    this.refreshSub = this.sessionEventService.refreshTrigger_list$.subscribe(() => {
+      console.log('🔁 Rafraîchissement des notifications via event');
+      this.loadList(this.selectedSession);
     });
     //this.listenToLevelAndFiliereChanges();
   }

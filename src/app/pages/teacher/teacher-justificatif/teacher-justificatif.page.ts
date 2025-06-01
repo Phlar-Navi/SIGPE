@@ -97,7 +97,7 @@ export class TeacherJustificatifPage implements OnInit {
   async ngOnInit() {
     this.utilisateur = await this.authService.getUsersType();
     //console.log(this.utilisateur);
-    this.loadJustificatifs();
+    //this.loadJustificatifs();
 
     this.sessionEventService.refreshTrigger$.subscribe(() => {
       this.loadJustificatifs();

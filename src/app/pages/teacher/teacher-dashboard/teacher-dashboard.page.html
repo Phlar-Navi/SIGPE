@@ -30,14 +30,33 @@
           </select>
         </div>
 
-        <button (click)="exportPresenceStatsAsPDF()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mb-4">
-          Exporter en PDF
-        </button>
+        <div class="flex justify-end mb-4">
+          <button 
+            (click)="exportStatsToPdf()"
+            class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 flex items-center"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Exporter les Statistiques
+          </button>
+        </div>
 
         <!-- Conteneur pour le graphique combiné -->
         <div id="chartsContainer" class="bg-white p-4 rounded-lg shadow-md">
           <div class="relative h-[400px]">
+            <!-- Loader pendant le chargement -->
+            <div *ngIf="isLoadingStats" class="flex justify-center items-center h-full">
+              <div class="flex space-x-2">
+                <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce"></div>
+                <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce [animation-delay:.1s]"></div>
+                <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce [animation-delay:.2s]"></div>
+              </div>
+            </div>
             <!-- Le graphique sera inséré ici dynamiquement -->
+            <div *ngIf="!isLoadingStats && statsBySession.length === 0" class="bg-white p-4 rounded-lg shadow-md text-center">
+              Aucune donnée de présence disponible pour ces critères
+            </div>
           </div>
         </div>
 
@@ -46,6 +65,37 @@
         </div>
       </div>
 
+      <!-- Statut d'un certain étudiant pour une date précise -->
+      <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <h2 class="text-lg font-bold text-gray-700 mb-4">Rechercher le statut d'un étudiant</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <input type="text" [(ngModel)]="searchMatricule" class="border p-2 rounded" placeholder="Matricule">
+          
+          <select [(ngModel)]="searchMatiereId" class="border p-2 rounded">
+            <option value="">-- Matière --</option>
+            <option *ngFor="let m of matieres_all" [value]="m.id">{{ m.nom }}</option>
+          </select>
+
+          <input type="date" [(ngModel)]="searchDate" class="border p-2 rounded">
+        </div>
+
+        <button (click)="rechercherStatut()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+          Vérifier le statut
+        </button>
+
+        <div *ngIf="statutResult" class="mt-4">
+          <div *ngIf="statutResult.error" class="text-red-600">{{ statutResult.error }}</div>
+
+          <div *ngIf="!statutResult.error" class="bg-gray-100 p-4 rounded mt-2">
+            <p><strong>Étudiant :</strong> {{ statutResult.etudiant.prenom }} {{ statutResult.etudiant.nom }}</p>
+            <p><strong>Date :</strong> {{ statutResult.session.heure_debut | date:'medium' }}</p>
+            <p><strong>Statut :</strong> <span class="font-semibold">{{ statutResult.statut }}</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Taux d'assiduité par étudiants -->
       <div class="bg-white p-4 rounded shadow-lg mb-6">
         <h2 class="text-xl font-bold mb-4">Assiduité des étudiants</h2>
 
@@ -126,6 +176,7 @@
         </table>
       </div>
 
+      <!-- Taux de présence global par filière et/ou niveau -->
       <div class="bg-white p-4 rounded-lg shadow-md mt-6">
         <h2 class="text-lg font-bold text-gray-700 mb-4">Taux de présence global</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -150,43 +201,17 @@
         </div>
 
         <div class="relative h-[300px] w-full max-w-[500px] mx-auto">
-          <canvas id="globalPresenceChart"></canvas>
           <div class="text-center mt-2">
             <button 
-              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-              (click)="export()">
-              📄 Exporter en PDF
+              class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center justify-center mx-auto"
+              (click)="exportGlobalPresenceReport()">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              Exporter en PDF
             </button>
           </div>
-        </div>
-      </div>
-
-      <div class="bg-white p-4 rounded-lg shadow-md mt-6">
-        <h2 class="text-lg font-bold text-gray-700 mb-4">Rechercher le statut d'un étudiant</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <input type="text" [(ngModel)]="searchMatricule" class="border p-2 rounded" placeholder="Matricule">
-          
-          <select [(ngModel)]="searchMatiereId" class="border p-2 rounded">
-            <option value="">-- Matière --</option>
-            <option *ngFor="let m of matieres_all" [value]="m.id">{{ m.nom }}</option>
-          </select>
-
-          <input type="date" [(ngModel)]="searchDate" class="border p-2 rounded">
-        </div>
-
-        <button (click)="rechercherStatut()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-          Vérifier le statut
-        </button>
-
-        <div *ngIf="statutResult" class="mt-4">
-          <div *ngIf="statutResult.error" class="text-red-600">{{ statutResult.error }}</div>
-
-          <div *ngIf="!statutResult.error" class="bg-gray-100 p-4 rounded mt-2">
-            <p><strong>Étudiant :</strong> {{ statutResult.etudiant.prenom }} {{ statutResult.etudiant.nom }}</p>
-            <p><strong>Date :</strong> {{ statutResult.session.heure_debut | date:'medium' }}</p>
-            <p><strong>Statut :</strong> <span class="font-semibold">{{ statutResult.statut }}</span></p>
-          </div>
+          <canvas id="globalPresenceChart"></canvas>
         </div>
       </div>
 

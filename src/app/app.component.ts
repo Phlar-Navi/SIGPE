@@ -80,6 +80,7 @@ export class AppComponent {
 
   ngOnInit() {
     this.startAutoSessionCheck();
+    this.authService.initUserFromStorage();
     // this.platform.ready().then(() => {
     //   this.initializeBackgroundFetch(); // ✅ Lancer ici une seule fois
     // });

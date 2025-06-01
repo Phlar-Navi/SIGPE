@@ -29,6 +29,9 @@ export class AuthService {
   private userData = new BehaviorSubject<any>(null); // pour accéder depuis toutes les pages
   private jwtHelper = new JwtHelperService();
 
+  private currentUserSubject_profil = new BehaviorSubject<any>(null);
+  public currentUser$ = this.currentUserSubject_profil.asObservable();
+
   private readonly STORAGE_KEYS = {
     ACCESS_TOKEN: 'access_token',
     USER_DATA: 'user_data',
@@ -39,6 +42,11 @@ export class AuthService {
     // this.storage.create();
     this.init();
     this.loadUserFromStorage();
+  }
+
+  async initUserFromStorage() {
+    const user = await this.storage.get(this.STORAGE_KEYS.USER_DATA);
+    this.currentUserSubject_profil.next(user);
   }
 
   async init() {
@@ -227,10 +235,17 @@ export class AuthService {
         const accessToken = response.access_token || token;
 
         await Promise.all([
+          this.storage.remove(this.STORAGE_KEYS.ACCESS_TOKEN),
+          this.storage.remove(this.STORAGE_KEYS.USER_DATA),
+          this.storage.remove(this.STORAGE_KEYS.USER_TYPE),
+        ]);
+        await Promise.all([
           this.storage.set(this.STORAGE_KEYS.ACCESS_TOKEN, accessToken),
           this.storage.set(this.STORAGE_KEYS.USER_DATA, userData),
           this.storage.set(this.STORAGE_KEYS.USER_TYPE, userType.toUpperCase())
         ]);
+        
+        this.currentUserSubject_profil.next(userData);
       } else {
         throw new Error('Données utilisateur non trouvées dans la réponse');
       }

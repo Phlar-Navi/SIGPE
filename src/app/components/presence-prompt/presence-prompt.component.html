@@ -21,25 +21,25 @@
       </p>
 
       <!-- Section d'informations mise en valeur -->
-      <div *ngIf="notification?.data" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+      <div *ngIf="sessionNotificationData" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
           <div class="flex items-center space-x-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
-            <span><strong class="text-gray-700">Cours :</strong> {{ notification.data.course }}</span>
+            <span><strong class="text-gray-700">Cours :</strong> {{ sessionNotificationData.course }}</span>
           </div>
           <div class="flex items-center space-x-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
-            <span><strong class="text-gray-700">Salle :</strong> {{ notification.data.room }}</span>
+            <span><strong class="text-gray-700">Salle :</strong> {{ sessionNotificationData.room }}</span>
           </div>
           <div class="flex items-center space-x-2">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span><strong class="text-gray-700">Heure :</strong> {{ notification.data.time }}</span>
+            <span><strong class="text-gray-700">Heure :</strong> {{ sessionNotificationData.time | date:'medium' }}</span>
           </div>
         </div>
       </div>
@@ -47,7 +47,7 @@
       <!-- Boutons d'action alignés en bas à droite -->
       <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6">
         <!-- Bouton Empreinte digitale amélioré -->
-        <button (click)="useFingerprint()" class="flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all shadow hover:shadow-md">
+        <button (click)="requestLocationAndProceed('fingerprint')" class="flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all shadow hover:shadow-md">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
           </svg>
@@ -55,7 +55,7 @@
         </button>
 
         <!-- Bouton Reconnaissance faciale amélioré -->
-        <button (click)="useFacialRecognition()" class="flex items-center justify-center gap-2 px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-all shadow hover:shadow-md">
+        <button (click)="requestLocationAndProceed('face')" class="flex items-center justify-center gap-2 px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-all shadow hover:shadow-md">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>

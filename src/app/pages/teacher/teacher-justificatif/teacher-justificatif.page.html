@@ -168,6 +168,31 @@
 
 
       <!-- modal pour modifier -->
+       <style>
+        .bubble-left::before {
+          content: '';
+          position: absolute;
+          left: -10px;
+          top: 14px;
+          width: 20px;
+          height: 20px;
+          background-color: white;
+          border-radius: 50%;
+          box-shadow: 10px 0 0 white;
+        }
+
+        .bubble-right::after {
+          content: '';
+          position: absolute;
+          right: -10px;
+          top: 14px;
+          width: 20px;
+          height: 20px;
+          background-color: white;
+          border-radius: 50%;
+          box-shadow: -10px 0 0 white;
+        }
+      </style>
       <div *ngIf="showJustificatifModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white w-full max-w-3xl rounded-lg shadow-lg overflow-hidden">
           <div class="flex justify-between items-center px-6 py-4 border-b">
@@ -185,11 +210,17 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-600 mb-2">Message de justification</label>
-              <textarea [(ngModel)]="selectedJustificatif.message"
+              <label class="block text-sm font-medium text-gray-600 mb-2">Message de l'étudiant</label>
+              <div class="relative max-w-md mb-4">
+                <textarea [(ngModel)]="selectedJustificatif.message"
                         [readonly]="!isEditing || utilisateur !== 'ETU'"
-                        class="w-full p-3 border border-gray-300 rounded focus:ring focus:ring-blue-300 resize-none"
+                        [ngClass]="{
+                          'bg-gray-200 cursor-not-allowed': !isEditing || utilisateur !== 'ETU',
+                          'bg-white': isEditing && utilisateur === 'ETU'
+                        }"
+                        class="bubble-left w-full p-4 pl-5 text-gray-700 bg-gray rounded-[2rem] resize-none shadow-md focus:outline-none"
                         rows="3"></textarea>
+              </div>
             </div>
 
             <div *ngIf="selectedJustificatif.piece_jointes">
@@ -205,12 +236,14 @@
               <input type="file" (change)="handleFileInput($event)" />
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-600 mb-2">Votre réponse</label>
-              <textarea [(ngModel)]="selectedJustificatif.reponse_enseignant"
+            <div class="relative max-w-md mb-4 ml-auto">
+              <label class="block text-sm font-medium text-gray-600 mb-2 text-right">Votre réponse</label>
+              <div class="relative max-w-md mb-4 ml-auto">
+                <textarea [(ngModel)]="selectedJustificatif.reponse_enseignant"
                         [readonly]="!isEditing || utilisateur !== 'ENS'"
-                        class="w-full p-3 border border-gray-300 rounded focus:ring focus:ring-blue-300 resize-none"
+                        class="bubble-right w-full p-4 pr-5 text-gray-700 bg-white rounded-[2rem] resize-none shadow-md focus:outline-none text-left"
                         rows="3"></textarea>
+              </div>
             </div>
 
             <div>

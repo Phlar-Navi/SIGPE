@@ -166,18 +166,29 @@
 
     <!-- Étudiants inscrits (si session en cours) -->
     <div *ngIf="selectedSession.statut === 'En cours'" class="mt-6">
-      <!-- <div *ngIf="role === 'etudiant'">
-
-      </div> -->
       <h4 class="text-lg font-bold text-gray-700 mb-4">Étudiants inscrits</h4>
-      <div *ngIf="students.length > 0" class="overflow-x-auto bg-gray-50 rounded-lg p-4 shadow-sm">
+      <!-- Chargement -->
+      <div *ngIf="isLoadingStudents" class="flex justify-center items-center py-8">
+        <div class="flex space-x-2">
+          <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce"></div>
+          <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce [animation-delay:.1s]"></div>
+          <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce [animation-delay:.2s]"></div>
+        </div>
+      </div>
+
+      <!-- Message vide -->
+      <div *ngIf="!isLoadingStudents && students.length === 0" class="text-center text-gray-500 py-8">
+        Aucun étudiant inscrit pour cette session.
+      </div>
+
+      <div *ngIf="students.length > 0 && !isLoadingStudents" class="overflow-x-auto bg-gray-50 rounded-lg p-4 shadow-sm">
         <table class="w-full border-collapse">
           <thead>
             <tr class="bg-gray-200">
               <th class="p-3 text-left text-gray-700">Nom</th>
               <th class="p-3 text-left text-gray-700">Matricule</th>
               <th class="p-3 text-left text-gray-700">Statut</th>
-              <th class="p-3 text-center text-gray-700">Actions</th>
+              <th *ngIf="role === 'enseignant'" class="p-3 text-center text-gray-700">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -193,7 +204,7 @@
                   {{ student.statut }}
                 </span>
               </td>
-              <td class="p-3 text-center flex flex-wrap justify-center gap-2">
+              <td class="p-3 text-center flex flex-wrap justify-center gap-2" *ngIf="role === 'enseignant'">
                 <!-- Voir -->
                 <button
                   *ngIf="role === 'enseignant'"
@@ -247,6 +258,24 @@
                   <span
                     class="absolute bottom-full mb-1 text-xs text-white bg-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition pointer-events-none">
                     Marquer absent
+                  </span>
+                </button>
+
+                <!-- Marquer en retard -->
+                <button
+                  *ngIf="role === 'enseignant'"
+                  (click)="emitMarkStatut(student.etudiant.id, 'en retard')"
+                  class="relative group bg-yellow-500 text-white p-2 rounded-lg hover:bg-yellow-600 transition"
+                >
+                  <!-- Icone croix -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <span
+                    class="absolute bottom-full mb-1 text-xs text-white bg-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition pointer-events-none">
+                    Marquer en retard
                   </span>
                 </button>
               </td>
@@ -313,22 +342,56 @@
     <!-- Étudiants présents (si session Terminée) -->
     <div *ngIf="selectedSession.statut === 'Terminé'" class="mt-6">
       <h4 class="text-lg font-bold text-gray-700 mb-4">Étudiants présents</h4>
-      <div class="overflow-x-auto bg-gray-50 rounded-lg p-4 shadow-sm">
+      <!-- Chargement -->
+      <div *ngIf="isLoadingStudents" class="flex justify-center items-center py-8">
+        <div class="flex space-x-2">
+          <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce"></div>
+          <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce [animation-delay:.1s]"></div>
+          <div class="w-3 h-3 bg-green-500 rounded-full animate-bounce [animation-delay:.2s]"></div>
+        </div>
+      </div>
+
+      <!-- Message vide -->
+      <div *ngIf="!isLoadingStudents && students.length === 0" class="text-center text-gray-500 py-8">
+        Aucun étudiant inscrit pour cette session.
+      </div>
+      <div *ngIf="students.length > 0 && !isLoadingStudents" class="overflow-x-auto bg-gray-50 rounded-lg p-4 shadow-sm">
         <!-- Similaire au tableau ci-dessus -->
         <table class="w-full border-collapse">
           <thead>
             <tr class="bg-gray-200">
               <th class="p-3 text-left text-gray-700">Nom</th>
               <th class="p-3 text-left text-gray-700">Matricule</th>
-              <th class="p-3 text-center text-gray-700">Actions</th>
+              <th class="p-3 text-center text-gray-700">Statut</th>
+              <th *ngIf="role === 'enseignant'" class="p-3 text-center text-gray-700">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let student of students" class="border-b hover:bg-gray-100 transition">
-              <td class="p-3 text-gray-700">{{ student.etudiant.nom }}</td>
-              <td class="p-3 text-gray-700">{{ student.etudiant.matricule }}</td>
-              <td class="p-3 text-center">
-                <button 
+              <td class="p-3 text-gray-700" *ngIf="role === 'enseignant'">{{ student.etudiant.nom }}</td>
+              <td class="p-3 text-gray-700" *ngIf="role === 'etudiant' && student_user.nom === student.etudiant.nom">{{ student.etudiant.nom }}</td>
+              <td class="p-3 text-gray-700" *ngIf="role === 'enseignant'">{{ student.etudiant.matricule }}</td>
+              <td class="p-3 text-gray-700" *ngIf="role === 'etudiant' && student_user.matricule === student.etudiant.matricule">{{ student.etudiant.matricule }}</td>
+              <td class="p-3 text-gray-700" *ngIf="role === 'enseignant'">
+                <span [ngClass]="{
+                  'text-green-600 font-semibold': student.statut === 'présent',
+                  'text-red-600 font-semibold': student.statut === 'absent',
+                  'text-yellow-600 font-semibold': student.statut === 'en retard'
+                }">
+                  {{ student.statut }}
+                </span>
+              </td>
+              <td class="p-3 text-gray-700" *ngIf="role === 'etudiant' && student_user.matricule === student.etudiant.matricule">
+                <span [ngClass]="{
+                  'text-green-600 font-semibold': student.statut === 'présent',
+                  'text-red-600 font-semibold': student.statut === 'absent',
+                  'text-yellow-600 font-semibold': student.statut === 'en retard'
+                }">
+                  {{ student.statut }}
+                </span>
+              </td>
+              <td class="p-3 text-center" *ngIf="role === 'enseignant'">
+                <button *ngIf="role === 'enseignant'"
                   (click)="openModal(student, selectedSession.matiere_id)"
                   class="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 transition">
                   Voir
@@ -352,6 +415,18 @@
       <div class="my-6" *ngIf="sessionStats">
         <canvas id="sessionChart" class="w-full max-w-md mx-auto h-[300px]"></canvas>
       </div>
+    </div>
+
+    <div class="flex justify-end mb-4" *ngIf="role === 'enseignant' && selectedSession.statut === 'Terminé'">
+      <button 
+        (click)="exportToPdf()"
+        class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex items-center"
+      >
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        Exporter en PDF
+      </button>
     </div>
 
     <!-- Actions disponibles (enseignant uniquement) -->

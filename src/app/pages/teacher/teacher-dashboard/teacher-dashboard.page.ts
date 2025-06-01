@@ -9,6 +9,7 @@ import { SessionService } from 'src/app/services/session.service';
 import { FormControl } from '@angular/forms';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { ImportService } from 'src/app/services/import.service';
 
 @Component({
   selector: 'app-teacher-dashboard',
@@ -24,7 +25,7 @@ export class TeacherDashboardPage implements OnInit {
   chart: any;
   chart_2: any;
   matiereId = '';
-  periode = '';
+  periode = 'jour';
   matieres_stats: any[] = [];
   matieres: any[] = [];
   matieres_all: any[] = [];
@@ -44,13 +45,13 @@ export class TeacherDashboardPage implements OnInit {
   selectedSubject = '';
   selectedFiliere = '';
   selectedNiveau = '';
-  selectedPeriod = 'all';
+  selectedPeriod = 'jour';
 
   // Filtres de l'hitorique
   selectedSubject_hist = 1;
   selectedFiliere_hist = 1;
   selectedNiveau_hist = 1;
-  selectedPeriod_hist = 'all';
+  selectedPeriod_hist = 'jour';
 
   // Pagination
   currentPage = 1;
@@ -65,6 +66,34 @@ export class TeacherDashboardPage implements OnInit {
   searchMatiereId = '';
   searchDate = '';
 
+  globalStats: any;
+  globalPresenceChart: any;
+
+  isLoadingStats: boolean = true;
+
+  // --------------------------------------
+  async exportGlobalPresenceReport() {
+    // Assurez-vous que le graphique est rendu
+    if (!this.globalPresenceChart) {
+      this.loadGlobalPresenceChart();
+      await new Promise(resolve => setTimeout(resolve, 500)); // Laissez le temps au rendu
+    }
+
+    // Capturez les données actuelles
+    const chartData = this.globalPresenceChart?.data;
+
+    await this.pdfService.exportGlobalPresenceReport(
+      chartData,
+      {
+        filiere: this.selectedGlobalFiliere,
+        niveau: this.selectedGlobalNiveau,
+        periode: this.translatePeriode(this.selectedGlobalPeriod)
+      },
+      this.availableFilieres,
+      this.availableNiveaux
+    );
+  }
+  // --------------------------------------
   exportChartAsImage(canvasId: string, filename: string) {
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!canvas) return;
@@ -127,6 +156,19 @@ export class TeacherDashboardPage implements OnInit {
     }
   }
 
+  async exportStatsToPdf() {
+    // Assurez-vous que le graphique est rendu
+    if (!this.chart) {
+      this.renderCombinedChart(this.globalStats);
+      await new Promise(resolve => setTimeout(resolve, 500)); // Laissez le temps au rendu
+    }
+
+    await this.pdfService.generateStatsReport(
+      this.globalStats,
+      this.statsBySession,
+      `Statistiques des Sessions - ${new Date().toLocaleDateString()}`
+    );
+  }
 
   exportPresenceStatsAsPDF() {
     const block = document.getElementById('chartsContainer');
@@ -306,7 +348,8 @@ export class TeacherDashboardPage implements OnInit {
     private http: HttpClient,
     private storage: Storage,
     private authService: AuthService,
-    private sessionService: SessionService
+    private sessionService: SessionService,
+    private pdfService: ImportService
   ) {}
 
   async ngOnInit() {
@@ -364,11 +407,13 @@ export class TeacherDashboardPage implements OnInit {
             excused: sessions.reduce((sum: number, session: any) => sum + session.excused_count, 0),
             totalSessions: sessions.length
           };
-          
+          this.globalStats = globalStats;
           this.renderCombinedChart(globalStats);
+          this.isLoadingStats = false;
         },
         error: (err) => {
           console.error('Erreur stats présence', err);
+          this.isLoadingStats = false;
         }
       });
   }
@@ -429,6 +474,7 @@ export class TeacherDashboardPage implements OnInit {
       options: {
         responsive: true,
         maintainAspectRatio: false, // Désactive le maintien de l'aspect ratio
+        backgroundColor: 'white',
         plugins: {
           title: {
             display: true,
@@ -492,14 +538,29 @@ export class TeacherDashboardPage implements OnInit {
   }
 
   onFilterChange() {
-    // Détruire l'ancien graphique
     if (this.chart) {
       this.chart.destroy();
       this.chart = null;
     }
-    // Recharger les données
-    this.getPresenceStats();
+
+    this.isLoadingStats = true;
+
+    setTimeout(() => {
+      this.getPresenceStats();
+    });
   }
+
+
+  // onFilterChange() {
+  //   // Détruire l'ancien graphique
+  //   if (this.chart) {
+  //     this.chart.destroy();
+  //     this.chart = null;
+  //     this.isLoadingStats = true;
+  //   }
+  //   // Recharger les données
+  //   this.getPresenceStats();
+  // }
 
   async loadAssiduite() {
     const enseignantId = await this.authService.getUsersId();
@@ -569,6 +630,7 @@ export class TeacherDashboardPage implements OnInit {
       this.selectedGlobalFiliere ? Number(this.selectedGlobalFiliere) : undefined,
       this.selectedGlobalNiveau ? Number(this.selectedGlobalNiveau) : undefined
     ).subscribe(data => {
+      this.globalPresenceChart = data;
       this.renderGlobalChart(data);
     });
   }
@@ -625,79 +687,80 @@ export class TeacherDashboardPage implements OnInit {
 
 
   renderGlobalChart(stats: any) {
-  const canvas = document.getElementById('globalPresenceChart') as HTMLCanvasElement;
-  if (!canvas) return;
+    const canvas = document.getElementById('globalPresenceChart') as HTMLCanvasElement;
+    if (!canvas) return;
 
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-  if (this.chart_2) this.chart_2.destroy(); // Détruire l'ancien
+    if (this.chart_2) this.chart_2.destroy(); // Détruire l'ancien
 
-  this.chart_2 = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Présent', 'Absent', 'En retard', 'Excusé'],
-      datasets: [{
-        label: 'Nombre d\'étudiants',
-        data: [stats.present, stats.absent, stats.en_retard, stats.excuse],
-        backgroundColor: [
-          'rgba(75, 192, 192, 0.7)',
-          'rgba(255, 99, 132, 0.7)',
-          'rgba(255, 206, 86, 0.7)',
-          'rgba(153, 102, 255, 0.7)'
-        ],
-        borderColor: [
-          'rgba(75, 192, 192, 1)',
-          'rgba(255, 99, 132, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(153, 102, 255, 1)'
-        ],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        title: {
-          display: true,
-          text: 'Taux de présence global'
-        },
-        tooltip: {
-          callbacks: {
-            label: (context) => {
-              const data = context.dataset.data as number[];
-              const total = data.reduce((a, b) => (a ?? 0) + (b ?? 0), 0); // sécurité en cas de null
-              const value = context.raw as number;
-              const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-              return `${context.label}: ${value} (${percentage}%)`;
-            }
-          }
-        },
-        legend: {
-          display: false // Pas nécessaire pour bar simple
-        }
+    this.chart_2 = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Présent', 'Absent', 'En retard', 'Excusé'],
+        datasets: [{
+          label: 'Nombre d\'étudiants',
+          data: [stats.present, stats.absent, stats.en_retard, stats.excuse],
+          backgroundColor: [
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(153, 102, 255, 0.7)'
+          ],
+          borderColor: [
+            'rgba(75, 192, 192, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(153, 102, 255, 1)'
+          ],
+          borderWidth: 1
+        }]
       },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            stepSize: 1
-          },
+      options: {
+        responsive: true,
+        backgroundColor: 'white',
+        plugins: {
           title: {
             display: true,
-            text: 'Effectif'
+            text: 'Taux de présence global'
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const data = context.dataset.data as number[];
+                const total = data.reduce((a, b) => (a ?? 0) + (b ?? 0), 0); // sécurité en cas de null
+                const value = context.raw as number;
+                const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                return `${context.label}: ${value} (${percentage}%)`;
+              }
+            }
+          },
+          legend: {
+            display: false // Pas nécessaire pour bar simple
           }
         },
-        x: {
-          title: {
-            display: true,
-            text: 'Statut'
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            },
+            title: {
+              display: true,
+              text: 'Effectif'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Statut'
+            }
           }
         }
       }
-    }
-  });
-}
+    });
+  }
 
 
 }
